@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
+import 'package:oliejournal_app/pages/forecast_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -11,8 +12,8 @@ class HomeBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<OlieModel>(
       builder: (context, olieModel, child) {
-        return olieModel.isLoggedIn ? _loggedInContent() : _initialContent();
-      }
+        return olieModel.isLoggedIn ? _loggedInContent(context, olieModel) : _initialContent();
+      },
     );
   }
 
@@ -65,7 +66,7 @@ class HomeBody extends StatelessWidget {
     );
   }
 
-  Widget _loggedInContent() {
+  Widget _loggedInContent(BuildContext context, OlieModel olieModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -96,7 +97,26 @@ class HomeBody extends StatelessWidget {
           ),
         ),
         verticalSpaceRegular,
-        Text("Next steps for you", style: kTitleText),
+        MaterialButton(
+          elevation: 0,
+          color: Colors.white,
+          onPressed: () {
+            olieModel.fetchForecast();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ForecastPage()),
+            );
+          },
+          child: Text(
+            "Load today's forecast",
+            textAlign: TextAlign.center,
+            style: kRobotoText.copyWith(
+              fontWeight: kFwBlack,
+              color: Colors.black,
+              fontSize: kHeadingTwo,
+            ),
+          ),
+        ),
       ],
     );
   }
