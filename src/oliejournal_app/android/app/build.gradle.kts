@@ -29,7 +29,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        manifestPlaceholders["appAuthRedirectScheme"] = "com.kinde.myapp://"
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.kinde.oliejournal"
     }
 
     buildTypes {
