@@ -1,22 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:kinde_flutter_sdk/kinde_flutter_sdk.dart';
 
 class OlieModel extends ChangeNotifier {
   bool isLoggedIn = false;
   bool isLoading = false;
-  String fullName = "";
+  String get fullName {
+    return '${_profile?.givenName?[0]}${_profile?.familyName?[0]}';
+  }
+  UserProfileV2? _profile;
+
+  final KindeFlutterSDK _kindeClient = KindeFlutterSDK.instance;
+
+  OlieModel() {
+    _kindeClient.isAuthenticated().then((value) {
+      isLoggedIn = value;
+
+      if (value) {
+        _getProfile();
+      }
+    });
+  }
 
   Future<void> onRegister() async {
-    await onLogin();
+    try {
+      await _kindeClient.register();
+    } catch (ex) {
+      debugPrint(ex.toString());
+    }
   }
 
   Future<void> onLogin() async {
+    String? token;
+
     isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      token = await _kindeClient.login(type: AuthFlowType.pkce);
+    } catch (ex) {
+      debugPrint(ex.toString());
+    }
 
-    isLoggedIn = true;
-    fullName = "Dillon McMillon";
+    if (token != null) {
+      await _getProfile();
+      isLoggedIn = true;
+    }
+
+    // fullName = "Dillon McMillon";
     isLoading = false;
     notifyListeners();
   }
@@ -25,10 +55,20 @@ class OlieModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await _kindeClient.logout();
 
     isLoggedIn = false;
-    fullName = "";
+    // fullName = "";
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> _getProfile() async {
+    isLoading = true;
+    notifyListeners();
+
+    _profile = await _kindeClient.getUserProfileV2();
+
     isLoading = false;
     notifyListeners();
   }
