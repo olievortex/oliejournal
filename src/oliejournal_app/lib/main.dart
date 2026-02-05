@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kinde_flutter_sdk/kinde_flutter_sdk.dart';
 import 'package:oliejournal_app/constants.dart';
-import 'package:oliejournal_app/home/home_page.dart';
+import 'package:oliejournal_app/pages/home/home_page.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:provider/provider.dart';
 

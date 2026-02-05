@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:oliejournal_app/constants.dart';
-import 'package:oliejournal_app/home/components/home_body.dart';
-import 'package:oliejournal_app/home/components/home_footer.dart';
-import 'package:oliejournal_app/home/components/home_header.dart';
+import 'package:oliejournal_app/pages/home/components/home_body.dart';
+import 'package:oliejournal_app/pages/home/components/home_footer.dart';
+import 'package:oliejournal_app/pages/home/components/home_header.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

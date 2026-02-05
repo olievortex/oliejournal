@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:kinde_flutter_sdk/kinde_flutter_sdk.dart';
+import 'package:oliejournal_app/backend.dart';
+import 'package:oliejournal_app/models/forecast_model.dart';
 
 class OlieModel extends ChangeNotifier {
+  final KindeFlutterSDK _kindeClient = KindeFlutterSDK.instance;
+  UserProfileV2? _profile;
+
   bool isLoggedIn = false;
   bool isLoading = false;
   String get fullName {
     return '${_profile?.givenName?[0]}${_profile?.familyName?[0]}';
   }
-  UserProfileV2? _profile;
 
-  final KindeFlutterSDK _kindeClient = KindeFlutterSDK.instance;
+  String? errorMessage;
+  ForecastModel? forecast;
 
   OlieModel() {
     _kindeClient.isAuthenticated().then((value) {
@@ -20,6 +25,28 @@ class OlieModel extends ChangeNotifier {
       }
     });
   }
+
+  //region API
+
+  Future<void> fetchForecast() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      forecast = await Backend.fetchForecast();
+      errorMessage = null;
+    } catch (ex) {
+      errorMessage = ex.toString();
+      forecast = null;
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  //endregion
+
+  //region Authentication
 
   Future<void> onRegister() async {
     try {
@@ -46,7 +73,6 @@ class OlieModel extends ChangeNotifier {
       isLoggedIn = true;
     }
 
-    // fullName = "Dillon McMillon";
     isLoading = false;
     notifyListeners();
   }
@@ -57,19 +83,15 @@ class OlieModel extends ChangeNotifier {
 
     await _kindeClient.logout();
 
+    _profile = null;
     isLoggedIn = false;
-    // fullName = "";
     isLoading = false;
     notifyListeners();
   }
 
   Future<void> _getProfile() async {
-    isLoading = true;
-    notifyListeners();
-
     _profile = await _kindeClient.getUserProfileV2();
-
-    isLoading = false;
-    notifyListeners();
   }
+
+  //endregion
 }

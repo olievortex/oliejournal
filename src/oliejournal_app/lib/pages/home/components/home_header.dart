@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
+import 'package:oliejournal_app/pages/home/home_page.dart';
 import 'package:provider/provider.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -16,18 +17,20 @@ class HomeHeader extends StatelessWidget {
             Text(appTitle, style: kTitleText),
             olieModel.isLoading
                 ? const CircularProgressIndicator.adaptive()
-                : _trailingWidget(olieModel),
+                : _trailingWidget(context, olieModel),
           ],
         );
       },
     );
   }
 
-  Widget _trailingWidget(OlieModel olieModel) {
-    return olieModel.isLoggedIn ? _loggedIn(olieModel) : _loggedOut(olieModel);
+  Widget _trailingWidget(BuildContext context, OlieModel olieModel) {
+    return olieModel.isLoggedIn ? _loggedIn(context, olieModel) : _loggedOut(olieModel);
   }
 
-  Widget _loggedIn(OlieModel olieModel) {
+  Widget _loggedIn(BuildContext context, OlieModel olieModel) {
+    final navigator = Navigator.of(context);
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,7 +49,14 @@ class HomeHeader extends StatelessWidget {
           ),
           horizontalSpaceRegular,
           InkWell(
-            onTap: olieModel.onLogout,
+            onTap: () async {
+              await olieModel.onLogout();
+              navigator.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => HomePage()),
+                (Route<dynamic> route) =>
+                    false, // This predicate ensures all previous routes are removed
+              );
+            },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
