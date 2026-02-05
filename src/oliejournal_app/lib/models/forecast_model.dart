@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class ForecastModel {
   final DateTime effectiveDate;
   final int temperatureF;
@@ -10,18 +12,12 @@ class ForecastModel {
   });
 
   factory ForecastModel.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'date': DateTime effectiveDate,
-        'temperatureF': int temperatureF,
-        'summary': String summary,
-      } =>
-        ForecastModel(
-          effectiveDate: effectiveDate,
-          temperatureF: temperatureF,
-          summary: summary,
-        ),
-      _ => throw const FormatException('Failed to load forecast.'),
-    };
+    final format = DateFormat("yyyy-MM-dd");
+    
+    return ForecastModel(
+      effectiveDate: format.parse(json['date']),
+      summary: json['summary'] as String,
+      temperatureF: json['temperatureF'] as int
+    );
   }
 }

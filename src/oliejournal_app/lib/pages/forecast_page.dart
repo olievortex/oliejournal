@@ -80,17 +80,19 @@ class ForecastPage extends StatelessWidget {
           ),
         ),
         verticalSpaceRegular,
-        Column(
-          children: [
-            Text(
-              "High Temperature: ${olieModel.forecast?.temperatureF}F",
-              style: kTitleText,
-            ),
-            Text(
-              "Date: $effectiveDate",
-              style: kTitleText.copyWith(fontSize: kBodySmall),
-            ),
-          ],
+        Center(
+          child: Column(
+            children: [
+              Text(
+                "High Temperature: ${olieModel.forecast?.temperatureF}F",
+                style: kTitleText,
+              ),
+              Text(
+                "Date: $effectiveDate",
+                style: kTitleText.copyWith(fontSize: kBodySmall),
+              ),
+            ],
+          ),
         ),
       ],
     );
