@@ -30,7 +30,6 @@ cd ${basePath}
 dotnet clean
 rm -rf ${baseApi}/bin
 rm -rf ${baseApi}/obj
-cd ${basePath}/..
 
 echo oliejournal - dotnet build
 dotnet build --configuration Release
@@ -47,7 +46,7 @@ echo oliejournal.api - stop website
 echo oliejournal.api - deploy
 cd ${baseApi}/bin/Release/net10.0/publish
 tar -cf ../publish.tar *
-cd ${pubPath}
+cd ${apiPub}
 rm -rf *
 tar -xf ${baseApi}/bin/Release/net10.0/publish.tar
 
