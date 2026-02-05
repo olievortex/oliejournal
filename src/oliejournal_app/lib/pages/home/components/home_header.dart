@@ -25,7 +25,9 @@ class HomeHeader extends StatelessWidget {
   }
 
   Widget _trailingWidget(BuildContext context, OlieModel olieModel) {
-    return olieModel.isLoggedIn ? _loggedIn(context, olieModel) : _loggedOut(olieModel);
+    return olieModel.isLoggedIn
+        ? _loggedIn(context, olieModel)
+        : _loggedOut(olieModel);
   }
 
   Widget _loggedIn(BuildContext context, OlieModel olieModel) {
@@ -65,7 +67,10 @@ class HomeHeader extends StatelessWidget {
                   style: kRobotoText.copyWith(fontSize: kHeadingTwo),
                 ),
                 const SizedBox(height: 10),
-                const Text('Sign out'),
+                Text(
+                  'Sign out',
+                  style: kRobotoText.copyWith(fontSize: kBodySmall),
+                ),
               ],
             ),
           ),
