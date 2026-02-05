@@ -36,7 +36,7 @@ public class Program
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        app.MapGet("/weatherforecast", (HttpContext httpContext) =>
+        app.MapGet("/api/weatherforecast", (HttpContext httpContext) =>
         {
             var forecast = Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast

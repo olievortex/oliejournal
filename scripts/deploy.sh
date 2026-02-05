@@ -1,0 +1,55 @@
+#!/bin/sh
+basePath=~/source/repos/oliejournal/src
+baseApi=${basePath}/oliejournal.api
+apiPub=/opt/oliejournal.api
+sourcePath=~/oliejournal/source.sh
+logPath=/var/log/oliejournal
+set -e
+
+# Pull code
+echo oliejournal- pull latest
+cd ~/source/repos/oliejournal
+git pull
+
+# Sanity checks
+if [ ! -d ${logPath} ]; then
+    echo "The log directory ${logPath} doesn't exist"
+    exit 1
+fi
+if [ ! -d ${apiPub} ]; then
+    echo "The api publish directory ${apiPub} doesn't exist"
+    exit 1
+fi
+if [ ! -x ${sourcePath} ]; then
+    echo "The sourcing file ${sourcePath} doesn't exist"
+    exit 1
+fi
+
+echo oliejournal - dotnet clean
+cd ${basePath}
+dotnet clean
+rm -rf ${baseApi}/bin
+rm -rf ${baseApi}/obj
+cd ${basePath}/..
+
+echo oliejournal - dotnet build
+dotnet build --configuration Release
+
+echo oliejournal - dotnet test
+dotnet test --configuration Release --no-restore --no-build
+
+echo oliejournal.api - dotnet publish
+dotnet publish ${baseApi}/oliejournal.api.csproj --configuration Release --no-restore --no-build
+
+echo oliejournal.api - stop website
+~/oliejournal/stop_api.sh
+
+echo oliejournal.api - deploy
+cd ${baseApi}/bin/Release/net10.0/publish
+tar -cf ../publish.tar *
+cd ${pubPath}
+rm -rf *
+tar -xf ${baseApi}/bin/Release/net10.0/publish.tar
+
+echo oliejournal.api - start website
+~/oliejournal/start_api.sh

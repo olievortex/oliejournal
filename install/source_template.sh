@@ -1,0 +1,3 @@
+#!/bin/sh
+export APPLICATIONINSIGHTS_CONNECTION_STRING='__applicationinsights_connection_string__'
+export GOOGLE_APPLICATION_CREDENTIALS=/home/olievortex/environments/virtualstormchasing-de884bb5018e.json
