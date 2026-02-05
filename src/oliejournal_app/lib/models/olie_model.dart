@@ -13,6 +13,8 @@ class OlieModel extends ChangeNotifier {
     return '${_profile?.givenName?[0]}${_profile?.familyName?[0]}';
   }
 
+  String? token;
+
   String? errorMessage;
   ForecastModel? forecast;
 
@@ -21,7 +23,7 @@ class OlieModel extends ChangeNotifier {
       isLoggedIn = value;
 
       if (value) {
-        _getProfile();
+        _getUser();
       }
     });
   }
@@ -33,7 +35,7 @@ class OlieModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      forecast = await Backend.fetchForecast();
+      forecast = await Backend.fetchForecast(token);
       errorMessage = null;
     } catch (ex) {
       errorMessage = ex.toString();
@@ -57,24 +59,23 @@ class OlieModel extends ChangeNotifier {
   }
 
   Future<void> onLogin() async {
-    String? token;
-
     isLoading = true;
     notifyListeners();
 
     if (await _kindeClient.isAuthenticated()) {
-      await _getProfile();
+      _profile = await _kindeClient.getUserProfileV2();
+      token = await _kindeClient.getToken();
       isLoggedIn = true;
     } else {
       try {
         token = await _kindeClient.login(type: AuthFlowType.pkce);
+
+        if (token != null) {
+          _profile = await _kindeClient.getUserProfileV2();
+          isLoggedIn = true;
+        }
       } catch (ex) {
         debugPrint(ex.toString());
-      }
-
-      if (token != null) {
-        await _getProfile();
-        isLoggedIn = true;
       }
     }
 
@@ -89,13 +90,17 @@ class OlieModel extends ChangeNotifier {
     await _kindeClient.logout();
 
     _profile = null;
+    token = null;
     isLoggedIn = false;
     isLoading = false;
     notifyListeners();
   }
 
-  Future<void> _getProfile() async {
+  Future<void> _getUser() async {
     _profile = await _kindeClient.getUserProfileV2();
+    token = await _kindeClient.getToken();
+
+    notifyListeners();
   }
 
   //endregion
