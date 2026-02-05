@@ -3,6 +3,6 @@ All the steps needed to create the infrastructure for this project are in this f
 
 An overview of the infrastructure is provided in the parent README.
 
-- 1_AkamaiFirewall: Create and configure a firewall.
-- 2_AkamaiLinode: Create and configure a virtual machine.
-
+- 1_MySQL: Prepare the MySQL database.
+- 2_AkamaiFirewall: Create and configure a firewall.
+- 3_AkamaiLinode: Create and configure a virtual machine.

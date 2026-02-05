@@ -107,7 +107,7 @@ Create a new [SSH key](https://docs.github.com/en/authentication/connecting-to-g
 
     # cd /var/www/html
     # echo '<html><body><p>This is oliejournal</p></body></html>' | sudo tee index.html
-    # sudo cp ~/source/repos/oliejournal/infrastructure/2_AkamaiLinode/000-oliejournal-default.conf /etc/httpd/conf.d
+    # sudo cp ~/source/repos/oliejournal/infrastructure/3_AkamaiLinode/000-oliejournal-default.conf /etc/httpd/conf.d
 
 ### Enable Apache
 
