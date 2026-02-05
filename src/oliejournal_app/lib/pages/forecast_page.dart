@@ -12,16 +12,16 @@ class ForecastPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const HomeHeader(), elevation: 0),
       body: Padding(
         padding: EdgeInsets.only(
-          top: MediaQuery.viewPaddingOf(context).top,
           left: 16,
           right: 16,
           bottom: MediaQuery.viewPaddingOf(context).bottom,
         ),
         child: Column(
           children: [
-            const HomeHeader(),
+            const Text("Today's Forecast"),
             verticalSpaceMedium,
             _forecastBody(),
             const Spacer(),
