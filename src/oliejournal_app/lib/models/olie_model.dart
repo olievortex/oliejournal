@@ -62,15 +62,20 @@ class OlieModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    try {
-      token = await _kindeClient.login(type: AuthFlowType.pkce);
-    } catch (ex) {
-      debugPrint(ex.toString());
-    }
-
-    if (token != null) {
+    if (await _kindeClient.isAuthenticated()) {
       await _getProfile();
       isLoggedIn = true;
+    } else {
+      try {
+        token = await _kindeClient.login(type: AuthFlowType.pkce);
+      } catch (ex) {
+        debugPrint(ex.toString());
+      }
+
+      if (token != null) {
+        await _getProfile();
+        isLoggedIn = true;
+      }
     }
 
     isLoading = false;
