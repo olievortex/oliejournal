@@ -1,55 +1,49 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Linq;
+using oliejournal.api.Endpoints;
 
 namespace oliejournal.api;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        // Add services to the container.
+        builder.AddOlieAuthentication();
         builder.Services.AddAuthorization();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-        }
-
         app.UseHttpsRedirection();
-
+        app.UseAuthentication();
         app.UseAuthorization();
-
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        app.MapGet("/api/weatherforecast", (HttpContext httpContext) =>
-        {
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    TemperatureC = Random.Shared.Next(-20, 55),
-                    Summary = summaries[Random.Shared.Next(summaries.Length)]
-                })
-                .ToArray();
-            return forecast;
-        })
-        .WithName("GetWeatherForecast");
-
+        app.MapEndpoints();
         app.Run();
+    }
+
+    private static void AddOlieAuthentication(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                // Kinde uses the 'sub' claim for the user's ID, which maps to Identity.Name
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters.NameClaimType = "sub";
+
+                options.Authority = "https://antihoistentertainment.kinde.com";
+                options.TokenValidationParameters.ValidAudiences = ["https://oliejournal.olievortex.com"];
+            });
+
+        builder.Services.AddAuthorization();
+
+    }
+
+    private static void MapEndpoints(this WebApplication app)
+    {
+        app.MapWeatherForecastEndpoints();
+        app.MapSecureWeatherForecastEndpoints();
     }
 }

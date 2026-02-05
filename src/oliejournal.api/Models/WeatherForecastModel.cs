@@ -1,8 +1,8 @@
 using System;
 
-namespace oliejournal.api;
+namespace oliejournal.api.Models;
 
-public class WeatherForecast
+public class WeatherForecastModel
 {
     public DateOnly Date { get; set; }
 
