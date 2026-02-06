@@ -3,11 +3,19 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <UserSecretsId>1926a764-10cb-4e0f-b98d-368dd0b42aeb</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\oliejournal.data\oliejournal.data.csproj" />
+    <ProjectReference Include="..\oliejournal.lib\oliejournal.lib.csproj" />
   </ItemGroup>
 
 </Project>
