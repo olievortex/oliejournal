@@ -13,6 +13,12 @@ public class OlieService : IOlieService
 {
     #region Blob
 
+    public async Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
+    {
+        var blobClient = client.GetBlobClient(fileName);
+        await blobClient.DownloadToAsync(localFileName, ct);
+    }
+
     public async Task BlobUploadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
     {
         var blobClient = client.GetBlobClient(fileName);
@@ -35,6 +41,16 @@ public class OlieService : IOlieService
     #endregion
 
     #region File
+
+    public void FileDelete(string path)
+    {
+        File.Delete(path);
+    }
+
+    public bool FileExists(string path)
+    {
+        return File.Exists(path);
+    }
 
     public async Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct)
     {
@@ -73,9 +89,9 @@ public class OlieService : IOlieService
             }
         }
 
-        return result.ToString();
+        return result.ToString().Trim();
     }
-        
+
 
     #endregion
 
@@ -90,6 +106,26 @@ public class OlieService : IOlieService
         };
 
         await sender.SendMessageAsync(message, ct);
+    }
+
+    public async Task ServiceBusCompleteMessage<T>(ServiceBusReceiver receiver, OlieServiceBusReceivedMessage<T> message, CancellationToken ct)
+    {
+        await receiver.CompleteMessageAsync(message.ServiceBusReceivedMessage, ct);
+    }
+
+    public async Task<OlieServiceBusReceivedMessage<T>?> ServiceBusReceiveJson<T>(ServiceBusReceiver receiver, TimeSpan timeout, CancellationToken ct)
+    {
+        var message = await receiver.ReceiveMessageAsync(timeout, ct);
+        if (message is null) return null;
+        var json = message.Body.ToString();
+        var body = JsonConvert.DeserializeObject<T>(json)
+            ?? throw new InvalidCastException(json);
+
+        return new OlieServiceBusReceivedMessage<T>
+        {
+            ServiceBusReceivedMessage = message,
+            Body = body
+        };
     }
 
     #endregion

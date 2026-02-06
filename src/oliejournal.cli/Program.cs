@@ -58,10 +58,11 @@ public class Program
         var olieArgs = new OlieArgs(args);
         var olieConfig = CreateService<IOlieConfig>();
         var scopeFactory = _host.Services.GetRequiredService<IServiceScopeFactory>();
+        var os = _host.Services.GetRequiredService<IOlieService>();
 
         return olieArgs.Command switch
         {
-            OlieArgs.CommandsEnum.AudioProcessQueue => await new CommandAudioProcessQueue(scopeFactory, olieConfig).Run(ct),
+            OlieArgs.CommandsEnum.AudioProcessQueue => await new CommandAudioProcessQueue(scopeFactory, olieConfig, os).Run(ct),
             _ => throw new ArgumentException($"The command {olieArgs.Command} is not implemented yet."),
         };
     }
@@ -98,6 +99,7 @@ public class Program
         services.Configure<TelemetryConfiguration>(config => config.TelemetryChannel = _channel);
         services.AddSingleton(_ => (IConfiguration)config);
         services.AddSingleton<IOlieConfig, OlieConfig>();
+        services.AddScoped<IOlieService, OlieService>();
 
         _serviceProvider = services.BuildServiceProvider();
     }

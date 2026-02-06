@@ -125,6 +125,20 @@ public class OlieWavReader : IOlieWavReader
         return value;
     }
 
+    public OlieWavInfo GetOlieWavInfo(byte[] data)
+    {
+        using var s = new MemoryStream(data);
+
+        return GetOlieWavInfo(s);
+    }
+
+    public OlieWavInfo GetOlieWavInfo(string path)
+    {
+        using var s = File.OpenRead(path);
+
+        return GetOlieWavInfo(s);
+    }
+
     public OlieWavInfo GetOlieWavInfo(Stream stream)
     {
         using var br = new BinaryReader(stream, Encoding.Default, true);

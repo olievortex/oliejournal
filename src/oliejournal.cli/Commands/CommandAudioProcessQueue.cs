@@ -1,19 +1,45 @@
 ﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 using oliejournal.lib;
+using oliejournal.lib.Models;
 using oliejournal.lib.Services;
 
 namespace oliejournal.cli.Commands;
 
-public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieConfig config)
+public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieConfig config, IOlieService os)
 {
+    const int MaxIterations = 50;
+
     public async Task<int> Run(CancellationToken ct)
     {
-        var client = new BlobContainerClient(new Uri(config.BlobContainerUri), new DefaultAzureCredential());
+        var count = 0;
+        var timeout = TimeSpan.FromSeconds(5);
 
-        using var scope = scopeFactory.CreateScope();
-        var process = scope.ServiceProvider.GetRequiredService<IJournalProcess>();
+        var bcClient = new BlobContainerClient(new Uri(config.BlobContainerUri), new DefaultAzureCredential());
+        await using var sbClient = new ServiceBusClient(config.ServiceBus, new DefaultAzureCredential());
+        await using var receiver = sbClient.CreateReceiver(config.AudioProcessQueue);
+
+        do
+        {
+            var message = await os.ServiceBusReceiveJson<AudioProcessQueueItemModel>(receiver, timeout, ct);
+            if (message is null) break;
+
+            using var scope = scopeFactory.CreateScope();
+            var process = scope.ServiceProvider.GetRequiredService<IJournalProcess>();
+
+            switch (message.Body.Step)
+            {
+                case lib.Enums.AudioProcessStepEnum.Transcript:
+                    await process.TranscribeAudioEntry(message.Body.Id, bcClient, ct);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            await os.ServiceBusCompleteMessage(receiver, message, ct);
+        } while (!ct.IsCancellationRequested && ++count < MaxIterations);
 
         return 0;
     }

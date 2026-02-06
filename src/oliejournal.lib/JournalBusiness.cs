@@ -45,8 +45,7 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         if (file.Length == 0) throw new ApplicationException("WAV file empty");
         if (file.Length > 9 * 1024 * 1024) throw new ApplicationException($"WAV file {file.Length} > 9MB");
 
-        using var stream = new MemoryStream(file);
-        var info = owr.GetOlieWavInfo(stream);
+        var info = owr.GetOlieWavInfo(file);
 
         if (info.Channels > 1) throw new ApplicationException($"WAV file has {info.Channels} channels");
         if (info.SampleRate < 8000 || info.SampleRate > 48000) throw new ApplicationException($"WAV file has {info.SampleRate} sample rate");
@@ -54,6 +53,15 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         if (info.Duration > TimeSpan.FromSeconds(55)) throw new ApplicationException($"WAV file duration is {info.Duration.TotalSeconds}");
 
         return info;
+    }
+
+    public async Task<string> GetAudioFile(string blobPath, BlobContainerClient client, CancellationToken ct)
+    {
+        var localFile = $"{Path.GetTempPath()}{Path.GetFileName(blobPath)}";
+        if (os.FileExists(localFile)) return localFile;
+
+        await os.BlobDownloadFile(client, blobPath, localFile, ct);
+        return localFile;
     }
 
     public async Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct)
