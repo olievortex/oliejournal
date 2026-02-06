@@ -48,9 +48,9 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         using var stream = new MemoryStream(file);
         var info = owr.GetOlieWavInfo(stream);
 
-        if (info.Channels > 2) throw new ApplicationException($"WAV file has {info.Channels} channels");
+        if (info.Channels > 1) throw new ApplicationException($"WAV file has {info.Channels} channels");
         if (info.SampleRate < 8000 || info.SampleRate > 48000) throw new ApplicationException($"WAV file has {info.SampleRate} sample rate");
-        if (info.BitsPerSample > 24) throw new ApplicationException($"WAV file has {info.BitsPerSample} bits per sample");
+        if (info.BitsPerSample != 16) throw new ApplicationException($"WAV file has {info.BitsPerSample} bits per sample");
         if (info.Duration > TimeSpan.FromSeconds(55)) throw new ApplicationException($"WAV file duration is {info.Duration.TotalSeconds}");
 
         return info;

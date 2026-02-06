@@ -15,6 +15,11 @@ public interface IOlieService
 
     Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct);
 
+    #endregion
+
+    #region Google
+
+    Task<string> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct);
 
     #endregion
 

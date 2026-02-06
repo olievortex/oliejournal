@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using oliejournal.api.Models;
 using oliejournal.lib;
 using oliejournal.lib.Services;
 using System.Security.Claims;
@@ -12,7 +13,7 @@ public static class JournalEndpoints
         app.MapPost("/api/journal/audioEntry", PostAudioEntry).DisableAntiforgery().RequireAuthorization();
     }
 
-    public static async Task<Results<Ok<int>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
+    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
@@ -21,8 +22,8 @@ public static class JournalEndpoints
         var sender = config.ServiceBusSender();
         var client = config.BlobContainerClient();
 
-        await process.IngestAudioEntry(userId, stream, sender, client, ct);
+        var id = await process.IngestAudioEntry(userId, stream, sender, client, ct);
 
-        return TypedResults.Ok(42);
+        return TypedResults.Ok(new IntResultModel { Id = id });
     }
 }

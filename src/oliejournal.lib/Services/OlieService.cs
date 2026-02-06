@@ -1,8 +1,10 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Google.Cloud.Speech.V1;
 using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace oliejournal.lib.Services;
 
@@ -38,6 +40,42 @@ public class OlieService : IOlieService
     {
         await File.WriteAllBytesAsync(path, data, ct);
     }
+
+    #endregion
+
+    #region Google
+
+    public async Task<string> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct)
+    {
+        var result = new StringBuilder();
+
+        if (info.Channels != 1) throw new ApplicationException("WAV must be mono");
+        if (info.BitsPerSample != 16) throw new ApplicationException("WAV must be 16 bit");
+
+        var client = await SpeechClient.CreateAsync(ct);
+        var audio = await RecognitionAudio.FromFileAsync(localFile);
+        var config = new RecognitionConfig
+        {
+            Encoding = RecognitionConfig.Types.AudioEncoding.Linear16,
+            SampleRateHertz = info.SampleRate,
+            LanguageCode = LanguageCodes.English.UnitedStates,
+            EnableAutomaticPunctuation = true,
+            EnableSpokenPunctuation = false
+        };
+        var response = await client.RecognizeAsync(config, audio, ct);
+
+        foreach (var item in response.Results)
+        {
+            if (item.Alternatives.Count > 0)
+            {
+                var alternative = item.Alternatives[0];
+                result.Append($" {alternative.Transcript}");
+            }
+        }
+
+        return result.ToString();
+    }
+        
 
     #endregion
 
