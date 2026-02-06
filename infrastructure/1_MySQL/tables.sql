@@ -4,10 +4,14 @@ CREATE TABLE "JournalEntries" (
   "Id" int NOT NULL AUTO_INCREMENT,
   "UserId" varchar(100) NOT NULL,
   "Created" datetime NOT NULL,
-  "AudioPath" varchar(320) DEFAULT NULL,
-  "Transcript" text,
-  "TranscriptionTime" int DEFAULT NULL,
-  "ConversationLogFk" varchar(100) DEFAULT NULL,
+  "AudioPath" varchar(320) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  "AudioLength" int NOT NULL,
+  "AudioDuration" int NOT NULL,
+  "AudioChannels" int NOT NULL,
+  "AudioSampleRate" int NOT NULL,
+  "AudioBitsPerSample" int NOT NULL,
+  "Transcript" varchar(8096) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  "TranscriptProcessingTime" int DEFAULT NULL,
   PRIMARY KEY ("Id")
 );
 

@@ -2,5 +2,5 @@
 
 public interface IJournalProcess
 {
-    Task IngestAudioEntry(Stream audio, CancellationToken ct);
+    Task IngestAudioEntry(string userId, Stream audio, CancellationToken ct);
 }

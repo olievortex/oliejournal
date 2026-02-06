@@ -1,6 +1,16 @@
-﻿namespace oliejournal.data;
+﻿using oliejournal.data.Entities;
 
-public class MyRepository : IMyRepository
+namespace oliejournal.data;
+
+public class MyRepository(MyContext context) : IMyRepository
 {
+    #region JournalEntry
 
+    public async Task JournalEntryCreate(JournalEntryEntity entity, CancellationToken ct)
+    {
+        await context.JournalEntries.AddAsync(entity, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    #endregion
 }

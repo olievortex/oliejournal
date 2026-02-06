@@ -1,10 +1,29 @@
-﻿using oliejournal.lib.Services;
+﻿using oliejournal.data;
+using oliejournal.data.Entities;
+using oliejournal.lib.Services;
 
 namespace oliejournal.lib;
 
-public class JournalBusiness(IOlieWavReader owr) : IJournalBusiness
+public class JournalBusiness(IOlieWavReader owr, IMyRepository repo) : IJournalBusiness
 {
-    public void EnsureAudioValidates(byte[] file)
+    public async Task CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct)
+    {
+        var entity = new JournalEntryEntity
+        {
+            UserId = userId,
+            AudioBitsPerSample = olieWavInfo.BitsPerSample,
+            AudioChannels = olieWavInfo.Channels,
+            AudioDuration = (int)olieWavInfo.Duration.TotalSeconds,
+            AudioLength = length,
+            AudioSampleRate = olieWavInfo.SampleRate,
+            Created = DateTime.UtcNow,
+            AudioPath = path
+        };
+
+        await repo.JournalEntryCreate(entity, ct);
+    }
+
+    public OlieWavInfo EnsureAudioValidates(byte[] file)
     {
         if (file.Length == 0) throw new ApplicationException("WAV file empty");
         if (file.Length > 9 * 1024 * 1024) throw new ApplicationException($"WAV file {file.Length} > 9MB");
@@ -16,5 +35,7 @@ public class JournalBusiness(IOlieWavReader owr) : IJournalBusiness
         if (info.SampleRate < 8000 || info.SampleRate > 48000) throw new ApplicationException($"WAV file has {info.SampleRate} sample rate");
         if (info.BitsPerSample > 24) throw new ApplicationException($"WAV file has {info.BitsPerSample} bits per sample");
         if (info.Duration > TimeSpan.FromSeconds(55)) throw new ApplicationException($"WAV file duration is {info.Duration.TotalSeconds}");
+
+        return info;
     }
 }

@@ -4,10 +4,11 @@ namespace oliejournal.lib;
 
 public class JournalProcess(IJournalBusiness business, IOlieService os) : IJournalProcess
 {
-    public async Task IngestAudioEntry(Stream audio, CancellationToken ct)
+    public async Task IngestAudioEntry(string userId, Stream audio, CancellationToken ct)
     {
         var file = await os.ToByteArray(audio, ct);
 
-        business.EnsureAudioValidates(file);
+        var wavInfo = business.EnsureAudioValidates(file);
+        await business.CreateJournalEntry(userId, wavInfo, "dillon.wav", file.Length, ct);
     }
 }

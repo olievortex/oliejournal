@@ -1,6 +1,9 @@
-﻿namespace oliejournal.lib;
+﻿using oliejournal.lib.Services;
+
+namespace oliejournal.lib;
 
 public interface IJournalBusiness
 {
-    void EnsureAudioValidates(byte[] file);
+    Task CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct);
+    OlieWavInfo EnsureAudioValidates(byte[] file);
 }
