@@ -19,9 +19,10 @@ public static class JournalEndpoints
 
         using var stream = file.OpenReadStream();
         var sender = config.ServiceBusSender();
-        
-        await process.IngestAudioEntry(userId, stream, sender, ct);
-        
+        var client = config.BlobContainerClient();
+
+        await process.IngestAudioEntry(userId, stream, sender, client, ct);
+
         return TypedResults.Ok(42);
     }
 }

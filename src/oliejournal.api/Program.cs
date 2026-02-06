@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using oliejournal.api.Endpoints;
@@ -102,5 +103,11 @@ public static class Program
     {
         var client = new ServiceBusClient(config.ServiceBus, new DefaultAzureCredential());
         return client.CreateSender(config.AudioProcessQueue);
+    }
+
+    public static BlobContainerClient BlobContainerClient(this IOlieConfig config)
+    {
+        var blobClient = new BlobContainerClient(new Uri(config.BlobContainerUri), new DefaultAzureCredential());
+        return blobClient;
     }
 }

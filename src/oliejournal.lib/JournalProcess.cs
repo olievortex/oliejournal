@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using oliejournal.lib.Enums;
 using oliejournal.lib.Services;
 
@@ -6,12 +7,14 @@ namespace oliejournal.lib;
 
 public class JournalProcess(IJournalBusiness business, IOlieService os) : IJournalProcess
 {
-    public async Task IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, CancellationToken ct)
+    public async Task IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {
         var file = await os.StreamToByteArray(audio, ct);
 
         var wavInfo = business.EnsureAudioValidates(file);
-        var entry = await business.CreateJournalEntry(userId, wavInfo, "dillon.wav", file.Length, ct);
+        var localPath = await business.WriteAudioFileToTemp(file, ct);
+        var blobPath = await business.WriteAudioFileToBlob(localPath, client, ct);
+        var entry = await business.CreateJournalEntry(userId, wavInfo, blobPath, file.Length, ct);
         await business.CreateJournalMessage(entry.Id, AudioProcessStepEnum.Transcript, sender, ct);
     }
 }

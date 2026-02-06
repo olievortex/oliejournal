@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using oliejournal.data;
 using oliejournal.data.Entities;
 using oliejournal.lib.Enums;
@@ -53,5 +54,21 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         if (info.Duration > TimeSpan.FromSeconds(55)) throw new ApplicationException($"WAV file duration is {info.Duration.TotalSeconds}");
 
         return info;
+    }
+
+    public async Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct)
+    {
+        var blobPath = $"bronze/audio_entry/{DateTime.UtcNow:yyyy/MM}/{Path.GetFileName(localPath)}";
+        await os.BlobUploadFile(client, blobPath, localPath, ct);
+
+        return blobPath;
+    }
+
+    public async Task<string> WriteAudioFileToTemp(byte[] file, CancellationToken ct)
+    {
+        var localPath = $"{Path.GetTempPath()}{Guid.NewGuid()}.wav";
+        await os.FileWriteAllBytes(localPath, file, ct);
+
+        return localPath;
     }
 }
