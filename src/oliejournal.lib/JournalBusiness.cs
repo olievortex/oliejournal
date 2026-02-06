@@ -1,12 +1,15 @@
-﻿using oliejournal.data;
+﻿using Azure.Messaging.ServiceBus;
+using oliejournal.data;
 using oliejournal.data.Entities;
+using oliejournal.lib.Enums;
+using oliejournal.lib.Models;
 using oliejournal.lib.Services;
 
 namespace oliejournal.lib;
 
-public class JournalBusiness(IOlieWavReader owr, IMyRepository repo) : IJournalBusiness
+public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieService os) : IJournalBusiness
 {
-    public async Task CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct)
+    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct)
     {
         var entity = new JournalEntryEntity
         {
@@ -21,6 +24,19 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo) : IJournalB
         };
 
         await repo.JournalEntryCreate(entity, ct);
+
+        return entity;
+    }
+
+    public async Task CreateJournalMessage(int id, AudioProcessStepEnum step, ServiceBusSender sender, CancellationToken ct)
+    {
+        var message = new AudioProcessQueueItemModel
+        {
+            Id = id,
+            Step = step
+        };
+
+        await os.ServiceBusSendJson(sender, message, ct);
     }
 
     public OlieWavInfo EnsureAudioValidates(byte[] file)

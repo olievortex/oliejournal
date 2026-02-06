@@ -6,7 +6,9 @@ namespace oliejournal.lib.Services;
 [ExcludeFromCodeCoverage]
 public class OlieConfig(IConfiguration config) : IOlieConfig
 {
+    public string AudioProcessQueue => GetString("OlieAudioProcessQueue");
     public string MySqlConnection => GetString("OlieMySqlConnection");
+    public string ServiceBus => GetString("OlieServiceBus");
 
     private string GetString(string key)
     {

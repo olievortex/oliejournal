@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Messaging.ServiceBus;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +38,7 @@ public static class Program
         builder.Services.AddScoped<IJournalBusiness, JournalBusiness>();
         builder.Services.AddScoped<IOlieWavReader, OlieWavReader>();
         builder.Services.AddScoped<IOlieService, OlieService>();
+        builder.Services.AddScoped<IOlieConfig, OlieConfig>();
     }
 
     private static void AddOlieTelemetry(this WebApplicationBuilder builder)
@@ -93,5 +96,11 @@ public static class Program
         app.MapWeatherForecastEndpoints();
         app.MapSecureWeatherForecastEndpoints();
         app.MapJournalEndpoints();
+    }
+
+    public static ServiceBusSender ServiceBusSender(this IOlieConfig config)
+    {
+        var client = new ServiceBusClient(config.ServiceBus, new DefaultAzureCredential());
+        return client.CreateSender(config.AudioProcessQueue);
     }
 }

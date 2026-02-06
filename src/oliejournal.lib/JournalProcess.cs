@@ -1,14 +1,17 @@
-﻿using oliejournal.lib.Services;
+﻿using Azure.Messaging.ServiceBus;
+using oliejournal.lib.Enums;
+using oliejournal.lib.Services;
 
 namespace oliejournal.lib;
 
 public class JournalProcess(IJournalBusiness business, IOlieService os) : IJournalProcess
 {
-    public async Task IngestAudioEntry(string userId, Stream audio, CancellationToken ct)
+    public async Task IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, CancellationToken ct)
     {
-        var file = await os.ToByteArray(audio, ct);
+        var file = await os.StreamToByteArray(audio, ct);
 
         var wavInfo = business.EnsureAudioValidates(file);
-        await business.CreateJournalEntry(userId, wavInfo, "dillon.wav", file.Length, ct);
+        var entry = await business.CreateJournalEntry(userId, wavInfo, "dillon.wav", file.Length, ct);
+        await business.CreateJournalMessage(entry.Id, AudioProcessStepEnum.Transcript, sender, ct);
     }
 }
