@@ -1,5 +1,3 @@
-using System;
-
 namespace oliejournal.api.Models;
 
 public class WeatherForecastModel

@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using oliejournal.lib;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace oliejournal.api.Endpoints;
 

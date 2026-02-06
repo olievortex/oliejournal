@@ -2,5 +2,5 @@
 
 public interface IOlieConfig
 {
-    string MySqlConnection {get;}
+    string MySqlConnection { get; }
 }

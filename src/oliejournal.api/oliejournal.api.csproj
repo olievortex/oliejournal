@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>1926a764-10cb-4e0f-b98d-368dd0b42aeb</UserSecretsId>
   </PropertyGroup>

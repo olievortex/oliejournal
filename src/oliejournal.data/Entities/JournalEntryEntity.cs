@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace oliejournal.data.Entities;
+﻿namespace oliejournal.data.Entities;
 
 public class JournalEntryEntity
 {

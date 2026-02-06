@@ -1,10 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using oliejournal.api.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace oliejournal.api.Endpoints;
 
