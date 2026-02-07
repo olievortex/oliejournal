@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using Google.Cloud.Speech.V1;
 using oliejournal.data;
 using oliejournal.lib.Enums;
 using oliejournal.lib.Models;
@@ -36,7 +35,8 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
         var transcript = await os.GoogleTranscribeWav(localFile, info, ct);
 
         entity.TranscriptProcessingTime = (int)stopwatch.Elapsed.TotalSeconds;
-        entity.Transcript = transcript;
+        entity.Transcript = transcript.Transcript;
+        entity.TranscriptProcessingTime = transcript.Cost;
 
         await repo.JournalEntryUpdate(entity, ct);
 

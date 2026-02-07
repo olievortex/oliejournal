@@ -3,8 +3,8 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
 using Newtonsoft.Json;
+using oliejournal.lib.Services.Models;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace oliejournal.lib.Services;
 
@@ -61,9 +61,9 @@ public class OlieService : IOlieService
 
     #region Google
 
-    public async Task<string> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct)
+    public async Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct)
     {
-        var result = new StringBuilder();
+        var transcript = string.Empty;
 
         if (info.Channels != 1) throw new ApplicationException("WAV must be mono");
         if (info.BitsPerSample != 16) throw new ApplicationException("WAV must be 16 bit");
@@ -85,11 +85,15 @@ public class OlieService : IOlieService
             if (item.Alternatives.Count > 0)
             {
                 var alternative = item.Alternatives[0];
-                result.Append($" {alternative.Transcript}");
+                transcript = alternative.Transcript;
             }
         }
 
-        return result.ToString().Trim();
+        return new OlieTranscribeResult
+        {
+            Transcript = transcript,
+            Cost = (int)response.TotalBilledTime.Seconds
+        };
     }
 
 

@@ -14,6 +14,7 @@ public class JournalEntryEntity
     public int AudioBitsPerSample { get; set; }
     public string? Transcript { get; set; }
     public int? TranscriptProcessingTime { get; set; }
+    public int? TranscriptCost { get; set; }
 }
 
 //-- oliejournal.JournalEntries definition
@@ -30,5 +31,6 @@ public class JournalEntryEntity
 //  "AudioBitsPerSample" int NOT NULL,
 //  "Transcript" varchar(8096) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 //  "TranscriptProcessingTime" int DEFAULT NULL,
+//  "TranscriptCost" int DEFAULT NULL,
 //  PRIMARY KEY("Id")
 //);

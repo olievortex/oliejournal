@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using System.Diagnostics.CodeAnalysis;
 
-namespace oliejournal.lib.Services;
+namespace oliejournal.lib.Services.Models;
 
 [ExcludeFromCodeCoverage]
 public class OlieServiceBusReceivedMessage<T>

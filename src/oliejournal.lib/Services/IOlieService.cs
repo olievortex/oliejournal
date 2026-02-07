@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using oliejournal.lib.Services.Models;
 
 namespace oliejournal.lib.Services;
 
@@ -16,7 +17,7 @@ public interface IOlieService
     #region File
 
     void FileDelete(string path);
-    
+
     bool FileExists(string path);
 
     Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct);
@@ -25,7 +26,7 @@ public interface IOlieService
 
     #region Google
 
-    Task<string> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct);
+    Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct);
 
     #endregion
 
