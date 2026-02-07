@@ -3,6 +3,7 @@ using Azure.Messaging.ServiceBus;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using oliejournal.api.Endpoints;
 using oliejournal.api.Models;
@@ -10,6 +11,7 @@ using oliejournal.data;
 using oliejournal.lib;
 using oliejournal.lib.Services;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace oliejournal.api;
 
@@ -31,6 +33,45 @@ public static class Program
         app.UseAuthorization();
         app.UseOlieEndpoints();
         app.Run();
+
+        var diagnosticSource = app.Services.GetRequiredService<DiagnosticListener>();
+        using var badRequestListener = new BadRequestEventListener(diagnosticSource, (badRequestExceptionFeature) =>
+        {
+            // Log the underlying exception for details
+            app.Logger.LogError(badRequestExceptionFeature.Error, "Bad request received by Kestrel");
+        });
+    }
+
+    class BadRequestEventListener : IObserver<KeyValuePair<string, object>>, IDisposable
+    {
+        private readonly IDisposable _subscription;
+        private readonly Action<IBadRequestExceptionFeature> _callback;
+
+        public BadRequestEventListener(DiagnosticListener diagnosticListener, Action<IBadRequestExceptionFeature> callback)
+        {
+            _subscription = diagnosticListener.Subscribe(this!, IsEnabled);
+            _callback = callback;
+        }
+        private static readonly Predicate<string> IsEnabled = (provider) => provider switch
+        {
+            "Microsoft.AspNetCore.Server.Kestrel.BadRequest" => true,
+            _ => false
+        };
+        public void OnNext(KeyValuePair<string, object> pair)
+        {
+            if (pair.Value is IFeatureCollection featureCollection)
+            {
+                var badRequestFeature = featureCollection.Get<IBadRequestExceptionFeature>();
+
+                if (badRequestFeature is not null)
+                {
+                    _callback(badRequestFeature);
+                }
+            }
+        }
+        public void OnError(Exception error) { }
+        public void OnCompleted() { }
+        public virtual void Dispose() => _subscription.Dispose();
     }
 
     private static void AddOlieDependencyInjection(this WebApplicationBuilder builder)
