@@ -74,7 +74,13 @@ rm -rf *
 tar -xf ${baseCli}/bin/Release/net10.0/publish.tar
 
 echo
-echo Wait to see if web sites start
+echo Wait to see if websites start - 20s
+sleep 5
+echo Wait to see if websites start - 15s
+sleep 5
+echo Wait to see if websites start - 10s
+sleep 5
+echo Wait to see if websites start - 5s
 sleep 5
 
 echo
