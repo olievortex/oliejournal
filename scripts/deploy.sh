@@ -3,7 +3,7 @@ basePath=~/source/repos/oliejournal/src
 baseApi=${basePath}/oliejournal.api
 baseCli=${basePath}/oliejournal.cli
 apiPub=/opt/oliejournal.api
-cliPath=/opt/oliejournal.cli
+cliPub=/opt/oliejournal.cli
 sourcePath=~/oliejournal/source.sh
 logPath=/var/log/oliejournal
 set -e
