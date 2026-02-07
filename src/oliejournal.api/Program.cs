@@ -33,13 +33,6 @@ public static class Program
         app.UseAuthorization();
         app.UseOlieEndpoints();
         app.Run();
-
-        var diagnosticSource = app.Services.GetRequiredService<DiagnosticListener>();
-        using var badRequestListener = new BadRequestEventListener(diagnosticSource, (badRequestExceptionFeature) =>
-        {
-            // Log the underlying exception for details
-            app.Logger.LogError(badRequestExceptionFeature.Error, "Bad request received by Kestrel");
-        });
     }
 
     class BadRequestEventListener : IObserver<KeyValuePair<string, object>>, IDisposable
