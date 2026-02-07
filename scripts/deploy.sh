@@ -51,6 +51,7 @@ dotnet publish ${baseApi}/oliejournal.api.csproj --configuration Release --no-re
 echo oliejournal.cli - dotnet publish
 dotnet publish ${baseCli}/oliejournal.cli.csproj --configuration Release --no-restore --no-build
 
+echo
 echo oliejournal.api - stop website
 ~/oliejournal/stop_api.sh
 
@@ -64,6 +65,7 @@ tar -xf ${baseApi}/bin/Release/net10.0/publish.tar
 echo oliejournal.api - start website
 ~/oliejournal/start_api.sh
 
+echo
 echo oliejournal.cli - deploy
 cd ${baseCli}/bin/Release/net10.0/publish
 tar -cf ../publish.tar *
@@ -71,7 +73,8 @@ cd ${cliPub}
 rm -rf *
 tar -xf ${baseCli}/bin/Release/net10.0/publish.tar
 
-echo Websites are starting
+echo
+echo Wait to see if web sites start
 sleep 5
 
 echo
