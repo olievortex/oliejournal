@@ -1,4 +1,4 @@
-package com.example.oliejournal_app
+package com.olievortex.oliejournal
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -56,6 +56,16 @@ The deploy script should have started an instance of oliejournal.api. Send a req
 
     # curl http://localhost:7021/api/weatherforecast
 
+### Crontab
+This sets up all the scheduled jobs. Paste the lines from the oliejournal.cron file into the crontab editor and save.
+
+    # cat ~/source/repos/oliejournal/install/oliejournal.cron
+    # crontab -e
+
+Verify the schedule took effect. The results of this command should match the oliejournal.cron file you copied from.
+
+    # crontab -l
+
 ### SELinux Settings
 Out of the box Apache isn't allowed to relay network traffic. Nor can it follow a symbolic link. SELinux needs to be configured to allow this.
 
@@ -66,7 +76,7 @@ Out of the box Apache isn't allowed to relay network traffic. Nor can it follow 
 ### Apache SSL Site
 Configure the SSL site to proxy requests to the dotnet applications, and to the videos folder. Copy the relevant lines.
 
-    # cat ~/source/repos/oliejournal/infrastructure/2_AkamaiLinode/000-oliejournal-default-le-ssl.conf
+    # cat ~/source/repos/oliejournal/infrastructure/3_AkamaiLinode/000-oliejournal-default-le-ssl.conf
     # sudo vi /etc/httpd/conf.d/000-oliejournal-default-le-ssl.conf
     # sudo systemctl restart httpd
 

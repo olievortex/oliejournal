@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "oliejournal.cli": {
+      "commandName": "Project",
+      "commandLineArgs": "audioprocessqueue"
+    }
+  }
+}

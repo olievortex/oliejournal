@@ -1,55 +1,147 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Linq;
+using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
+using oliejournal.api.Endpoints;
+using oliejournal.api.Models;
+using oliejournal.data;
+using oliejournal.lib;
+using oliejournal.lib.Services;
+using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace oliejournal.api;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        // Add services to the container.
+        var config = builder.AddOlieConfiguration();
+        builder.AddOlieAuthentication();
         builder.Services.AddAuthorization();
-
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        builder.Services.AddOpenApi();
+        builder.AddOlieDependencyInjection();
+        builder.AddOlieEntityFramework(config);
+        builder.AddOlieTelemetry();
 
         var app = builder.Build();
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseOlieEndpoints();
+        app.Run();
+    }
 
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
+    class BadRequestEventListener : IObserver<KeyValuePair<string, object>>, IDisposable
+    {
+        private readonly IDisposable _subscription;
+        private readonly Action<IBadRequestExceptionFeature> _callback;
+
+        public BadRequestEventListener(DiagnosticListener diagnosticListener, Action<IBadRequestExceptionFeature> callback)
         {
-            app.MapOpenApi();
+            _subscription = diagnosticListener.Subscribe(this!, IsEnabled);
+            _callback = callback;
+        }
+        private static readonly Predicate<string> IsEnabled = (provider) => provider switch
+        {
+            "Microsoft.AspNetCore.Server.Kestrel.BadRequest" => true,
+            _ => false
+        };
+        public void OnNext(KeyValuePair<string, object> pair)
+        {
+            if (pair.Value is IFeatureCollection featureCollection)
+            {
+                var badRequestFeature = featureCollection.Get<IBadRequestExceptionFeature>();
+
+                if (badRequestFeature is not null)
+                {
+                    _callback(badRequestFeature);
+                }
+            }
+        }
+        public void OnError(Exception error) { }
+        public void OnCompleted() { }
+        public virtual void Dispose() => _subscription.Dispose();
+    }
+
+    private static void AddOlieDependencyInjection(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<IJournalProcess, JournalProcess>();
+        builder.Services.AddScoped<IJournalBusiness, JournalBusiness>();
+        builder.Services.AddScoped<IOlieWavReader, OlieWavReader>();
+        builder.Services.AddScoped<IOlieService, OlieService>();
+        builder.Services.AddScoped<IOlieConfig, OlieConfig>();
+    }
+
+    private static void AddOlieTelemetry(this WebApplicationBuilder builder)
+    {
+        builder.Services
+            .AddOpenTelemetry()
+            .UseAzureMonitor()
+            .WithTracing(builder =>
+        {
+            builder.AddSqlClientInstrumentation();
+        });
+    }
+
+    private static void AddOlieEntityFramework(this WebApplicationBuilder builder, OlieConfig config)
+    {
+        var serverVersion = ServerVersion.AutoDetect(config.MySqlConnection);
+        void mySqlOptions(DbContextOptionsBuilder options)
+        {
+            options.UseMySql(config.MySqlConnection, serverVersion);
         }
 
-        app.UseHttpsRedirection();
+        builder.Services.AddDbContext<MyContext>(mySqlOptions);
+        builder.Services.AddScoped<IMyRepository, MyRepository>();
+    }
 
-        app.UseAuthorization();
+    private static void AddOlieAuthentication(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                // Kinde uses the 'sub' claim for the user's ID, which maps to Identity.Name
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters.NameClaimType = "sub";
 
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+                options.Authority = "https://antihoistentertainment.kinde.com";
+                options.TokenValidationParameters.ValidAudiences = ["https://oliejournal.olievortex.com"];
+            });
 
-        app.MapGet("/api/weatherforecast", (HttpContext httpContext) =>
-        {
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    TemperatureC = Random.Shared.Next(-20, 55),
-                    Summary = summaries[Random.Shared.Next(summaries.Length)]
-                })
-                .ToArray();
-            return forecast;
-        })
-        .WithName("GetWeatherForecast");
+        builder.Services.AddAuthorization();
 
-        app.Run();
+    }
+
+    private static OlieConfig AddOlieConfiguration(this WebApplicationBuilder builder)
+    {
+        builder.Configuration
+            .AddEnvironmentVariables()
+            .AddUserSecrets<WeatherForecastModel>()
+            .Build();
+
+        return new OlieConfig(builder.Configuration);
+    }
+
+    private static void UseOlieEndpoints(this WebApplication app)
+    {
+        app.MapWeatherForecastEndpoints();
+        app.MapSecureWeatherForecastEndpoints();
+        app.MapJournalEndpoints();
+    }
+
+    public static ServiceBusSender ServiceBusSender(this IOlieConfig config)
+    {
+        var client = new ServiceBusClient(config.ServiceBus, new DefaultAzureCredential());
+        return client.CreateSender(config.AudioProcessQueue);
+    }
+
+    public static BlobContainerClient BlobContainerClient(this IOlieConfig config)
+    {
+        var blobClient = new BlobContainerClient(new Uri(config.BlobContainerUri), new DefaultAzureCredential());
+        return blobClient;
     }
 }
