@@ -23,10 +23,10 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
         return entry.Id;
     }
 
-    public async Task TranscribeAudioEntry(int id, BlobContainerClient client, CancellationToken ct)
+    public async Task TranscribeAudioEntry(int id, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct)
     {
         var entity = await repo.JournalEntryGet(id, ct) ?? throw new ApplicationException($"Id {id} doesn't exist");
-        if (entity.Transcript is not null) return;
+        if (entity.Transcript is not null) goto SendMessage;
 
         var localFile = await business.GetAudioFile(entity.AudioPath, client, ct);
         var stopwatch = Stopwatch.StartNew();
@@ -36,11 +36,13 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
 
         entity.TranscriptProcessingTime = (int)stopwatch.Elapsed.TotalSeconds;
         entity.Transcript = transcript.Transcript;
-        entity.TranscriptProcessingTime = transcript.Cost;
+        entity.TranscriptCost = transcript.Cost;
 
         await repo.JournalEntryUpdate(entity, ct);
 
         os.FileDelete(localFile);
-        await os.ServiceBusSendJson(null!, new AudioProcessQueueItemModel { Id = id, Step = AudioProcessStepEnum.Chatbot }, ct);
+
+    SendMessage:
+        await os.ServiceBusSendJson(sender, new AudioProcessQueueItemModel { Id = id, Step = AudioProcessStepEnum.Chatbot }, ct);
     }
 }

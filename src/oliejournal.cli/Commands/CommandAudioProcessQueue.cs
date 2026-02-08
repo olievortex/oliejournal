@@ -20,6 +20,7 @@ public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieCo
         var bcClient = new BlobContainerClient(new Uri(config.BlobContainerUri), new DefaultAzureCredential());
         await using var sbClient = new ServiceBusClient(config.ServiceBus, new DefaultAzureCredential());
         await using var receiver = sbClient.CreateReceiver(config.AudioProcessQueue);
+        await using var sender = sbClient.CreateSender(config.AudioProcessQueue);
 
         do
         {
@@ -32,7 +33,9 @@ public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieCo
             switch (message.Body.Step)
             {
                 case lib.Enums.AudioProcessStepEnum.Transcript:
-                    await process.TranscribeAudioEntry(message.Body.Id, bcClient, ct);
+                    await process.TranscribeAudioEntry(message.Body.Id, bcClient, sender, ct);
+                    break;
+                case lib.Enums.AudioProcessStepEnum.Chatbot:
                     break;
                 default:
                     throw new NotImplementedException();
