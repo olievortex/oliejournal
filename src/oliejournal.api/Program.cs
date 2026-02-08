@@ -10,6 +10,7 @@ using oliejournal.api.Models;
 using oliejournal.data;
 using oliejournal.lib;
 using oliejournal.lib.Services;
+using oliejournal.lib.Units;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
 
@@ -70,7 +71,7 @@ public static class Program
     private static void AddOlieDependencyInjection(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IJournalProcess, JournalProcess>();
-        builder.Services.AddScoped<IJournalBusiness, JournalBusiness>();
+        builder.Services.AddScoped<IJournalEntryIngestionUnit, JournalEntryIngestionUnit>();
         builder.Services.AddScoped<IOlieWavReader, OlieWavReader>();
         builder.Services.AddScoped<IOlieService, OlieService>();
         builder.Services.AddScoped<IOlieConfig, OlieConfig>();

@@ -5,12 +5,10 @@ using oliejournal.data.Entities;
 using oliejournal.lib.Enums;
 using oliejournal.lib.Models;
 using oliejournal.lib.Services;
-using oliejournal.lib.Services.Models;
-using System.Diagnostics;
 
-namespace oliejournal.lib;
+namespace oliejournal.lib.Units;
 
-public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieService os) : IJournalBusiness
+public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyRepository repo) : IJournalEntryIngestionUnit
 {
     public async Task<JournalEntryEntity> CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct)
     {
@@ -42,23 +40,6 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         await os.ServiceBusSendJson(sender, message, ct);
     }
 
-    public async Task CreateJournalTranscript(int journalEntryId, OlieTranscribeResult result, Stopwatch stopwatch, CancellationToken ct)
-    {
-        var entity = new JournalTranscriptEntity
-        {
-            JournalEntryFk = journalEntryId,
-            ServiceFk = result.ServiceId,
-
-            ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
-            Transcript = result.Transcript?[..8096],
-            Cost = result.Cost,
-            Exception = result.Exception?.ToString()[..8096],
-            Created = DateTime.UtcNow,
-        };
-
-        await repo.JournalTranscriptCreate(entity, ct);
-    }
-
     public OlieWavInfo EnsureAudioValidates(byte[] file)
     {
         if (file.Length == 0) throw new ApplicationException("WAV file empty");
@@ -74,28 +55,9 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         return info;
     }
 
-    public async Task EnsureGoogleLimit(int limit, CancellationToken ct)
+    public async Task<byte[]> GetBytesFromStream(Stream stream, CancellationToken ct)
     {
-        const int free = 60 * 60; // V1 API
-        const double rate = 0.016 / 60; // V1 API w/ data logging
-
-        var lookback = DateTime.UtcNow.AddMonths(-1);
-        var billing = await repo.GoogleGetSpeech2TextSummary(lookback, ct);
-
-        if (billing < free) return;
-
-        var cost = (billing - free) * rate;
-
-        if (cost > limit) throw new ApplicationException("Google speech-to-text budget exceeded");
-    }
-
-    public async Task<string> GetAudioFile(string blobPath, BlobContainerClient client, CancellationToken ct)
-    {
-        var localFile = $"{Path.GetTempPath()}{Path.GetFileName(blobPath)}";
-        if (os.FileExists(localFile)) return localFile;
-
-        await os.BlobDownloadFile(client, blobPath, localFile, ct);
-        return localFile;
+        return await os.StreamToByteArray(stream, ct);
     }
 
     public async Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct)
