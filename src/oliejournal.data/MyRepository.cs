@@ -25,4 +25,15 @@ public class MyRepository(MyContext context) : IMyRepository
     }
 
     #endregion
+
+    #region Google
+
+    public async Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct)
+    {
+        return await context.JournalEntries
+            .Where(w => w.Created >= start)
+            .SumAsync(c => c.TranscriptCost, ct);
+    }
+
+    #endregion
 }

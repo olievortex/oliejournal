@@ -55,6 +55,21 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         return info;
     }
 
+    public async Task EnsureGoogleLimit(int limit, CancellationToken ct)
+    {
+        const int free = 60 * 60; // V1 API
+        const double rate = 0.016 / 60; // V1 API w/ data logging
+
+        var lookback = DateTime.UtcNow.AddMonths(-1);
+        var billing = await repo.GoogleGetSpeech2TextSummary(lookback, ct);
+
+        if (billing < free) return;
+
+        var cost = (billing - free) * rate;
+
+        if (cost > limit) throw new ApplicationException("Google speech-to-text budget exceeded");
+    }
+
     public async Task<string> GetAudioFile(string blobPath, BlobContainerClient client, CancellationToken ct)
     {
         var localFile = $"{Path.GetTempPath()}{Path.GetFileName(blobPath)}";

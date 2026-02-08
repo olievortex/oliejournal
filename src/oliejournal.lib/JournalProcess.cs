@@ -10,6 +10,8 @@ namespace oliejournal.lib;
 
 public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepository repo, IOlieWavReader owr) : IJournalProcess
 {
+    const int GoogleApiLimit = 5;
+
     public async Task<int> IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {
         var file = await os.StreamToByteArray(audio, ct);
@@ -28,6 +30,8 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
         var entity = await repo.JournalEntryGet(id, ct) ?? throw new ApplicationException($"Id {id} doesn't exist");
         if (entity.Transcript is not null) goto SendMessage;
 
+        await business.EnsureGoogleLimit(GoogleApiLimit, ct);
+
         var localFile = await business.GetAudioFile(entity.AudioPath, client, ct);
         var stopwatch = Stopwatch.StartNew();
 
@@ -36,9 +40,11 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
 
         entity.TranscriptProcessingTime = (int)stopwatch.Elapsed.TotalSeconds;
         entity.Transcript = transcript.Transcript;
-        entity.TranscriptCost = transcript.Cost;
+        entity.TranscriptCost += transcript.Cost; // Failed API calls still cost money
 
         await repo.JournalEntryUpdate(entity, ct);
+
+        if (transcript.Exception is not null) throw transcript.Exception;
 
         os.FileDelete(localFile);
 

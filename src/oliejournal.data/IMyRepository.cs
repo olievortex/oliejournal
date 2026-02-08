@@ -13,4 +13,10 @@ public interface IMyRepository
     Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct);
 
     #endregion
+
+    #region Google
+
+    Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct);
+
+    #endregion
 }

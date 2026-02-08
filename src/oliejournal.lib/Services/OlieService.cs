@@ -63,37 +63,49 @@ public class OlieService : IOlieService
 
     public async Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct)
     {
-        var transcript = string.Empty;
-
-        if (info.Channels != 1) throw new ApplicationException("WAV must be mono");
-        if (info.BitsPerSample != 16) throw new ApplicationException("WAV must be 16 bit");
-
-        var client = await SpeechClient.CreateAsync(ct);
-        var audio = await RecognitionAudio.FromFileAsync(localFile);
-        var config = new RecognitionConfig
+        try
         {
-            Encoding = RecognitionConfig.Types.AudioEncoding.Linear16,
-            SampleRateHertz = info.SampleRate,
-            LanguageCode = LanguageCodes.English.UnitedStates,
-            EnableAutomaticPunctuation = true,
-            EnableSpokenPunctuation = false
-        };
-        var response = await client.RecognizeAsync(config, audio, ct);
+            var transcript = string.Empty;
 
-        foreach (var item in response.Results)
-        {
-            if (item.Alternatives.Count > 0)
+            if (info.Channels != 1) throw new ApplicationException("WAV must be mono");
+            if (info.BitsPerSample != 16) throw new ApplicationException("WAV must be 16 bit");
+
+            var client = await SpeechClient.CreateAsync(ct);
+            var audio = await RecognitionAudio.FromFileAsync(localFile);
+            var config = new RecognitionConfig
             {
-                var alternative = item.Alternatives[0];
-                transcript = alternative.Transcript;
-            }
-        }
+                Encoding = RecognitionConfig.Types.AudioEncoding.Linear16,
+                SampleRateHertz = info.SampleRate,
+                LanguageCode = LanguageCodes.English.UnitedStates,
+                EnableAutomaticPunctuation = true,
+                EnableSpokenPunctuation = false
+            };
+            var response = await client.RecognizeAsync(config, audio, ct);
 
-        return new OlieTranscribeResult
+            foreach (var item in response.Results)
+            {
+                if (item.Alternatives.Count > 0)
+                {
+                    var alternative = item.Alternatives[0];
+                    transcript = alternative.Transcript;
+                }
+            }
+
+            return new OlieTranscribeResult
+            {
+                Transcript = transcript,
+                Cost = (int)response.TotalBilledTime.Seconds
+            };
+        }
+        catch (Exception ex)
         {
-            Transcript = transcript,
-            Cost = (int)response.TotalBilledTime.Seconds
-        };
+            return new OlieTranscribeResult
+            {
+                Transcript = null,
+                Cost = (int)info.Duration.Seconds,
+                Exception = ex
+            };
+        }
     }
 
 
