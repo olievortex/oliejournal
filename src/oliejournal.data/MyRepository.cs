@@ -26,13 +26,30 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #endregion
 
+    #region JournalTranscript
+
+    public async Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct)
+    {
+        await context.JournalTranscripts.AddAsync(entity, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    public async Task<JournalTranscriptEntity?> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct)
+    {
+        return await context.JournalTranscripts
+            .Where(w => w.JournalEntryFk == journalEntryFk && w.Transcript != null)
+            .SingleOrDefaultAsync(ct);
+    }
+
+    #endregion
+
     #region Google
 
     public async Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct)
     {
-        return await context.JournalEntries
+        return await context.JournalTranscripts
             .Where(w => w.Created >= start)
-            .SumAsync(c => c.TranscriptCost, ct);
+            .SumAsync(c => c.Cost, ct);
     }
 
     #endregion

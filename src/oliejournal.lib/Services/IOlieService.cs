@@ -26,7 +26,7 @@ public interface IOlieService
 
     #region Google
 
-    Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct);
+    Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct);
 
     #endregion
 

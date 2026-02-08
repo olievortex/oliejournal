@@ -61,8 +61,10 @@ public class OlieService : IOlieService
 
     #region Google
 
-    public async Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct)
+    public async Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct)
     {
+        const int serviceId = 1;
+
         try
         {
             var transcript = string.Empty;
@@ -94,16 +96,17 @@ public class OlieService : IOlieService
             return new OlieTranscribeResult
             {
                 Transcript = transcript,
-                Cost = (int)response.TotalBilledTime.Seconds
+                Cost = (int)response.TotalBilledTime.Seconds,
+                ServiceId = serviceId,
             };
         }
         catch (Exception ex)
         {
             return new OlieTranscribeResult
             {
-                Transcript = null,
                 Cost = (int)info.Duration.Seconds,
-                Exception = ex
+                Exception = ex,
+                ServiceId = serviceId,
             };
         }
     }

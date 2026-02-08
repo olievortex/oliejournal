@@ -14,6 +14,14 @@ public interface IMyRepository
 
     #endregion
 
+    #region JournalTranscript
+
+    Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct);
+
+    Task<JournalTranscriptEntity?> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct);
+
+    #endregion
+
     #region Google
 
     Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct);

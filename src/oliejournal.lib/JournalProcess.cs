@@ -28,7 +28,7 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
     public async Task TranscribeAudioEntry(int id, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct)
     {
         var entity = await repo.JournalEntryGet(id, ct) ?? throw new ApplicationException($"Id {id} doesn't exist");
-        if (entity.Transcript is not null) goto SendMessage;
+        if (await repo.JournalTranscriptGetByJournalEntryFk(id, ct) is not null) goto SendMessage;
 
         await business.EnsureGoogleLimit(GoogleApiLimit, ct);
 
@@ -36,13 +36,9 @@ public class JournalProcess(IJournalBusiness business, IOlieService os, IMyRepos
         var stopwatch = Stopwatch.StartNew();
 
         var info = owr.GetOlieWavInfo(localFile);
-        var transcript = await os.GoogleTranscribeWav(localFile, info, ct);
+        var transcript = await os.GoogleTranscribeWavNoEx(localFile, info, ct);
 
-        entity.TranscriptProcessingTime = (int)stopwatch.Elapsed.TotalSeconds;
-        entity.Transcript = transcript.Transcript;
-        entity.TranscriptCost += transcript.Cost; // Failed API calls still cost money
-
-        await repo.JournalEntryUpdate(entity, ct);
+        await business.CreateJournalTranscript(id, transcript, stopwatch, ct);
 
         if (transcript.Exception is not null) throw transcript.Exception;
 

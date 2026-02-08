@@ -5,6 +5,8 @@ using oliejournal.data.Entities;
 using oliejournal.lib.Enums;
 using oliejournal.lib.Models;
 using oliejournal.lib.Services;
+using oliejournal.lib.Services.Models;
+using System.Diagnostics;
 
 namespace oliejournal.lib;
 
@@ -38,6 +40,23 @@ public class JournalBusiness(IOlieWavReader owr, IMyRepository repo, IOlieServic
         };
 
         await os.ServiceBusSendJson(sender, message, ct);
+    }
+
+    public async Task CreateJournalTranscript(int journalEntryId, OlieTranscribeResult result, Stopwatch stopwatch, CancellationToken ct)
+    {
+        var entity = new JournalTranscriptEntity
+        {
+            JournalEntryFk = journalEntryId,
+            ServiceFk = result.ServiceId,
+
+            ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
+            Transcript = result.Transcript?[..8096],
+            Cost = result.Cost,
+            Exception = result.Exception?.ToString()[..8096],
+            Created = DateTime.UtcNow,
+        };
+
+        await repo.JournalTranscriptCreate(entity, ct);
     }
 
     public OlieWavInfo EnsureAudioValidates(byte[] file)

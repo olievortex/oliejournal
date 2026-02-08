@@ -10,10 +10,21 @@ CREATE TABLE "JournalEntries" (
   "AudioChannels" int NOT NULL,
   "AudioSampleRate" int NOT NULL,
   "AudioBitsPerSample" int NOT NULL,
-  "Transcript" varchar(8096) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  "TranscriptProcessingTime" int DEFAULT NULL,
-  "TranscriptCost" int NOT NULL,
   PRIMARY KEY ("Id")
+);
+
+CREATE TABLE "JournalTranscripts" (
+  "Id" int NOT NULL AUTO_INCREMENT,
+  "JournalEntryFk" int NOT NULL,
+  "Created" datetime NOT NULL,
+  "Transcript" varchar(8096) DEFAULT NULL,
+  "ProcessingTime" int NOT NULL,
+  "Cost" int NOT NULL,
+  "Exception" varchar(8096) DEFAULT NULL,
+  "ServiceFk" int NOT NULL,
+  PRIMARY KEY ("Id"),
+  KEY "JournalTranscripts_JournalEntries_FK" ("JournalEntryFk"),
+  CONSTRAINT "JournalTranscripts_JournalEntries_FK" FOREIGN KEY ("JournalEntryFk") REFERENCES "JournalEntries" ("Id")
 );
 
 CREATE TABLE "Conversations" (

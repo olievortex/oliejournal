@@ -8,4 +8,5 @@ namespace oliejournal.data;
 public class MyContext(DbContextOptions<MyContext> options) : DbContext(options)
 {
     public virtual DbSet<JournalEntryEntity> JournalEntries { get; set; }
+    public virtual DbSet<JournalTranscriptEntity> JournalTranscripts { get; set; }
 }
