@@ -114,6 +114,25 @@ public class OlieService : IOlieService
 
     #endregion
 
+    #region OpenAi
+
+    public Task<string> OpenAiCreateConversation(string userId, string instructions, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<OlieChatbotResult> OpenAiEngageChatbot(string message, string conversationId, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task OpenAiDeleteConversation(string id, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
+
     #region ServiceBus
 
     public async Task ServiceBusSendJson(ServiceBusSender sender, object data, CancellationToken ct)

@@ -17,7 +17,7 @@ public class JournalProcessTests
         var ingest = new Mock<IJournalEntryIngestionUnit>();
         ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<OlieWavInfo>(), It.IsAny<string>(), It.IsAny<int>(), CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
-        var unit = new JournalProcess(ingest.Object, null!);
+        var unit = new JournalProcess(ingest.Object, null!, null!);
 
         // Act
         var result = await unit.IngestAudioEntry(string.Empty, null!, null!, null!, CancellationToken.None);
@@ -37,7 +37,7 @@ public class JournalProcessTests
         var transcribe = new Mock<IJournalEntryTranscribeUnit>();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ThrowsAsync(new ApplicationException());
-        var unit = new JournalProcess(null!, transcribe.Object);
+        var unit = new JournalProcess(null!, transcribe.Object, null!);
 
         // Act, Assert
         Assert.ThrowsAsync<ApplicationException>(async () => await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None));
@@ -51,7 +51,7 @@ public class JournalProcessTests
         var ingestion = new Mock<IJournalEntryIngestionUnit>();
         transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
             .ReturnsAsync(true);
-        var unit = new JournalProcess(ingestion.Object, transcribe.Object);
+        var unit = new JournalProcess(ingestion.Object, transcribe.Object, null!);
 
         // Act
         await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None);
@@ -72,7 +72,7 @@ public class JournalProcessTests
             .ReturnsAsync(false);
         transcribe.Setup(s => s.Transcribe(It.IsAny<string>(), CancellationToken.None))
             .ReturnsAsync(new OlieTranscribeResult { Exception = new ApplicationException() });
-        var unit = new JournalProcess(ingestion.Object, transcribe.Object);
+        var unit = new JournalProcess(ingestion.Object, transcribe.Object, null!);
 
         // Act, Assert
         Assert.ThrowsAsync<ApplicationException>(async () => await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None));
@@ -90,7 +90,7 @@ public class JournalProcessTests
             .ReturnsAsync(false);
         transcribe.Setup(s => s.Transcribe(It.IsAny<string>(), CancellationToken.None))
             .ReturnsAsync(new OlieTranscribeResult());
-        var unit = new JournalProcess(ingestion.Object, transcribe.Object);
+        var unit = new JournalProcess(ingestion.Object, transcribe.Object, null!);
 
         // Act
         await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None);

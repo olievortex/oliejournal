@@ -30,6 +30,14 @@ public interface IOlieService
 
     #endregion
 
+    #region OpenAi
+
+    Task<string> OpenAiCreateConversation(string userId, string instructions, CancellationToken ct);
+    Task<OlieChatbotResult> OpenAiEngageChatbot(string message, string conversationId, CancellationToken ct);
+    Task OpenAiDeleteConversation(string id, CancellationToken ct);
+
+    #endregion
+
     #region ServiceBus
 
     Task ServiceBusSendJson(ServiceBusSender sender, object data, CancellationToken ct);

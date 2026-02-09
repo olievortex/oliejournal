@@ -8,9 +8,32 @@ namespace oliejournal.lib;
 
 public class JournalProcess(
     IJournalEntryIngestionUnit ingestion,
-    IJournalEntryTranscribeUnit transcribe) : IJournalProcess
+    IJournalEntryTranscribeUnit transcribe,
+    IJournalEntryChatbotUnit chatbot) : IJournalProcess
 {
     const int GoogleApiLimit = 5;
+    const int OpenAiLimit = 5;
+
+    public async Task ChatbotAudioEntry(int journalEntryId, ServiceBusSender sender, CancellationToken ct)
+    {
+        var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
+        var transcript = await chatbot.GetJournalTranscriptOrThrow(journalEntryId, ct);
+        if (await chatbot.IsAlreadyChatbotted(journalEntryId, ct)) goto SendMessage;
+        if (transcript.Transcript is null) goto SendMessage;
+
+        await chatbot.EnsureOpenAiLimit(OpenAiLimit, ct);
+        await chatbot.DeleteConversations(entry.UserId, ct);
+        var conversation = await chatbot.GetConversation(entry.UserId, ct);
+
+        var stopwatch = Stopwatch.StartNew();
+        var message = await chatbot.Chatbot(transcript.Transcript, conversation.Id, ct);
+        await chatbot.CreateJournalChatbot(journalEntryId, message, stopwatch, ct);
+
+        if (message.Exception is not null) throw message.Exception;
+
+        SendMessage:
+        await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
+    }
 
     public async Task<int> IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {

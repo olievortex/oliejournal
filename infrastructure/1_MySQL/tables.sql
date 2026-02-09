@@ -1,5 +1,14 @@
 use oliejournal;
 
+CREATE TABLE "Conversations" (
+  "Id" varchar(100) NOT NULL,
+  "UserId" varchar(100) NOT NULL,
+  "Created" datetime NOT NULL,
+  "Timestamp" datetime NOT NULL,
+  "Deleted" datetime DEFAULT NULL,
+  PRIMARY KEY ("Id")
+);
+
 CREATE TABLE "JournalEntries" (
   "Id" int NOT NULL AUTO_INCREMENT,
   "UserId" varchar(100) NOT NULL,
@@ -27,13 +36,22 @@ CREATE TABLE "JournalTranscripts" (
   CONSTRAINT "JournalTranscripts_JournalEntries_FK" FOREIGN KEY ("JournalEntryFk") REFERENCES "JournalEntries" ("Id")
 );
 
-CREATE TABLE "Conversations" (
-  "Id" varchar(100) NOT NULL,
-  "UserId" varchar(100) NOT NULL,
+CREATE TABLE "JournalChatbots" (
+  "Id" int NOT NULL AUTO_INCREMENT,
+  "JournalTranscriptFk" int NOT NULL,
+  "ConversationFk" varchar(100) NOT NULL,
+  "ServiceFk" int NOT NULL,
   "Created" datetime NOT NULL,
-  "Timestamp" datetime NOT NULL,
-  "Deleted" datetime DEFAULT NULL,
-  PRIMARY KEY ("Id")
+  "ProcessingTime" int NOT NULL,
+  "InputTokens" int NOT NULL,
+  "OutputTokens" int NOT NULL,
+  "Message" varchar(8096) DEFAULT NULL,
+  "Exception" varchar(8096) DEFAULT NULL,
+  PRIMARY KEY ("Id"),
+  KEY "JournalChatbots_JournalTranscripts_FK" ("JournalTranscriptFk"),
+  KEY "JournalChatbots_Conversations_FK" ("ConversationFk"),
+  CONSTRAINT "JournalChatbots_Conversations_FK" FOREIGN KEY ("ConversationFk") REFERENCES "Conversations" ("Id"),
+  CONSTRAINT "JournalChatbots_JournalTranscripts_FK" FOREIGN KEY ("JournalTranscriptFk") REFERENCES "JournalTranscripts" ("Id")
 );
 
 CREATE TABLE "ConversationLogs" (
