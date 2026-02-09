@@ -11,6 +11,7 @@ public class OlieConfig(IConfiguration config) : IOlieConfig
     public string BlobContainerUri => GetString("OlieBlobContainerUri");
     public string ChatbotInstructions => GetString("OlieChatbotInstructions");
     public string MySqlConnection => GetString("OlieMySqlConnection");
+    public string OpenAiApiKey => GetString("OlieOpenAiApiKey");
     public string ServiceBus => GetString("OlieServiceBus");
 
     private string GetString(string key)

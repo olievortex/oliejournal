@@ -102,7 +102,7 @@ public class MyRepository(MyContext context) : IMyRepository
 
     public async Task<OpenAiCostSummary> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct)
     {
-        return await context.JournalChatbots
+        var result = await context.JournalChatbots
             .Where(w => w.Created >= start)
             .GroupBy(g => 1)
             .Select(s => new OpenAiCostSummary
@@ -110,7 +110,9 @@ public class MyRepository(MyContext context) : IMyRepository
                 InputTokens = s.Sum(s => s.InputTokens),
                 OutputTokens = s.Sum(s => s.OutputTokens)
             })
-            .SingleAsync(ct);
+            .SingleOrDefaultAsync(ct);
+
+        return result ?? new OpenAiCostSummary();
     }
 
     #endregion

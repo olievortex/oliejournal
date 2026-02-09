@@ -1,10 +1,15 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿#pragma warning disable OPENAI001
+
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
 using Newtonsoft.Json;
 using oliejournal.lib.Services.Models;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace oliejournal.lib.Services;
 
@@ -116,9 +121,37 @@ public class OlieService : IOlieService
 
     #region OpenAi
 
-    public Task<string> OpenAiCreateConversation(string userId, string instructions, CancellationToken ct)
+    public async Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var client = new OpenAI.Conversations.ConversationClient(apiKey);
+        var options = new RequestOptions() { CancellationToken = ct, };
+
+        var content = BinaryContent.CreateJson(new
+        {
+            metadata = new Dictionary<string, string>
+            {
+                { "userId", userId}
+            },
+            items = new List<object>()
+            {
+                new
+                {
+                    content = instructions,
+                    role = "developer",
+                    type = "message",
+                }
+            }
+        });
+
+        var result = await client.CreateConversationAsync(content, options);
+
+        using var resultJson = JsonDocument.Parse(result.GetRawResponse().Content.ToString());
+        var conversationId = resultJson.RootElement
+            .GetProperty("id"u8)
+            .GetString()
+            ?? throw new ApplicationException($"Unable to create new conversation for {userId}");
+
+        return conversationId;
     }
 
     public Task<OlieChatbotResult> OpenAiEngageChatbot(string message, string conversationId, CancellationToken ct)
@@ -126,9 +159,11 @@ public class OlieService : IOlieService
         throw new NotImplementedException();
     }
 
-    public Task OpenAiDeleteConversation(string id, CancellationToken ct)
+    public async Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var client = new OpenAI.Conversations.ConversationClient(apiKey);
+        var options = new RequestOptions() { CancellationToken = ct, };
+        await client.DeleteConversationAsync(conversationId, options);
     }
 
     #endregion

@@ -40,7 +40,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         {
             if ((DateTime.UtcNow - conversation.Timestamp).TotalDays > 3)
             {
-                await os.OpenAiDeleteConversation(conversation.Id, ct);
+                await os.OpenAiDeleteConversation(conversation.Id, config.OpenAiApiKey, ct);
 
                 conversation.Deleted = DateTime.UtcNow;
                 await repo.ConversationUpdate(conversation, ct);
@@ -53,7 +53,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         var conversation = (await repo.ConversationGetActiveList(userId, ct)).FirstOrDefault();
         if (conversation is not null) return conversation;
 
-        var id = await os.OpenAiCreateConversation(userId, config.ChatbotInstructions, ct);
+        var id = await os.OpenAiCreateConversation(userId, config.ChatbotInstructions, config.OpenAiApiKey, ct);
 
         var entity = new ConversationEntity
         {

@@ -130,6 +130,8 @@ public class Program
                 services.AddSingleton<IOlieConfig, OlieConfig>();
                 services.AddScoped<IMyRepository, MyRepository>();
                 services.AddScoped<IJournalProcess, JournalProcess>();
+                services.AddScoped<IJournalEntryChatbotUnit, JournalEntryChatbotUnit>();
+                services.AddScoped<IJournalEntryIngestionUnit, JournalEntryIngestionUnit>();
                 services.AddScoped<IJournalEntryTranscribeUnit, JournalEntryTranscribeUnit>();
                 services.AddScoped<IOlieService, OlieService>();
                 services.AddScoped<IOlieWavReader, OlieWavReader>();

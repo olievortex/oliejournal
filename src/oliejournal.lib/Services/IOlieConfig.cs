@@ -6,5 +6,6 @@ public interface IOlieConfig
     string BlobContainerUri { get; }
     string ChatbotInstructions { get; }
     string MySqlConnection { get; }
+    string OpenAiApiKey { get; }
     string ServiceBus { get; }
 }

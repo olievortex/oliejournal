@@ -36,6 +36,7 @@ public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieCo
                     await process.TranscribeAudioEntry(message.Body.Id, bcClient, sender, ct);
                     break;
                 case lib.Enums.AudioProcessStepEnum.Chatbot:
+                    await process.ChatbotAudioEntry(message.Body.Id, sender, ct);
                     break;
                 default:
                     throw new NotImplementedException();
