@@ -6,4 +6,6 @@ public class OlieChatbotResult
     public int ServiceId { get; set; }
     public string? Message { get; set; }
     public Exception? Exception { get; set; }
+    public int InputTokens { get; set; }
+    public int OutputTokens { get; set; }
 }

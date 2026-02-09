@@ -33,7 +33,7 @@ public interface IOlieService
     #region OpenAi
 
     Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct);
-    Task<OlieChatbotResult> OpenAiEngageChatbot(string message, string conversationId, CancellationToken ct);
+    Task<OlieChatbotResult> OpenAiEngageChatbotNoEx(string userId, string message, string conversationId, string model, string apiKey, CancellationToken ct);
     Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct);
 
     #endregion

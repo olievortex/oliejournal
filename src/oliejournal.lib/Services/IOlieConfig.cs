@@ -7,5 +7,6 @@ public interface IOlieConfig
     string ChatbotInstructions { get; }
     string MySqlConnection { get; }
     string OpenAiApiKey { get; }
+    string OpenAiModel { get; }
     string ServiceBus { get; }
 }

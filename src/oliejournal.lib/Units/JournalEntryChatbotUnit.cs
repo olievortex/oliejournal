@@ -8,9 +8,9 @@ namespace oliejournal.lib.Units;
 
 public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieConfig config) : IJournalEntryChatbotUnit
 {
-    public async Task<OlieChatbotResult> Chatbot(string message, string conversationId, CancellationToken ct)
+    public async Task<OlieChatbotResult> Chatbot(string userId, string message, string conversationId, CancellationToken ct)
     {
-        return await os.OpenAiEngageChatbot(message, conversationId, ct);
+        return await os.OpenAiEngageChatbotNoEx(userId, message, conversationId, config.OpenAiModel, config.OpenAiApiKey, ct);
     }
 
     public async Task CreateJournalChatbot(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct)
@@ -23,8 +23,8 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
 
             ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
             Message = result.Message?.Left(8096),
-            InputTokens = 0,
-            OutputTokens = 0,
+            InputTokens = result.InputTokens,
+            OutputTokens = result.OutputTokens,
             Exception = result.Exception?.ToString().Left(8096),
             Created = DateTime.UtcNow,
         };

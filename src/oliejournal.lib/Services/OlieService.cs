@@ -1,11 +1,10 @@
-﻿#pragma warning disable OPENAI001
-
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
 using Newtonsoft.Json;
 using oliejournal.lib.Services.Models;
+using OpenAI.Responses;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
@@ -121,6 +120,8 @@ public class OlieService : IOlieService
 
     #region OpenAi
 
+#pragma warning disable OPENAI001
+
     public async Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct)
     {
         var client = new OpenAI.Conversations.ConversationClient(apiKey);
@@ -154,9 +155,47 @@ public class OlieService : IOlieService
         return conversationId;
     }
 
-    public Task<OlieChatbotResult> OpenAiEngageChatbot(string message, string conversationId, CancellationToken ct)
+    public async Task<OlieChatbotResult> OpenAiEngageChatbotNoEx(string userId, string message, string conversationId, string model, string apiKey, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        const int serviceId = 1;
+
+        try
+        {
+            var client = new ResponsesClient(model, apiKey);
+
+            var responseOptions = new CreateResponseOptions
+            {
+                ConversationOptions = new ResponseConversationOptions(conversationId),
+            };
+            responseOptions.InputItems.Add(ResponseItem.CreateUserMessageItem(message));
+            responseOptions.Metadata.Add("userId", userId);
+
+            ResponseResult response = await client.CreateResponseAsync(responseOptions, ct);
+
+            var result = new OlieChatbotResult
+            {
+                ConversationId = conversationId,
+                Message = response.GetOutputText() ?? string.Empty,
+                ServiceId = serviceId,
+                InputTokens = response.Usage.InputTokenCount,
+                OutputTokens = response.Usage.OutputTokenCount
+            };
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            var result = new OlieChatbotResult
+            {
+                ConversationId = conversationId,
+                Exception = ex,
+                ServiceId = serviceId,
+                InputTokens = (int)(message.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length * 1.3),
+                OutputTokens = 200
+            };
+
+            return result;
+        }
     }
 
     public async Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct)
@@ -165,6 +204,8 @@ public class OlieService : IOlieService
         var options = new RequestOptions() { CancellationToken = ct, };
         await client.DeleteConversationAsync(conversationId, options);
     }
+
+#pragma warning restore OPENAI001
 
     #endregion
 
