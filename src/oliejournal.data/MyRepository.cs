@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using oliejournal.data.Entities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace oliejournal.data;
 
+[ExcludeFromCodeCoverage]
 public class MyRepository(MyContext context) : IMyRepository
 {
     #region JournalEntry

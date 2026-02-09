@@ -1,4 +1,6 @@
-﻿namespace oliejournal.lib.Services;
+﻿using oliejournal.lib.Services.Models;
+
+namespace oliejournal.lib.Services;
 
 public interface IOlieWavReader
 {

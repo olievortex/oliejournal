@@ -1,15 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using oliejournal.lib.Services.Models;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace oliejournal.lib.Services;
-
-public class OlieWavInfo
-{
-    public TimeSpan Duration { get; set; }
-    public int Channels { get; set; }
-    public int SampleRate { get; set; }
-    public int BitsPerSample { get; set; }
-}
 
 [ExcludeFromCodeCoverage]
 public class OlieWavReader : IOlieWavReader

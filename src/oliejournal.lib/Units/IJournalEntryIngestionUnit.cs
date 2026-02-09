@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs;
 using oliejournal.data.Entities;
 using oliejournal.lib.Enums;
-using oliejournal.lib.Services;
+using oliejournal.lib.Services.Models;
 
 namespace oliejournal.lib.Units;
 
