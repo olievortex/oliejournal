@@ -13,19 +13,27 @@ namespace oliejournal.tests.UnitsTests;
 [TestFixture]
 public class JournalEntryIngestionUnitTests
 {
+    private static (JournalEntryIngestionUnit, Mock<IOlieWavReader>, Mock<IOlieService>, Mock<IMyRepository>) CreateUnit()
+    {
+        var owr = new Mock<IOlieWavReader>();
+        var os = new Mock<IOlieService>();
+        var repo = new Mock<IMyRepository>();
+
+        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
+
+        return (unit, owr, os, repo);
+    }
+
+
     #region CreateJournalEntry
 
     [Test]
     public async Task CreateJournalEntry_SetsPropertiesAndCallsRepo()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
+        var (unit, _, _, repo) = CreateUnit();
         repo.Setup(s => s.JournalEntryCreate(It.IsAny<JournalEntryEntity>(), CancellationToken.None))
-            .Callback((JournalEntryEntity e, CancellationToken _) => { e.Id = 123; });
-
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
+            .Callback<JournalEntryEntity, CancellationToken>((e, _) => { e.Id = 123; });
 
         var info = new OlieWavInfo
         {
@@ -62,13 +70,9 @@ public class JournalEntryIngestionUnitTests
     {
         // Arrange
         var model = new AudioProcessQueueItemModel();
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
+        var (unit, _, os, _) = CreateUnit();
         os.Setup(s => s.ServiceBusSendJson(null!, It.IsAny<object>(), CancellationToken.None))
-            .Callback((ServiceBusSender _, object m, CancellationToken __) => { model = (AudioProcessQueueItemModel)m; });
-        var repo = new Mock<IMyRepository>();
-
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
+            .Callback<ServiceBusSender, object, CancellationToken>((_, m, _) => { model = (AudioProcessQueueItemModel)m; });
 
         // Act
         await unit.CreateJournalMessage(77, AudioProcessStepEnum.Chatbot, null!, CancellationToken.None);
@@ -89,12 +93,7 @@ public class JournalEntryIngestionUnitTests
     public void EnsureAudioValidates_ThrowsWhenEmpty()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
-
+        var (unit, _, _, _) = CreateUnit();
         var empty = Array.Empty<byte>();
 
         // Act
@@ -108,12 +107,7 @@ public class JournalEntryIngestionUnitTests
     public void EnsureAudioValidates_ThrowsWhenTooLarge()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
-
+        var (unit, _, _, _) = CreateUnit();
         var large = new byte[9 * 1024 * 1024 + 1];
 
         // Act
@@ -127,13 +121,9 @@ public class JournalEntryIngestionUnitTests
     public void EnsureAudioValidates_ThrowsOnChannelsGreaterThanOne()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
+        var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
             .Returns(new OlieWavInfo { Channels = 2, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(10) });
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
-
         var file = new byte[100];
 
         // Act
@@ -147,13 +137,9 @@ public class JournalEntryIngestionUnitTests
     public void EnsureAudioValidates_ThrowsOnBadSampleRate()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
+        var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
             .Returns(new OlieWavInfo { Channels = 1, SampleRate = 7000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(10) });
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
-
         var file = new byte[100];
 
         // Act
@@ -167,13 +153,9 @@ public class JournalEntryIngestionUnitTests
     public void EnsureAudioValidates_ThrowsOnBitsPerSampleNot16()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
+        var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
             .Returns(new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 8, Duration = TimeSpan.FromSeconds(10) });
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
-
         var file = new byte[100];
 
         // Act
@@ -187,13 +169,9 @@ public class JournalEntryIngestionUnitTests
     public void EnsureAudioValidates_ThrowsOnDurationTooLong()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
+        var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
             .Returns(new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(56) });
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
-
         var file = new byte[100];
 
         // Act
@@ -208,12 +186,9 @@ public class JournalEntryIngestionUnitTests
     {
         // Arrange
         var info = new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(10) };
-        var owr = new Mock<IOlieWavReader>();
+        var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
             .Returns(info);
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
 
         var file = new byte[100];
 
@@ -233,12 +208,9 @@ public class JournalEntryIngestionUnitTests
     {
         // Arrange
         var result = new byte[] { 1, 2, 3 };
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
+        var (unit, _, os, _) = CreateUnit();
         os.Setup(s => s.StreamToByteArray(It.IsAny<Stream>(), CancellationToken.None))
             .ReturnsAsync(result);
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
 
         using var ms = new MemoryStream([9, 8, 7]);
 
@@ -257,10 +229,7 @@ public class JournalEntryIngestionUnitTests
     public async Task WriteAudioFileToBlob_ComputesBlobPathAndCallsUpload()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
+        var (unit, _, _, _) = CreateUnit();
 
         var localPath = Path.Combine("some", "dir", "audio.wav");
 
@@ -280,10 +249,7 @@ public class JournalEntryIngestionUnitTests
     public async Task WriteAudioFileToTemp_WritesFileAndReturnsPath()
     {
         // Arrange
-        var owr = new Mock<IOlieWavReader>();
-        var os = new Mock<IOlieService>();
-        var repo = new Mock<IMyRepository>();
-        var unit = new JournalEntryIngestionUnit(owr.Object, os.Object, repo.Object);
+        var (unit, _, _, _) = CreateUnit();
 
         var data = new byte[] { 5, 6, 7 };
 
@@ -293,7 +259,6 @@ public class JournalEntryIngestionUnitTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-
             Assert.That(path, Does.EndWith(".wav"));
             Assert.That(Path.GetTempPath(), Is.Not.Null.And.Not.Empty);
             Assert.That(path, Does.Contain(Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar)));

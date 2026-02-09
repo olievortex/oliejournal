@@ -22,9 +22,9 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
             ServiceFk = result.ServiceId,
 
             ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
-            Transcript = result.Transcript?[..8096],
+            Transcript = result.Transcript?.Left(8096),
             Cost = result.Cost,
-            Exception = result.Exception?.ToString()[..8096],
+            Exception = result.Exception?.ToString().Left(8096),
             Created = DateTime.UtcNow,
         };
 
