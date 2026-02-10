@@ -14,6 +14,7 @@ public class JournalChatbotEntity
     public int OutputTokens { get; set; }
     public string? Message { get; set; }
     public string? Exception { get; set; }
+    public string? ResponseId { get; set; }
 }
 
 //-- oliejournal.JournalChatbots definition
@@ -28,7 +29,8 @@ public class JournalChatbotEntity
 //  "InputTokens" int NOT NULL,
 //  "OutputTokens" int NOT NULL,
 //  "Message" varchar(8096) DEFAULT NULL,
-//  "Exception" varchar(8096) DEFAULT NULL,
+//  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+//  "ResponseId" varchar(100) DEFAULT NULL,
 //  PRIMARY KEY("Id"),
 //  KEY "JournalChatbots_JournalTranscripts_FK" ("JournalTranscriptFk"),
 //  KEY "JournalChatbots_Conversations_FK" ("ConversationFk"),

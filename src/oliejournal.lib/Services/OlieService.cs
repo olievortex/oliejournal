@@ -178,7 +178,8 @@ public class OlieService : IOlieService
                 Message = response.GetOutputText() ?? string.Empty,
                 ServiceId = serviceId,
                 InputTokens = response.Usage.InputTokenCount,
-                OutputTokens = response.Usage.OutputTokenCount
+                OutputTokens = response.Usage.OutputTokenCount,
+                ResponseId = response.Id,
             };
 
             return result;

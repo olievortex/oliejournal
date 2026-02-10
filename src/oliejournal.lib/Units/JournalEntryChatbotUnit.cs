@@ -27,6 +27,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
             OutputTokens = result.OutputTokens,
             Exception = result.Exception?.ToString().Left(8096),
             Created = DateTime.UtcNow,
+            ResponseId = result.ResponseId,
         };
 
         await repo.JournalChatbotCreate(entity, ct);
