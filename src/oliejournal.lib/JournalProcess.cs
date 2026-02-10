@@ -18,16 +18,16 @@ public class JournalProcess(
     {
         var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
         var transcript = await chatbot.GetJournalTranscriptOrThrow(journalEntryId, ct);
-        if (await chatbot.IsAlreadyChatbotted(journalEntryId, ct)) goto SendMessage;
-        if (transcript.Transcript is null) goto SendMessage;
+        if (await chatbot.IsAlreadyChatbotted(transcript.Id, ct)) goto SendMessage;
+        if (string.IsNullOrWhiteSpace(transcript.Transcript)) goto SendMessage;
 
         await chatbot.EnsureOpenAiLimit(OpenAiLimit, ct);
         await chatbot.DeleteConversations(entry.UserId, ct);
         var conversation = await chatbot.GetConversation(entry.UserId, ct);
 
         var stopwatch = Stopwatch.StartNew();
-        var message = await chatbot.Chatbot(transcript.Transcript, conversation.Id, ct);
-        await chatbot.CreateJournalChatbot(journalEntryId, message, stopwatch, ct);
+        var message = await chatbot.Chatbot(entry.UserId, transcript.Transcript, conversation.Id, ct);
+        await chatbot.CreateJournalChatbot(transcript.Id, message, stopwatch, ct);
 
         if (message.Exception is not null) throw message.Exception;
 

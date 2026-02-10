@@ -38,6 +38,8 @@ public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieCo
                 case lib.Enums.AudioProcessStepEnum.Chatbot:
                     await process.ChatbotAudioEntry(message.Body.Id, sender, ct);
                     break;
+                case lib.Enums.AudioProcessStepEnum.VoiceOver:
+                    break;
                 default:
                     throw new NotImplementedException();
             }
