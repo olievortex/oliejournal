@@ -4,7 +4,11 @@ using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
 using Newtonsoft.Json;
 using oliejournal.lib.Services.Models;
+using OpenAI.Responses;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace oliejournal.lib.Services;
 
@@ -61,41 +65,148 @@ public class OlieService : IOlieService
 
     #region Google
 
-    public async Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct)
+    public async Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct)
     {
-        var transcript = string.Empty;
+        const int serviceId = 1;
 
-        if (info.Channels != 1) throw new ApplicationException("WAV must be mono");
-        if (info.BitsPerSample != 16) throw new ApplicationException("WAV must be 16 bit");
-
-        var client = await SpeechClient.CreateAsync(ct);
-        var audio = await RecognitionAudio.FromFileAsync(localFile);
-        var config = new RecognitionConfig
+        try
         {
-            Encoding = RecognitionConfig.Types.AudioEncoding.Linear16,
-            SampleRateHertz = info.SampleRate,
-            LanguageCode = LanguageCodes.English.UnitedStates,
-            EnableAutomaticPunctuation = true,
-            EnableSpokenPunctuation = false
-        };
-        var response = await client.RecognizeAsync(config, audio, ct);
+            var transcript = string.Empty;
 
-        foreach (var item in response.Results)
-        {
-            if (item.Alternatives.Count > 0)
+            if (info.Channels != 1) throw new ApplicationException("WAV must be mono");
+            if (info.BitsPerSample != 16) throw new ApplicationException("WAV must be 16 bit");
+
+            var client = await SpeechClient.CreateAsync(ct);
+            var audio = await RecognitionAudio.FromFileAsync(localFile);
+            var config = new RecognitionConfig
             {
-                var alternative = item.Alternatives[0];
-                transcript = alternative.Transcript;
-            }
-        }
+                Encoding = RecognitionConfig.Types.AudioEncoding.Linear16,
+                SampleRateHertz = info.SampleRate,
+                LanguageCode = LanguageCodes.English.UnitedStates,
+                EnableAutomaticPunctuation = true,
+                EnableSpokenPunctuation = false
+            };
+            var response = await client.RecognizeAsync(config, audio, ct);
 
-        return new OlieTranscribeResult
+            foreach (var item in response.Results)
+            {
+                if (item.Alternatives.Count > 0)
+                {
+                    var alternative = item.Alternatives[0];
+                    transcript = alternative.Transcript;
+                }
+            }
+
+            return new OlieTranscribeResult
+            {
+                Transcript = transcript,
+                Cost = (int)response.TotalBilledTime.Seconds,
+                ServiceId = serviceId,
+            };
+        }
+        catch (Exception ex)
         {
-            Transcript = transcript,
-            Cost = (int)response.TotalBilledTime.Seconds
-        };
+            return new OlieTranscribeResult
+            {
+                Cost = (int)info.Duration.Seconds,
+                Exception = ex,
+                ServiceId = serviceId,
+            };
+        }
     }
 
+
+    #endregion
+
+    #region OpenAi
+
+#pragma warning disable OPENAI001
+
+    public async Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct)
+    {
+        var client = new OpenAI.Conversations.ConversationClient(apiKey);
+        var options = new RequestOptions() { CancellationToken = ct, };
+
+        var content = BinaryContent.CreateJson(new
+        {
+            metadata = new Dictionary<string, string>
+            {
+                { "userId", userId}
+            },
+            items = new List<object>()
+            {
+                new
+                {
+                    content = instructions,
+                    role = "developer",
+                    type = "message",
+                }
+            }
+        });
+
+        var result = await client.CreateConversationAsync(content, options);
+
+        using var resultJson = JsonDocument.Parse(result.GetRawResponse().Content.ToString());
+        var conversationId = resultJson.RootElement
+            .GetProperty("id"u8)
+            .GetString()
+            ?? throw new ApplicationException($"Unable to create new conversation for {userId}");
+
+        return conversationId;
+    }
+
+    public async Task<OlieChatbotResult> OpenAiEngageChatbotNoEx(string userId, string message, string conversationId, string model, string apiKey, CancellationToken ct)
+    {
+        const int serviceId = 1;
+
+        try
+        {
+            var client = new ResponsesClient(model, apiKey);
+
+            var responseOptions = new CreateResponseOptions
+            {
+                ConversationOptions = new ResponseConversationOptions(conversationId),
+            };
+            responseOptions.InputItems.Add(ResponseItem.CreateUserMessageItem(message));
+            responseOptions.Metadata.Add("userId", userId);
+
+            ResponseResult response = await client.CreateResponseAsync(responseOptions, ct);
+
+            var result = new OlieChatbotResult
+            {
+                ConversationId = conversationId,
+                Message = response.GetOutputText() ?? string.Empty,
+                ServiceId = serviceId,
+                InputTokens = response.Usage.InputTokenCount,
+                OutputTokens = response.Usage.OutputTokenCount,
+                ResponseId = response.Id,
+            };
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            var result = new OlieChatbotResult
+            {
+                ConversationId = conversationId,
+                Exception = ex,
+                ServiceId = serviceId,
+                InputTokens = (int)(message.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length * 1.3),
+                OutputTokens = 200
+            };
+
+            return result;
+        }
+    }
+
+    public async Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct)
+    {
+        var client = new OpenAI.Conversations.ConversationClient(apiKey);
+        var options = new RequestOptions() { CancellationToken = ct, };
+        await client.DeleteConversationAsync(conversationId, options);
+    }
+
+#pragma warning restore OPENAI001
 
     #endregion
 

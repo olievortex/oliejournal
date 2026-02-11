@@ -1,6 +1,11 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path=".runsettings" />
+  </Folder>
   <Project Path="oliejournal.api/oliejournal.api.csproj" />
   <Project Path="oliejournal.cli/oliejournal.cli.csproj" Id="283ca3dd-9adb-4636-b627-ea8a65afdfc6" />
   <Project Path="oliejournal.data/oliejournal.data.csproj" Id="8880d5f3-517a-4659-b5ed-a06eeb03e459" />
   <Project Path="oliejournal.lib/oliejournal.lib.csproj" Id="b398818a-5d96-41f8-99d0-d89ed62c47d9" />
+  <Project Path="oliejournal.tests/oliejournal.tests.csproj" Id="b125670e-ac27-4ea6-815f-360160d9e389" />
 </Solution>

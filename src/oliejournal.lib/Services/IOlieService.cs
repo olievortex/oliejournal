@@ -26,7 +26,15 @@ public interface IOlieService
 
     #region Google
 
-    Task<OlieTranscribeResult> GoogleTranscribeWav(string localFile, OlieWavInfo info, CancellationToken ct);
+    Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct);
+
+    #endregion
+
+    #region OpenAi
+
+    Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct);
+    Task<OlieChatbotResult> OpenAiEngageChatbotNoEx(string userId, string message, string conversationId, string model, string apiKey, CancellationToken ct);
+    Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct);
 
     #endregion
 

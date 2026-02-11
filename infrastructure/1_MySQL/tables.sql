@@ -1,5 +1,14 @@
 use oliejournal;
 
+CREATE TABLE "Conversations" (
+  "Id" varchar(100) NOT NULL,
+  "UserId" varchar(100) NOT NULL,
+  "Created" datetime NOT NULL,
+  "Timestamp" datetime NOT NULL,
+  "Deleted" datetime DEFAULT NULL,
+  PRIMARY KEY ("Id")
+);
+
 CREATE TABLE "JournalEntries" (
   "Id" int NOT NULL AUTO_INCREMENT,
   "UserId" varchar(100) NOT NULL,
@@ -10,19 +19,41 @@ CREATE TABLE "JournalEntries" (
   "AudioChannels" int NOT NULL,
   "AudioSampleRate" int NOT NULL,
   "AudioBitsPerSample" int NOT NULL,
-  "Transcript" varchar(8096) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  "TranscriptProcessingTime" int DEFAULT NULL,
-  "TranscriptCost" int DEFAULT NULL,
+  "AudioHash" varchar(100) NOT NULL,
   PRIMARY KEY ("Id")
 );
 
-CREATE TABLE "Conversations" (
-  "Id" varchar(100) NOT NULL,
-  "UserId" varchar(100) NOT NULL,
+CREATE TABLE "JournalTranscripts" (
+  "Id" int NOT NULL AUTO_INCREMENT,
+  "JournalEntryFk" int NOT NULL,
   "Created" datetime NOT NULL,
-  "Timestamp" datetime NOT NULL,
-  "Deleted" datetime DEFAULT NULL,
-  PRIMARY KEY ("Id")
+  "Transcript" varchar(8096) DEFAULT NULL,
+  "ProcessingTime" int NOT NULL,
+  "Cost" int NOT NULL,
+  "Exception" varchar(8096) DEFAULT NULL,
+  "ServiceFk" int NOT NULL,
+  PRIMARY KEY ("Id"),
+  KEY "JournalTranscripts_JournalEntries_FK" ("JournalEntryFk"),
+  CONSTRAINT "JournalTranscripts_JournalEntries_FK" FOREIGN KEY ("JournalEntryFk") REFERENCES "JournalEntries" ("Id")
+);
+
+CREATE TABLE "JournalChatbots" (
+  "Id" int NOT NULL AUTO_INCREMENT,
+  "JournalTranscriptFk" int NOT NULL,
+  "ConversationFk" varchar(100) NOT NULL,
+  "ServiceFk" int NOT NULL,
+  "Created" datetime NOT NULL,
+  "ProcessingTime" int NOT NULL,
+  "InputTokens" int NOT NULL,
+  "OutputTokens" int NOT NULL,
+  "Message" varchar(8096) DEFAULT NULL,
+  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  "ResponseId" varchar(100) DEFAULT NULL,
+  PRIMARY KEY ("Id"),
+  KEY "JournalChatbots_JournalTranscripts_FK" ("JournalTranscriptFk"),
+  KEY "JournalChatbots_Conversations_FK" ("ConversationFk"),
+  CONSTRAINT "JournalChatbots_Conversations_FK" FOREIGN KEY ("ConversationFk") REFERENCES "Conversations" ("Id"),
+  CONSTRAINT "JournalChatbots_JournalTranscripts_FK" FOREIGN KEY ("JournalTranscriptFk") REFERENCES "JournalTranscripts" ("Id")
 );
 
 CREATE TABLE "ConversationLogs" (

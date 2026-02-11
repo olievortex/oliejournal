@@ -12,6 +12,7 @@
     <PackageReference Include="Google.Cloud.Speech.V1" Version="3.9.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="OpenAI" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>
