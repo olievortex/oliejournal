@@ -24,6 +24,7 @@ public interface IMyRepository
 
     Task JournalEntryCreate(JournalEntryEntity entity, CancellationToken ct);
     Task<JournalEntryEntity?> JournalEntryGet(int id, CancellationToken ct);
+    Task<JournalEntryEntity?> JournalEntryGetByHash(string userId, string hash, CancellationToken ct);
     Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct);
 
     #endregion

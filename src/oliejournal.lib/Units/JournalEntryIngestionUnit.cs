@@ -6,12 +6,24 @@ using oliejournal.lib.Enums;
 using oliejournal.lib.Models;
 using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
+using System.Security.Cryptography;
 
 namespace oliejournal.lib.Units;
 
 public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyRepository repo) : IJournalEntryIngestionUnit
 {
-    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct)
+    public string CreateHash(byte[] bytes)
+    {
+        byte[] hashBytes = MD5.HashData(bytes);
+
+        // Format each byte as a two-digit hexadecimal string (x2)
+        // and concatenate them into a 32-character string.
+        string hash = String.Concat(hashBytes.Select(b => b.ToString("x2")));
+
+        return hash;
+    }
+
+    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, OlieWavInfo olieWavInfo, CancellationToken ct)
     {
         var entity = new JournalEntryEntity
         {
@@ -22,7 +34,8 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
             AudioLength = length,
             AudioSampleRate = olieWavInfo.SampleRate,
             Created = DateTime.UtcNow,
-            AudioPath = path
+            AudioPath = path,
+            AudioHash = hash,
         };
 
         await repo.JournalEntryCreate(entity, ct);
@@ -59,6 +72,11 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
     public async Task<byte[]> GetBytesFromStream(Stream stream, CancellationToken ct)
     {
         return await os.StreamToByteArray(stream, ct);
+    }
+
+    public async Task<JournalEntryEntity?> GetDuplicateEntry(string userId, string hash, CancellationToken ct)
+    {
+        return await repo.JournalEntryGetByHash(userId, hash, ct);
     }
 
     public async Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct)

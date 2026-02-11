@@ -119,7 +119,7 @@ public class JournalProcessTests
     {
         // Arrange
         var (unit, ingest, _, _) = CreateUnit();
-        ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<OlieWavInfo>(), It.IsAny<string>(), It.IsAny<int>(), CancellationToken.None))
+        ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<OlieWavInfo>(), CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
 
         // Act

@@ -71,7 +71,9 @@ public static class Program
     private static void AddOlieDependencyInjection(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IJournalProcess, JournalProcess>();
+        builder.Services.AddScoped<IJournalEntryChatbotUnit, JournalEntryChatbotUnit>();
         builder.Services.AddScoped<IJournalEntryIngestionUnit, JournalEntryIngestionUnit>();
+        builder.Services.AddScoped<IJournalEntryTranscribeUnit, JournalEntryTranscribeUnit>();
         builder.Services.AddScoped<IOlieWavReader, OlieWavReader>();
         builder.Services.AddScoped<IOlieService, OlieService>();
         builder.Services.AddScoped<IOlieConfig, OlieConfig>();

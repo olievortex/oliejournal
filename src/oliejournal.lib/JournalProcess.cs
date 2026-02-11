@@ -31,18 +31,24 @@ public class JournalProcess(
 
         if (message.Exception is not null) throw message.Exception;
 
-        SendMessage:
+    SendMessage:
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
     }
 
     public async Task<int> IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {
         var file = await ingestion.GetBytesFromStream(audio, ct);
+        var hash = ingestion.CreateHash(file);
+
+        var entry = await ingestion.GetDuplicateEntry(userId, hash, ct);
+        if (entry != null) goto SendMessage;
 
         var wavInfo = ingestion.EnsureAudioValidates(file);
         var localPath = await ingestion.WriteAudioFileToTemp(file, ct);
         var blobPath = await ingestion.WriteAudioFileToBlob(localPath, client, ct);
-        var entry = await ingestion.CreateJournalEntry(userId, wavInfo, blobPath, file.Length, ct);
+        entry = await ingestion.CreateJournalEntry(userId, blobPath, file.Length, hash, wavInfo, ct);
+
+    SendMessage:
         await ingestion.CreateJournalMessage(entry.Id, AudioProcessStepEnum.Transcript, sender, ct);
 
         return entry.Id;

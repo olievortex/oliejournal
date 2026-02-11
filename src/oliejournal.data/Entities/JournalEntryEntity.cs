@@ -12,6 +12,7 @@ public class JournalEntryEntity
     public int AudioChannels { get; set; }
     public int AudioSampleRate { get; set; }
     public int AudioBitsPerSample { get; set; }
+    public string AudioHash { get; set; } = string.Empty;
 }
 
 //-- oliejournal.JournalEntries definition
@@ -26,5 +27,6 @@ public class JournalEntryEntity
 //  "AudioChannels" int NOT NULL,
 //  "AudioSampleRate" int NOT NULL,
 //  "AudioBitsPerSample" int NOT NULL,
+//  "AudioHash" varchar(100) NOT NULL,
 //  PRIMARY KEY("Id")
 //);

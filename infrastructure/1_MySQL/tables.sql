@@ -19,6 +19,7 @@ CREATE TABLE "JournalEntries" (
   "AudioChannels" int NOT NULL,
   "AudioSampleRate" int NOT NULL,
   "AudioBitsPerSample" int NOT NULL,
+  "AudioHash" varchar(100) NOT NULL,
   PRIMARY KEY ("Id")
 );
 

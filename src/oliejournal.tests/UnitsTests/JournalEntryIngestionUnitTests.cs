@@ -44,7 +44,7 @@ public class JournalEntryIngestionUnitTests
         };
 
         // Act
-        var entity = await unit.CreateJournalEntry("user-1", info, "path.wav", 500, CancellationToken.None);
+        var entity = await unit.CreateJournalEntry("user-1", "path.wav", 500, "A5DF", info, CancellationToken.None);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -58,6 +58,7 @@ public class JournalEntryIngestionUnitTests
             Assert.That(entity.AudioPath, Is.EqualTo("path.wav"));
             Assert.That(entity.Created, Is.Not.EqualTo(DateTime.MinValue));
             Assert.That(entity.AudioDuration, Is.EqualTo((int)info.Duration.TotalSeconds));
+            Assert.That(entity.AudioHash, Is.EqualTo("A5DF"));
         }
     }
 

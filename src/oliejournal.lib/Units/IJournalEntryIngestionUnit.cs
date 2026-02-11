@@ -8,10 +8,12 @@ namespace oliejournal.lib.Units;
 
 public interface IJournalEntryIngestionUnit
 {
-    Task<JournalEntryEntity> CreateJournalEntry(string userId, OlieWavInfo olieWavInfo, string path, int length, CancellationToken ct);
+    string CreateHash(byte[] bytes);
+    Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, OlieWavInfo olieWavInfo, CancellationToken ct);
     Task CreateJournalMessage(int id, AudioProcessStepEnum step, ServiceBusSender sender, CancellationToken ct);
     OlieWavInfo EnsureAudioValidates(byte[] file);
     Task<byte[]> GetBytesFromStream(Stream stream, CancellationToken ct);
+    Task<JournalEntryEntity?> GetDuplicateEntry(string userId, string hash, CancellationToken ct);
     Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct);
     Task<string> WriteAudioFileToTemp(byte[] file, CancellationToken ct);
 }

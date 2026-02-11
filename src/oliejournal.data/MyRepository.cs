@@ -62,6 +62,12 @@ public class MyRepository(MyContext context) : IMyRepository
         return await context.JournalEntries.SingleOrDefaultAsync(s => s.Id == id, ct);
     }
 
+    public async Task<JournalEntryEntity?> JournalEntryGetByHash(string userId, string hash, CancellationToken ct)
+    {
+        return await context.JournalEntries
+            .FirstOrDefaultAsync(s => s.UserId == userId && s.AudioHash == hash, ct);
+    }
+
     public async Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct)
     {
         context.JournalEntries.Update(entity);
