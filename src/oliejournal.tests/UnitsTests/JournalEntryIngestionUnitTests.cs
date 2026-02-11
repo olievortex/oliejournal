@@ -24,6 +24,23 @@ public class JournalEntryIngestionUnitTests
         return (unit, owr, os, repo);
     }
 
+    #region CreateHash
+
+    [Test]
+    public void CreateHash_ReturnsHash_ForBytes()
+    {
+        // Arrange
+        var (unit, _, _, _) = CreateUnit();
+        var file = new byte[] { 10, 20, 30, 40 };
+
+        // Act
+        var result = unit.CreateHash(file);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("78735557df91f7b1232f0b0522bf5002"));
+    }
+
+    #endregion
 
     #region CreateJournalEntry
 
@@ -220,6 +237,28 @@ public class JournalEntryIngestionUnitTests
 
         // Assert
         Assert.That(result, Is.EqualTo(bytes));
+    }
+
+    #endregion
+
+    #region GetDuplicateEntry
+
+    [Test]
+    public async Task GetDuplicateEntry_ReturnsDuplicate_WhenFound()
+    {
+        // Arrange
+        const string userId = "abc";
+        const string hash = "bcd";
+        var duplicate = new JournalEntryEntity();
+        var (unit, _, _, repo) = CreateUnit();
+        repo.Setup(s => s.JournalEntryGetByHash(userId, hash, CancellationToken.None))
+            .ReturnsAsync(duplicate);
+
+        // Act
+        var result = await unit.GetDuplicateEntry(userId, hash, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(duplicate));
     }
 
     #endregion

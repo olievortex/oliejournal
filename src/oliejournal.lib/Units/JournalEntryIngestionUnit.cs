@@ -18,9 +18,7 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
 
         // Format each byte as a two-digit hexadecimal string (x2)
         // and concatenate them into a 32-character string.
-        string hash = String.Concat(hashBytes.Select(b => b.ToString("x2")));
-
-        return hash;
+        return string.Concat(hashBytes.Select(b => b.ToString("x2")));
     }
 
     public async Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, OlieWavInfo olieWavInfo, CancellationToken ct)

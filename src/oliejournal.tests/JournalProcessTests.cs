@@ -27,7 +27,7 @@ public class JournalProcessTests
         const int transcriptId = 12;
         var (unit, ingestion, _, chatbot) = CreateUnit();
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId});
+            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId });
         chatbot.Setup(s => s.IsAlreadyChatbotted(transcriptId, CancellationToken.None))
             .ReturnsAsync(true);
 
@@ -124,6 +124,24 @@ public class JournalProcessTests
 
         // Act
         var result = await unit.IngestAudioEntry(string.Empty, null!, null!, null!, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(123));
+    }
+
+    [Test]
+    public async Task IngesAudioEntry_ReturnsDuplicate_Duplicate()
+    {
+        // Arrange
+        const string userId = "abc";
+        const string hash = "dillon";
+        var (unit, ingest, _, _) = CreateUnit();
+        ingest.Setup(s => s.CreateHash(It.IsAny<byte[]>())).Returns(hash);
+        ingest.Setup(s => s.GetDuplicateEntry(userId, hash, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { Id = 123 });
+
+        // Act
+        var result = await unit.IngestAudioEntry(userId, null!, null!, null!, CancellationToken.None);
 
         // Assert
         Assert.That(result, Is.EqualTo(123));
