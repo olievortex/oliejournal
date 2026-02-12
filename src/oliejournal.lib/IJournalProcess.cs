@@ -5,7 +5,8 @@ namespace oliejournal.lib;
 
 public interface IJournalProcess
 {
-    Task ChatbotAudioEntry(int journalEntryId, ServiceBusSender sender, CancellationToken ct);
-    Task<int> IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct);
-    Task TranscribeAudioEntry(int id, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct);
+    Task Voiceover(int journalEntryId, CancellationToken ct);
+    Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct);
+    Task<int> Ingest(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct);
+    Task Transcribe(int id, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct);
 }

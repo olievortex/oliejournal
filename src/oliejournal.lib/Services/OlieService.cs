@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
+using Google.Cloud.TextToSpeech.V1;
 using Newtonsoft.Json;
 using oliejournal.lib.Services.Models;
 using OpenAI.Responses;
@@ -65,6 +66,39 @@ public class OlieService : IOlieService
 
     #region Google
 
+    public async Task<byte[]> GoogleSpeak(string voiceName, string script, CancellationToken ct)
+    {
+        // Instantiates a client
+        var client = TextToSpeechClient.Create();
+
+        // Set the text input to be synthesized
+        var input = new SynthesisInput
+        {
+            Text = script
+        };
+
+        // Build the voice request, select the language code ("en-US") and the ssml voice gender
+        // ("neutral")
+        var voice = new VoiceSelectionParams
+        {
+            Name = voiceName,
+            LanguageCode = "en-US"
+        };
+
+        // Select the type of audio file you want returned
+        var audioConfig = new AudioConfig()
+        {
+            AudioEncoding = AudioEncoding.Linear16
+        };
+
+        // Perform the text-to-speech request on the text input with the selected voice parameters and
+        // audio file type
+        var response = await client.SynthesizeSpeechAsync(input, voice, audioConfig, ct);
+
+        // Get the audio contents from the response
+        return response.AudioContent.ToByteArray();
+    }
+
     public async Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct)
     {
         const int serviceId = 1;
@@ -114,7 +148,6 @@ public class OlieService : IOlieService
             };
         }
     }
-
 
     #endregion
 

@@ -8,57 +8,58 @@ namespace oliejournal.tests;
 
 public class JournalProcessTests
 {
-    private static (JournalProcess, Mock<IJournalEntryIngestionUnit>, Mock<IJournalEntryTranscribeUnit>, Mock<IJournalEntryChatbotUnit>) CreateUnit()
+    private static (JournalProcess, Mock<IJournalEntryIngestionUnit>, Mock<IJournalEntryTranscribeUnit>, Mock<IJournalEntryChatbotUnit>, Mock<IJournalEntryVoiceoverUnit>) CreateUnit()
     {
         var ingestion = new Mock<IJournalEntryIngestionUnit>();
         var transcribe = new Mock<IJournalEntryTranscribeUnit>();
         var chatbot = new Mock<IJournalEntryChatbotUnit>();
+        var voiceover = new Mock<IJournalEntryVoiceoverUnit>();
 
-        return (new JournalProcess(ingestion.Object, transcribe.Object, chatbot.Object), ingestion, transcribe, chatbot);
+        return (new JournalProcess(ingestion.Object, transcribe.Object, chatbot.Object, voiceover.Object), ingestion, transcribe, chatbot, voiceover);
     }
 
-    #region ChatbotAudioEntry
+    #region Chatbot
 
     [Test]
-    public async Task ChatbotAudioEntry_SkipsToEnd_AlreadyChatbotted()
+    public async Task Chatbot_SkipsToEnd_AlreadyChatbotted()
     {
         // Arrange
         const int journalEntryId = 42;
         const int transcriptId = 12;
-        var (unit, ingestion, _, chatbot) = CreateUnit();
+        var (unit, ingestion, _, chatbot, _) = CreateUnit();
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId });
         chatbot.Setup(s => s.IsAlreadyChatbotted(transcriptId, CancellationToken.None))
             .ReturnsAsync(true);
 
         // Act
-        await unit.ChatbotAudioEntry(journalEntryId, null!, CancellationToken.None);
+        await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
 
         // Assert
         ingestion.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
     }
 
     [Test]
-    public async Task ChatbotAudioEntry_SkipsToEnd_EmptyTranscript()
+    public async Task Chatbot_SkipsToEnd_EmptyTranscript()
     {
         // Arrange
         const int journalEntryId = 42;
         const int transcriptId = 12;
-        var (unit, ingestion, _, chatbot) = CreateUnit();
+        var (unit, ingestion, _, chatbot, _) = CreateUnit();
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId });
         chatbot.Setup(s => s.IsAlreadyChatbotted(transcriptId, CancellationToken.None))
             .ReturnsAsync(false);
 
         // Act
-        await unit.ChatbotAudioEntry(journalEntryId, null!, CancellationToken.None);
+        await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
 
         // Assert
         ingestion.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
     }
 
     [Test]
-    public async Task ChatbotAudioEntry_ThrowsException_ApiError()
+    public async Task Chatbot_ThrowsException_ApiError()
     {
         // Arrange
         const int journalEntryId = 42;
@@ -66,7 +67,7 @@ public class JournalProcessTests
         const string userId = "abc";
         const string conversationId = "bcd";
         const string message = "dillon";
-        var (unit, ingestion, transcribe, chatbot) = CreateUnit();
+        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { UserId = userId });
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
@@ -79,11 +80,11 @@ public class JournalProcessTests
             .ReturnsAsync(new OlieChatbotResult { Exception = new ApplicationException() });
 
         // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(async () => await unit.ChatbotAudioEntry(journalEntryId, null!, CancellationToken.None));
+        Assert.ThrowsAsync<ApplicationException>(async () => await unit.Chatbot(journalEntryId, null!, CancellationToken.None));
     }
 
     [Test]
-    public async Task ChatbotAudioEntry_CompletesToEnd_ApiSuccess()
+    public async Task Chatbot_CompletesToEnd_ApiSuccess()
     {
         // Arrange
         const int journalEntryId = 42;
@@ -91,7 +92,7 @@ public class JournalProcessTests
         const string userId = "abc";
         const string conversationId = "bcd";
         const string message = "dillon";
-        var (unit, ingestion, transcribe, chatbot) = CreateUnit();
+        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { UserId = userId });
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
@@ -104,7 +105,7 @@ public class JournalProcessTests
             .ReturnsAsync(new OlieChatbotResult());
 
         // Act
-        await unit.ChatbotAudioEntry(journalEntryId, null!, CancellationToken.None);
+        await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
 
         // Assert
         ingestion.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
@@ -112,36 +113,36 @@ public class JournalProcessTests
 
     #endregion
 
-    #region IngestAudioEntry
+    #region Ingest
 
     [Test]
-    public async Task IngesAudioEntry_ReturnsId_Success()
+    public async Task Ingest_ReturnsId_Success()
     {
         // Arrange
-        var (unit, ingest, _, _) = CreateUnit();
+        var (unit, ingest, _, _, _) = CreateUnit();
         ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<OlieWavInfo>(), CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
 
         // Act
-        var result = await unit.IngestAudioEntry(string.Empty, null!, null!, null!, CancellationToken.None);
+        var result = await unit.Ingest(string.Empty, null!, null!, null!, CancellationToken.None);
 
         // Assert
         Assert.That(result, Is.EqualTo(123));
     }
 
     [Test]
-    public async Task IngesAudioEntry_ReturnsDuplicate_Duplicate()
+    public async Task Ingest_ReturnsDuplicate_Duplicate()
     {
         // Arrange
         const string userId = "abc";
         const string hash = "dillon";
-        var (unit, ingest, _, _) = CreateUnit();
+        var (unit, ingest, _, _, _) = CreateUnit();
         ingest.Setup(s => s.CreateHash(It.IsAny<byte[]>())).Returns(hash);
         ingest.Setup(s => s.GetDuplicateEntry(userId, hash, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
 
         // Act
-        var result = await unit.IngestAudioEntry(userId, null!, null!, null!, CancellationToken.None);
+        var result = await unit.Ingest(userId, null!, null!, null!, CancellationToken.None);
 
         // Assert
         Assert.That(result, Is.EqualTo(123));
@@ -149,40 +150,40 @@ public class JournalProcessTests
 
     #endregion
 
-    #region TranscribeAudioEntry
+    #region Transcribe
 
     [Test]
-    public async Task TranscribeAudioEntry_Throws_BadJournalEntryId()
+    public async Task Transcribe_Throws_BadJournalEntryId()
     {
         // Arrange
-        var (unit, _, transcribe, _) = CreateUnit();
+        var (unit, _, transcribe, _, _) = CreateUnit();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ThrowsAsync(new ApplicationException());
 
         // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(async () => await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None));
+        Assert.ThrowsAsync<ApplicationException>(async () => await unit.Transcribe(123, null!, null!, CancellationToken.None));
     }
 
     [Test]
-    public async Task TranscribeAudioEntry_SkipsToEnd_AlreadyProcessed()
+    public async Task Transcribe_SkipsToEnd_AlreadyProcessed()
     {
         // Arrange
-        var (unit, ingestion, transcribe, _) = CreateUnit();
+        var (unit, ingestion, transcribe, _, _) = CreateUnit();
         transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
             .ReturnsAsync(true);
 
         // Act
-        await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None);
+        await unit.Transcribe(123, null!, null!, CancellationToken.None);
 
         // Assert
         transcribe.Verify(v => v.Cleanup(It.IsAny<string>()), Times.Never());
     }
 
     [Test]
-    public async Task TranscribeAudioEntry_Throws_ApiFailure()
+    public async Task Transcribe_Throws_ApiFailure()
     {
         // Arrange
-        var (unit, _, transcribe, _) = CreateUnit();
+        var (unit, _, transcribe, _, _) = CreateUnit();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
         transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
@@ -191,14 +192,14 @@ public class JournalProcessTests
             .ReturnsAsync(new OlieTranscribeResult { Exception = new ApplicationException() });
 
         // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(async () => await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None));
+        Assert.ThrowsAsync<ApplicationException>(async () => await unit.Transcribe(123, null!, null!, CancellationToken.None));
     }
 
     [Test]
-    public async Task TranscribeAudioEntry_CompletesAllSteps_FullyProcessed()
+    public async Task Transcribe_CompletesAllSteps_FullyProcessed()
     {
         // Arrange
-        var (unit, _, transcribe, _) = CreateUnit();
+        var (unit, _, transcribe, _, _) = CreateUnit();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
         transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
@@ -207,7 +208,7 @@ public class JournalProcessTests
             .ReturnsAsync(new OlieTranscribeResult());
 
         // Act
-        await unit.TranscribeAudioEntry(123, null!, null!, CancellationToken.None);
+        await unit.Transcribe(123, null!, null!, CancellationToken.None);
 
         // Assert
         transcribe.Verify(v => v.Cleanup(It.IsAny<string>()), Times.Once());

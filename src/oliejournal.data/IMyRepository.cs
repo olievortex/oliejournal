@@ -16,6 +16,7 @@ public interface IMyRepository
     #region JournalChatbot
 
     Task JournalChatbotCreate(JournalChatbotEntity entity, CancellationToken ct);
+    Task<JournalChatbotEntity?> JournalChatbotGetByJournalEntryId(int journalEntryId, CancellationToken ct);
     Task<JournalChatbotEntity?> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
 
     #endregion

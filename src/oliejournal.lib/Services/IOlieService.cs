@@ -26,6 +26,7 @@ public interface IOlieService
 
     #region Google
 
+    Task<byte[]> GoogleSpeak(string voiceName, string script, CancellationToken ct);
     Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct);
 
     #endregion
