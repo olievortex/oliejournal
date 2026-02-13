@@ -22,13 +22,17 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
     public async Task<string> SaveLocalFile(byte[] bytes, CancellationToken ct)
     {
         var filename = $"{Guid.NewGuid()}.wav";
-        var blobPath = $"gold/audio_reply/{DateTime.UtcNow:yyyy/MM}/{filename}";
-        var localPath = $"{config.GoldPath}/{blobPath}";
+        var blobWavPath = $"gold/audio_reply/{DateTime.UtcNow:yyyy/MM}/{filename}";
+        var blobMp4Path = Path.ChangeExtension(blobWavPath, "mp4");
+        var localWavPath = $"{config.GoldPath}/{blobWavPath}";
+        var localMp4Path = $"{config.GoldPath}/{blobMp4Path}";
 
-        os.FileCreateDirectory(localPath);
-        await os.FileWriteAllBytes(localPath, bytes, ct);
-
-        return blobPath;
+        os.FileCreateDirectory(localWavPath);
+        await os.FileWriteAllBytes(localWavPath, bytes, ct);
+        await os.FfmpegWavToMp3(localWavPath, localMp4Path, config.FfmpegPath, ct);
+        os.FileDelete(localWavPath);
+        
+        return blobMp4Path;
     }
 
     public async Task UpdateEntry(string localFilename, int length, Stopwatch stopwatch, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)

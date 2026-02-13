@@ -5,6 +5,7 @@ The following evironment variables are required to run locally. Replace the dumm
   "OlieAudioProcessQueue": "oliejournal_audio_process",
   "OlieBlobContainerUri": "https://xxxx.blob.core.windows.net/oliejournal",
   "OlieChatbotInstructions": "You are a chatbot....",
+  "OlieFfmpegPath": "/Users/oliev/OneDrive/Documents/olievortex/Libraries/windows/ffmpeg",
   "OlieGoldPath": "C:/workspace/oliejournal",
   "OlieGoogleVoiceName": "en-US-Standard-C",
   "OlieMySqlConnection": "server=[2600:3c00::2000:xxxx];port=20237;uid=oliejournal_user;pwd=xxxx;database=oliejournal;SslMode=Required;",
