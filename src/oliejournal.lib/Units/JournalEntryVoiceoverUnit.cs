@@ -31,15 +31,15 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
         await os.FileWriteAllBytes(localWavPath, bytes, ct);
         await os.FfmpegWavToMp3(localWavPath, localMp4Path, config.FfmpegPath, ct);
         os.FileDelete(localWavPath);
-        
+
         return blobMp4Path;
     }
 
-    public async Task UpdateEntry(string localFilename, int length, Stopwatch stopwatch, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)
+    public async Task UpdateEntry(string blobPath, int length, Stopwatch stopwatch, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)
     {
         entry.ResponseCreated = DateTime.UtcNow;
         entry.ResponseDuration = (int)wavInfo.Duration.TotalSeconds;
-        entry.ResponsePath = localFilename;
+        entry.ResponsePath = blobPath;
         entry.ResponseProcessingTime = (int)stopwatch.Elapsed.TotalSeconds;
         entry.ResponseLength = length;
 

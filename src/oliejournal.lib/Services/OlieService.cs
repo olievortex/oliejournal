@@ -118,7 +118,7 @@ public class OlieService : IOlieService
         // Set the text input to be synthesized
         var input = new SynthesisInput
         {
-            Text = script,            
+            Text = script,
         };
 
         // Build the voice request, select the language code ("en-US") and the ssml voice gender
