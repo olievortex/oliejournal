@@ -2,12 +2,15 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
+using Google.Cloud.TextToSpeech.V1;
 using Newtonsoft.Json;
 using oliejournal.lib.Services.Models;
 using OpenAI.Responses;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json;
 
 namespace oliejournal.lib.Services;
@@ -46,6 +49,14 @@ public class OlieService : IOlieService
 
     #region File
 
+    public void FileCreateDirectory(string path)
+    {
+        var directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrWhiteSpace(directory)) return;
+
+        Directory.CreateDirectory(directory);
+    }
+
     public void FileDelete(string path)
     {
         File.Delete(path);
@@ -63,7 +74,75 @@ public class OlieService : IOlieService
 
     #endregion
 
+    #region Ffmpeg
+
+    public async Task FfmpegWavToMp3(string audioIn, string mp3Out, string ffmpegPath, CancellationToken ct)
+    {
+        var sbStdOut = new StringBuilder();
+        var sbErrOut = new StringBuilder();
+
+        using var ff = new Process();
+        ff.StartInfo.UseShellExecute = false;
+        ff.StartInfo.CreateNoWindow = true;
+        ff.StartInfo.FileName = ffmpegPath;
+        ff.StartInfo.RedirectStandardError = true;
+        ff.ErrorDataReceived += (_, args) => sbErrOut.Append(args.Data);
+        ff.StartInfo.RedirectStandardOutput = true;
+        ff.OutputDataReceived += (_, args) => sbStdOut.Append(args.Data);
+        ff.StartInfo.Arguments = $"-i {ToLinux(audioIn)} -c:a libmp3lame -qscale:a 2 {ToLinux(mp3Out)}";
+        ff.Start();
+        ff.BeginOutputReadLine();
+        ff.BeginErrorReadLine();
+        await ff.WaitForExitAsync(ct);
+
+        if (ff.ExitCode != 0) throw new ApplicationException($"ffmpeg exit code {ff.ExitCode}: {sbStdOut}\n{sbErrOut}");
+        ff.Close();
+
+        return;
+
+        static string ToLinux(string path)
+        {
+            return path.Replace("\\", "/");
+        }
+    }
+
+    #endregion
+
     #region Google
+
+    public async Task<byte[]> GoogleSpeak(string voiceName, string script, CancellationToken ct)
+    {
+        // Instantiates a client
+        var client = TextToSpeechClient.Create();
+
+        // Set the text input to be synthesized
+        var input = new SynthesisInput
+        {
+            Text = script,
+        };
+
+        // Build the voice request, select the language code ("en-US") and the ssml voice gender
+        // ("neutral")
+        var voice = new VoiceSelectionParams
+        {
+            Name = voiceName,
+            LanguageCode = "en-US",
+        };
+
+        // Select the type of audio file you want returned
+        var audioConfig = new AudioConfig()
+        {
+            AudioEncoding = AudioEncoding.Linear16,
+            SpeakingRate = 1.5,
+        };
+
+        // Perform the text-to-speech request on the text input with the selected voice parameters and
+        // audio file type
+        var response = await client.SynthesizeSpeechAsync(input, voice, audioConfig, ct);
+
+        // Get the audio contents from the response
+        return response.AudioContent.ToByteArray();
+    }
 
     public async Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct)
     {
@@ -114,7 +193,6 @@ public class OlieService : IOlieService
             };
         }
     }
-
 
     #endregion
 

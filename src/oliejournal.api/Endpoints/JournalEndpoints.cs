@@ -22,7 +22,7 @@ public static class JournalEndpoints
         var sender = config.ServiceBusSender();
         var client = config.BlobContainerClient();
 
-        var id = await process.IngestAudioEntry(userId, stream, sender, client, ct);
+        var id = await process.Ingest(userId, stream, sender, client, ct);
 
         return TypedResults.Ok(new IntResultModel { Id = id });
     }

@@ -29,16 +29,18 @@ public class CommandAudioProcessQueue(IServiceScopeFactory scopeFactory, IOlieCo
 
             using var scope = scopeFactory.CreateScope();
             var process = scope.ServiceProvider.GetRequiredService<IJournalProcess>();
+            var id = message.Body.Id;
 
             switch (message.Body.Step)
             {
                 case lib.Enums.AudioProcessStepEnum.Transcript:
-                    await process.TranscribeAudioEntry(message.Body.Id, bcClient, sender, ct);
+                    await process.Transcribe(id, bcClient, sender, ct);
                     break;
                 case lib.Enums.AudioProcessStepEnum.Chatbot:
-                    await process.ChatbotAudioEntry(message.Body.Id, sender, ct);
+                    await process.Chatbot(id, sender, ct);
                     break;
                 case lib.Enums.AudioProcessStepEnum.VoiceOver:
+                    await process.Voiceover(id, ct);
                     break;
                 default:
                     throw new NotImplementedException();

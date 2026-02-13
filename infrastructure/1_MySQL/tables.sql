@@ -20,6 +20,11 @@ CREATE TABLE "JournalEntries" (
   "AudioSampleRate" int NOT NULL,
   "AudioBitsPerSample" int NOT NULL,
   "AudioHash" varchar(100) NOT NULL,
+  "ResponsePath" varchar(320) DEFAULT NULL,
+  "ResponseLength" int DEFAULT NULL,
+  "ResponseDuration" int DEFAULT NULL,
+  "ResponseProcessingTime" int DEFAULT NULL,
+  "ResponseCreated" datetime DEFAULT NULL,
   PRIMARY KEY ("Id")
 );
 

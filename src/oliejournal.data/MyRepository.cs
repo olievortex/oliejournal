@@ -40,6 +40,16 @@ public class MyRepository(MyContext context) : IMyRepository
         await context.SaveChangesAsync(ct);
     }
 
+    public async Task<JournalChatbotEntity?> JournalChatbotGetByJournalEntryId(int journalEntryId, CancellationToken ct)
+    {
+        return await context
+            .JournalTranscripts
+            .Join(context.JournalChatbots, l => l.Id, r => r.JournalTranscriptFk, (t, c) => new { t, c })
+            .Where(w => w.t.JournalEntryFk == journalEntryId && w.c.Message != null)
+            .Select(s => s.c)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task<JournalChatbotEntity?> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct)
     {
         return await context.JournalChatbots

@@ -14,7 +14,15 @@ public interface IOlieService
 
     #endregion
 
+    #region Ffmpeg
+
+    Task FfmpegWavToMp3(string audioIn, string mp3Out, string ffmpegPath, CancellationToken ct);
+
+    #endregion
+
     #region File
+
+    void FileCreateDirectory(string path);
 
     void FileDelete(string path);
 
@@ -26,6 +34,7 @@ public interface IOlieService
 
     #region Google
 
+    Task<byte[]> GoogleSpeak(string voiceName, string script, CancellationToken ct);
     Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct);
 
     #endregion

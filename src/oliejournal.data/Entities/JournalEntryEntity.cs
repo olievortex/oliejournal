@@ -13,6 +13,11 @@ public class JournalEntryEntity
     public int AudioSampleRate { get; set; }
     public int AudioBitsPerSample { get; set; }
     public string AudioHash { get; set; } = string.Empty;
+    public string? ResponsePath { get; set; }
+    public int? ResponseLength { get; set; }
+    public int? ResponseDuration { get; set; }
+    public int? ResponseProcessingTime { get; set; }
+    public DateTime? ResponseCreated { get; set; }
 }
 
 //-- oliejournal.JournalEntries definition
@@ -28,5 +33,10 @@ public class JournalEntryEntity
 //  "AudioSampleRate" int NOT NULL,
 //  "AudioBitsPerSample" int NOT NULL,
 //  "AudioHash" varchar(100) NOT NULL,
+//  "ResponsePath" varchar(320) DEFAULT NULL,
+//  "ResponseLength" int DEFAULT NULL,
+//  "ResponseDuration" int DEFAULT NULL,
+//  "ResponseProcessingTime" int DEFAULT NULL,
+//  "ResponseCreated" datetime DEFAULT NULL,
 //  PRIMARY KEY("Id")
 //);

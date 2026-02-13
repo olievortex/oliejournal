@@ -9,12 +9,28 @@ namespace oliejournal.lib;
 public class JournalProcess(
     IJournalEntryIngestionUnit ingestion,
     IJournalEntryTranscribeUnit transcribe,
-    IJournalEntryChatbotUnit chatbot) : IJournalProcess
+    IJournalEntryChatbotUnit chatbot,
+    IJournalEntryVoiceoverUnit voiceover) : IJournalProcess
 {
     const int GoogleApiLimit = 5;
     const int OpenAiLimit = 5;
 
-    public async Task ChatbotAudioEntry(int journalEntryId, ServiceBusSender sender, CancellationToken ct)
+    public async Task Voiceover(int journalEntryId, CancellationToken ct)
+    {
+        var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
+        if (entry.ResponsePath != null) return;
+        var chatbot = await voiceover.GetChatbotEntryOrThrow(journalEntryId, ct);
+        if (chatbot.Message is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
+
+        var stopwatch = Stopwatch.StartNew();
+        var file = await voiceover.VoiceOver(chatbot.Message, ct);
+        var blobPath = await voiceover.SaveLocalFile(file, ct);
+        var wavInfo = await voiceover.GetWavInfo(file);
+
+        await voiceover.UpdateEntry(blobPath, file.Length, stopwatch, wavInfo, entry, ct);
+    }
+
+    public async Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct)
     {
         var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
         var transcript = await chatbot.GetJournalTranscriptOrThrow(journalEntryId, ct);
@@ -35,7 +51,7 @@ public class JournalProcess(
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
     }
 
-    public async Task<int> IngestAudioEntry(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
+    public async Task<int> Ingest(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {
         var file = await ingestion.GetBytesFromStream(audio, ct);
         var hash = ingestion.CreateHash(file);
@@ -54,7 +70,7 @@ public class JournalProcess(
         return entry.Id;
     }
 
-    public async Task TranscribeAudioEntry(int journalEntryId, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct)
+    public async Task Transcribe(int journalEntryId, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct)
     {
         var entity = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
         if (await transcribe.IsAlreadyTranscribed(journalEntryId, ct)) goto SendMessage;
