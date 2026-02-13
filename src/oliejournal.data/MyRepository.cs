@@ -88,6 +88,14 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #region JournalEntryList
 
+    public async Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct)
+    {
+        return await context.JournalEntryList
+            .Where(w => w.UserId == userId && w.Id == journalEntryId)
+            .OrderByDescending(d => d.Created)
+            .SingleOrDefaultAsync(ct);
+    }
+
     public async Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct)
     {
         return await context.JournalEntryList

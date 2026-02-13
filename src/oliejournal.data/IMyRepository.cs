@@ -32,6 +32,7 @@ public interface IMyRepository
 
     #region JournalEntryList
 
+    Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct);
     Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct);
 
     #endregion

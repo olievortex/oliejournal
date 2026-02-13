@@ -17,12 +17,12 @@ public static class JournalEndpoints
         app.MapPost("/api/journal/audioEntry", PostAudioEntry).DisableAntiforgery().RequireAuthorization();
     }
 
-    public static async Task<Results<Ok<string>, UnauthorizedHttpResult>> GetEntryStatus(int id, ClaimsPrincipal user, CancellationToken ct)
+    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> GetEntryStatus(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
 
-        return TypedResults.Ok("Dillon");
+        return TypedResults.Ok(new IntResultModel { Id = await business.GetEntryStatus(id, userId, ct) });
     }
 
     public static async Task<Results<Ok<List<JournalEntryListEntity>>, UnauthorizedHttpResult>> GetEntryList(ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
