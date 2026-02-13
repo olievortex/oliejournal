@@ -47,6 +47,14 @@ public class OlieService : IOlieService
 
     #region File
 
+    public void FileCreateDirectory(string path)
+    {
+        var directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrWhiteSpace(directory)) return;
+
+        Directory.CreateDirectory(directory);
+    }
+
     public void FileDelete(string path)
     {
         File.Delete(path);

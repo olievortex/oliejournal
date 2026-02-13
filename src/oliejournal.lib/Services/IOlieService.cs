@@ -16,6 +16,8 @@ public interface IOlieService
 
     #region File
 
+    void FileCreateDirectory(string path);
+
     void FileDelete(string path);
 
     bool FileExists(string path);

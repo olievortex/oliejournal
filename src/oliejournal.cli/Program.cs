@@ -133,6 +133,7 @@ public class Program
                 services.AddScoped<IJournalEntryChatbotUnit, JournalEntryChatbotUnit>();
                 services.AddScoped<IJournalEntryIngestionUnit, JournalEntryIngestionUnit>();
                 services.AddScoped<IJournalEntryTranscribeUnit, JournalEntryTranscribeUnit>();
+                services.AddScoped<IJournalEntryVoiceoverUnit, JournalEntryVoiceoverUnit>();
                 services.AddScoped<IOlieService, OlieService>();
                 services.AddScoped<IOlieWavReader, OlieWavReader>();
 

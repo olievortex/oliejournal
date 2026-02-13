@@ -24,10 +24,10 @@ public class JournalProcess(
 
         var stopwatch = Stopwatch.StartNew();
         var file = await voiceover.VoiceOver(chatbot.Message, ct);
-        var localFilename = await voiceover.SaveLocalFile(file, ct);
+        var blobPath = await voiceover.SaveLocalFile(file, ct);
         var wavInfo = await voiceover.GetWavInfo(file);
 
-        await voiceover.UpdateEntry(localFilename, file.Length, stopwatch, wavInfo, entry, ct);
+        await voiceover.UpdateEntry(blobPath, file.Length, stopwatch, wavInfo, entry, ct);
     }
 
     public async Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct)
