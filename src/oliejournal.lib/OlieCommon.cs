@@ -34,5 +34,7 @@ public static class OlieCommon
         services.AddScoped<IJournalEntryVoiceoverUnit, JournalEntryVoiceoverUnit>();
 
         #endregion
+
+        services.AddScoped<IJournalApiBusiness, JournalApiBusiness>();
     }
 }

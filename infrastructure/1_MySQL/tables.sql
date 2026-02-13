@@ -35,7 +35,7 @@ CREATE TABLE "JournalTranscripts" (
   "Transcript" varchar(8096) DEFAULT NULL,
   "ProcessingTime" int NOT NULL,
   "Cost" int NOT NULL,
-  "Exception" varchar(8096) DEFAULT NULL,
+  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   "ServiceFk" int NOT NULL,
   PRIMARY KEY ("Id"),
   KEY "JournalTranscripts_JournalEntries_FK" ("JournalEntryFk"),
@@ -75,3 +75,35 @@ CREATE TABLE "ConversationLogs" (
   KEY "ConversationLogs_Conversations_FK" ("ConversationFk"),
   CONSTRAINT "ConversationLogs_Conversations_FK" FOREIGN KEY ("ConversationFk") REFERENCES "Conversations" ("Id")
 );
+
+-- oliejournal.v_JournalEntryList source
+
+CREATE VIEW "oliejournal"."v_JournalEntryList" AS
+select
+    "je"."Id" AS "Id",
+    "je"."UserId" AS "UserId",
+    "je"."Created" AS "Created",
+    "jt"."Transcript" AS "Transcript",
+    "jc"."Message" AS "ResponseText",
+    "je"."ResponsePath" AS "ResponsePath"
+from
+    (("oliejournal"."JournalEntries" "je"
+left join (
+    select
+        "oliejournal"."JournalTranscripts"."Id" AS "Id",
+        "oliejournal"."JournalTranscripts"."JournalEntryFk" AS "JournalEntryFk",
+        "oliejournal"."JournalTranscripts"."Transcript" AS "Transcript"
+    from
+        "oliejournal"."JournalTranscripts"
+    where
+        ("oliejournal"."JournalTranscripts"."Transcript" is not null)) "jt" on
+    (("je"."Id" = "jt"."JournalEntryFk")))
+left join (
+    select
+        "oliejournal"."JournalChatbots"."JournalTranscriptFk" AS "JournalTranscriptFk",
+        "oliejournal"."JournalChatbots"."Message" AS "Message"
+    from
+        "oliejournal"."JournalChatbots"
+    where
+        ("oliejournal"."JournalChatbots"."Message" is not null)) "jc" on
+    (("jt"."Id" = "jc"."JournalTranscriptFk")));
