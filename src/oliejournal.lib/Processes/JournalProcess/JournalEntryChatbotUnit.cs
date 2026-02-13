@@ -4,7 +4,7 @@ using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
 using System.Diagnostics;
 
-namespace oliejournal.lib.Units;
+namespace oliejournal.lib.Processes.JournalProcess;
 
 public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieConfig config) : IJournalEntryChatbotUnit
 {

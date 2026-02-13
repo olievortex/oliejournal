@@ -1,10 +1,9 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using oliejournal.lib.Enums;
-using oliejournal.lib.Units;
 using System.Diagnostics;
 
-namespace oliejournal.lib;
+namespace oliejournal.lib.Processes.JournalProcess;
 
 public class JournalProcess(
     IJournalEntryIngestionUnit ingestion,

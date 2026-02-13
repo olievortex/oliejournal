@@ -8,7 +8,7 @@ using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
 using System.Security.Cryptography;
 
-namespace oliejournal.lib.Units;
+namespace oliejournal.lib.Processes.JournalProcess;
 
 public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyRepository repo) : IJournalEntryIngestionUnit
 {

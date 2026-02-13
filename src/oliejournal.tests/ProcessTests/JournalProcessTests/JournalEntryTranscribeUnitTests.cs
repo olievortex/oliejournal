@@ -2,12 +2,12 @@ using Azure.Storage.Blobs;
 using Moq;
 using oliejournal.data;
 using oliejournal.data.Entities;
+using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
-using oliejournal.lib.Units;
 using System.Diagnostics;
 
-namespace oliejournal.tests.UnitsTests;
+namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
 public class JournalEntryTranscribeUnitTests
 {

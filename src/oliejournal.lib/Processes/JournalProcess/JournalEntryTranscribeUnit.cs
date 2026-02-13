@@ -5,7 +5,7 @@ using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
 using System.Diagnostics;
 
-namespace oliejournal.lib.Units;
+namespace oliejournal.lib.Processes.JournalProcess;
 
 public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMyRepository repo) : IJournalEntryTranscribeUnit
 {

@@ -9,7 +9,6 @@ using oliejournal.cli.Commands;
 using oliejournal.data;
 using oliejournal.lib;
 using oliejournal.lib.Services;
-using oliejournal.lib.Units;
 
 namespace oliejournal.cli;
 
@@ -124,20 +123,8 @@ public class Program
 
                 #endregion
 
-                #region Miscellaneous
-
                 services.AddSingleton(_ => configuration);
-                services.AddSingleton<IOlieConfig, OlieConfig>();
-                services.AddScoped<IMyRepository, MyRepository>();
-                services.AddScoped<IJournalProcess, JournalProcess>();
-                services.AddScoped<IJournalEntryChatbotUnit, JournalEntryChatbotUnit>();
-                services.AddScoped<IJournalEntryIngestionUnit, JournalEntryIngestionUnit>();
-                services.AddScoped<IJournalEntryTranscribeUnit, JournalEntryTranscribeUnit>();
-                services.AddScoped<IJournalEntryVoiceoverUnit, JournalEntryVoiceoverUnit>();
-                services.AddScoped<IOlieService, OlieService>();
-                services.AddScoped<IOlieWavReader, OlieWavReader>();
-
-                #endregion
+                services.AddOlieLibScopes();
             })
             .Build();
 
