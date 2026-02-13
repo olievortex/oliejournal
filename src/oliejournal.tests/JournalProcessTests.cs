@@ -3,6 +3,7 @@ using oliejournal.data.Entities;
 using oliejournal.lib;
 using oliejournal.lib.Services.Models;
 using oliejournal.lib.Units;
+using System.Diagnostics;
 
 namespace oliejournal.tests;
 
@@ -17,6 +18,87 @@ public class JournalProcessTests
 
         return (new JournalProcess(ingestion.Object, transcribe.Object, chatbot.Object, voiceover.Object), ingestion, transcribe, chatbot, voiceover);
     }
+
+    #region Voiceover
+
+    [Test]
+    public async Task Voiceover_ShortCircuits_AlreadyProcessed()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        var (unit, _, transcribe, _, voiceover) = CreateUnit();
+        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { ResponsePath = "Dillon" });
+
+        // Act
+        await unit.Voiceover(journalEntryId, CancellationToken.None);
+
+        // Assert
+        voiceover.Verify(v => v.GetWavInfo(It.IsAny<byte[]>()), Times.Never());
+    }
+
+    [Test]
+    public async Task Voiceover_ThrowsException_NoChatbotMessage()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        var (unit, _, transcribe, _, voiceover) = CreateUnit();
+        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity());
+        voiceover.Setup(s => s.GetChatbotEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalChatbotEntity());
+
+        // Act, Assert
+        Assert.ThrowsAsync<ApplicationException>(async () => await unit.Voiceover(journalEntryId, CancellationToken.None));
+    }
+
+    [Test]
+    public async Task Voiceover_UpdatesEntry_NotYetProcessed()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        const string message = "purple";
+        const string blobPath = "green";
+        var entry = new JournalEntryEntity();
+        var file = "pastromi"u8.ToArray();
+        var wavInfo = new OlieWavInfo();
+        var stopwatch = Stopwatch.StartNew();
+        var (unit, _, transcribe, _, voiceover) = CreateUnit();
+        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(entry);
+        voiceover.Setup(s => s.GetChatbotEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalChatbotEntity { Message = message });
+        voiceover.Setup(s => s.VoiceOver(message, CancellationToken.None))
+            .ReturnsAsync(file);
+        voiceover.Setup(s => s.SaveLocalFile(file, CancellationToken.None))
+            .ReturnsAsync(blobPath);
+        voiceover.Setup(s => s.GetWavInfo(file))
+            .ReturnsAsync(wavInfo);
+
+        // Act
+        await unit.Voiceover(journalEntryId, CancellationToken.None);
+
+        // Assert
+        voiceover.Verify(v => v.UpdateEntry(blobPath, file.Length, It.IsAny<Stopwatch>(), wavInfo, entry, CancellationToken.None),
+            Times.Once());
+    }
+
+    //public async Task Voiceover(int journalEntryId, CancellationToken ct)
+    //{
+    //    var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
+    //    if (entry.ResponsePath != null) return;
+    //    var chatbot = await voiceover.GetChatbotEntryOrThrow(journalEntryId, ct);
+    //    if (chatbot.Message is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
+
+    //    var stopwatch = Stopwatch.StartNew();
+    //    var file = await voiceover.VoiceOver(chatbot.Message, ct);
+    //    var blobPath = await voiceover.SaveLocalFile(file, ct);
+    //    var wavInfo = await voiceover.GetWavInfo(file);
+
+    //    await voiceover.UpdateEntry(blobPath, file.Length, stopwatch, wavInfo, entry, ct);
+    //}
+
+    #endregion
 
     #region Chatbot
 
