@@ -1,11 +1,10 @@
 ﻿using Moq;
 using oliejournal.data.Entities;
-using oliejournal.lib;
+using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services.Models;
-using oliejournal.lib.Units;
 using System.Diagnostics;
 
-namespace oliejournal.tests;
+namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
 public class JournalProcessTests
 {

@@ -4,11 +4,11 @@ using oliejournal.data;
 using oliejournal.data.Entities;
 using oliejournal.lib.Enums;
 using oliejournal.lib.Models;
+using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
-using oliejournal.lib.Units;
 
-namespace oliejournal.tests.UnitsTests;
+namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
 [TestFixture]
 public class JournalEntryIngestionUnitTests

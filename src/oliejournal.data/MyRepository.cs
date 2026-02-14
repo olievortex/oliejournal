@@ -86,6 +86,26 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #endregion
 
+    #region JournalEntryList
+
+    public async Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct)
+    {
+        return await context.JournalEntryList
+            .Where(w => w.UserId == userId && w.Id == journalEntryId)
+            .OrderByDescending(d => d.Created)
+            .SingleOrDefaultAsync(ct);
+    }
+
+    public async Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct)
+    {
+        return await context.JournalEntryList
+            .Where(w => w.UserId == userId)
+            .OrderByDescending(d => d.Created)
+            .ToListAsync(ct);
+    }
+
+    #endregion
+
     #region JournalTranscript
 
     public async Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct)
@@ -116,19 +136,19 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #region OpenAi
 
-    public async Task<OpenAiCostSummary> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct)
+    public async Task<OpenAiCostSummaryModel> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct)
     {
         var result = await context.JournalChatbots
             .Where(w => w.Created >= start)
             .GroupBy(g => 1)
-            .Select(s => new OpenAiCostSummary
+            .Select(s => new OpenAiCostSummaryModel
             {
                 InputTokens = s.Sum(s => s.InputTokens),
                 OutputTokens = s.Sum(s => s.OutputTokens)
             })
             .SingleOrDefaultAsync(ct);
 
-        return result ?? new OpenAiCostSummary();
+        return result ?? new OpenAiCostSummaryModel();
     }
 
     #endregion

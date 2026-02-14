@@ -24,7 +24,7 @@ public class JournalTranscriptEntity
 //  "Transcript" varchar(8096) DEFAULT NULL,
 //  "ProcessingTime" int NOT NULL,
 //  "Cost" int NOT NULL,
-//  "Exception" varchar(8096) DEFAULT NULL,
+//  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
 //  "ServiceFk" int NOT NULL,
 //  PRIMARY KEY("Id"),
 //  KEY "JournalTranscripts_JournalEntries_FK" ("JournalEntryFk"),

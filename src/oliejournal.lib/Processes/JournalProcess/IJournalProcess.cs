@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 
-namespace oliejournal.lib;
+namespace oliejournal.lib.Processes.JournalProcess;
 
 public interface IJournalProcess
 {

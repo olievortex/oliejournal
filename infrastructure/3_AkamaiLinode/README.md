@@ -84,7 +84,7 @@ In a new PuTTY session, confirm you can no longer lig in as **root**.
 ### Install packages
 
     # sudo yum update
-    # sudo yum install git uv dotnet-sdk-10.0 httpd snapd nodejs-npm mod_ssl tar cronie net-tools mysql
+    # sudo yum install git uv dotnet-sdk-10.0 httpd snapd nodejs-npm mod_ssl tar cronie net-tools mysql ffmpeg
 
 ### Firewall Configuration
 

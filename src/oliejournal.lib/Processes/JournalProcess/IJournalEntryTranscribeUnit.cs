@@ -3,7 +3,7 @@ using oliejournal.data.Entities;
 using oliejournal.lib.Services.Models;
 using System.Diagnostics;
 
-namespace oliejournal.lib.Units;
+namespace oliejournal.lib.Processes.JournalProcess;
 
 public interface IJournalEntryTranscribeUnit
 {

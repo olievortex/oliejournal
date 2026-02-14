@@ -30,6 +30,13 @@ public interface IMyRepository
 
     #endregion
 
+    #region JournalEntryList
+
+    Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct);
+    Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct);
+
+    #endregion
+
     #region JournalTranscript
 
     Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct);
@@ -45,7 +52,7 @@ public interface IMyRepository
 
     #region OpenAi
 
-    Task<OpenAiCostSummary> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct);
+    Task<OpenAiCostSummaryModel> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct);
 
     #endregion
 }

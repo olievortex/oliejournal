@@ -1,12 +1,12 @@
 ﻿using Moq;
 using oliejournal.data;
 using oliejournal.data.Entities;
+using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
-using oliejournal.lib.Units;
 using System.Diagnostics;
 
-namespace oliejournal.tests.UnitsTests;
+namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
 public class JournalEntryChatbotUnitTests
 {
@@ -260,7 +260,7 @@ public class JournalEntryChatbotUnitTests
         const int limit = 12;
         var (unit, repo, _, _) = CreateUnit();
         repo.Setup(s => s.OpenApiGetChatbotSummary(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new data.Models.OpenAiCostSummary { InputTokens = 100, OutputTokens = 200 });
+            .ReturnsAsync(new data.Models.OpenAiCostSummaryModel { InputTokens = 100, OutputTokens = 200 });
 
         // Act
         await unit.EnsureOpenAiLimit(limit, CancellationToken.None);
@@ -276,7 +276,7 @@ public class JournalEntryChatbotUnitTests
         const int limit = 12;
         var (unit, repo, _, _) = CreateUnit();
         repo.Setup(s => s.OpenApiGetChatbotSummary(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new data.Models.OpenAiCostSummary { InputTokens = 10_000_000, OutputTokens = 20_000_000 });
+            .ReturnsAsync(new data.Models.OpenAiCostSummaryModel { InputTokens = 10_000_000, OutputTokens = 20_000_000 });
 
         // Act, Assert
         Assert.ThrowsAsync<ApplicationException>(async () => await unit.EnsureOpenAiLimit(limit, CancellationToken.None));

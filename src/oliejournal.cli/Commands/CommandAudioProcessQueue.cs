@@ -2,8 +2,8 @@
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
-using oliejournal.lib;
 using oliejournal.lib.Models;
+using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 
 namespace oliejournal.cli.Commands;
