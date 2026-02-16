@@ -13,16 +13,19 @@ public static class JournalEndpoints
     public static void MapJournalEndpoints(this WebApplication app)
     {
         app.MapGet("/api/journal/entries", GetEntryList).RequireAuthorization();
-        app.MapGet("/api/journal/entryStatus/{id}", GetEntryStatus).RequireAuthorization();
+        app.MapGet("/api/journal/entries/{id}", GetEntry).RequireAuthorization();
         app.MapPost("/api/journal/audioEntry", PostAudioEntry).DisableAntiforgery().RequireAuthorization();
     }
 
-    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> GetEntryStatus(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
+    public static async Task<Results<Ok<JournalEntryListEntity>, NotFound, UnauthorizedHttpResult>> GetEntry(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
 
-        return TypedResults.Ok(new IntResultModel { Id = await business.GetEntryStatus(id, userId, ct) });
+        var entry = await business.GetEntry(id, userId, ct);
+        if (entry is null) return TypedResults.NotFound();
+
+        return TypedResults.Ok(entry);
     }
 
     public static async Task<Results<Ok<List<JournalEntryListEntity>>, UnauthorizedHttpResult>> GetEntryList(ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)

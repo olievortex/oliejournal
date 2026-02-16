@@ -24,8 +24,17 @@ public class JournalApiBusinessTests
         const string userId = "abc";
         const int id = 42;
         const string responseTest = "bcd";
+        const string responsePath = "cde";
+        const string transcript = "def";
         var entities = new List<JournalEntryListEntity> {
-            new() { Id = id, UserId = userId, ResponseText = responseTest, Created = DateTime.UtcNow } };
+            new() {
+                Id = id,
+                UserId = userId,
+                ResponseText = responseTest,
+                ResponsePath = responsePath,
+                Transcript = transcript,
+                Created = DateTime.UtcNow }
+        };
         var (unit, repo) = CreateUnit();
         repo.Setup(s => s.JournalEntryListGetByUserId(userId, CancellationToken.None))
             .ReturnsAsync(entities);
@@ -40,16 +49,18 @@ public class JournalApiBusinessTests
             Assert.That(result[0].UserId, Is.EqualTo(userId));
             Assert.That(result[0].Id, Is.EqualTo(id));
             Assert.That(result[0].ResponseText, Is.EqualTo(responseTest));
+            Assert.That(result[0].ResponsePath, Is.EqualTo(responsePath));
+            Assert.That(result[0].Transcript, Is.EqualTo(transcript));
             Assert.That(result[0].Created, Is.Not.EqualTo(DateTime.MinValue));
         }
     }
 
     #endregion
 
-    #region GetEntryStatus
+    #region GetEntry
 
     [Test]
-    public async Task GetEntryStatus_Returns0_RecordNotFound()
+    public async Task GetEntry_ReturnsNull_RecordNotFound()
     {
         // Arrange
         const int journalEntryId = 42;
@@ -57,14 +68,14 @@ public class JournalApiBusinessTests
         var (unit, _) = CreateUnit();
 
         // Act
-        var result = await unit.GetEntryStatus(journalEntryId, userId, CancellationToken.None);
+        var result = await unit.GetEntry(journalEntryId, userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Zero);
+        Assert.That(result, Is.Null);
     }
 
     [Test]
-    public async Task GetEntryStatus_Returns1_NoTranscript()
+    public async Task GetEntry_ReturnsRecord_RecordFound()
     {
         // Arrange
         const int journalEntryId = 42;
@@ -75,46 +86,10 @@ public class JournalApiBusinessTests
             .ReturnsAsync(entity);
 
         // Act
-        var result = await unit.GetEntryStatus(journalEntryId, userId, CancellationToken.None);
+        var result = await unit.GetEntry(journalEntryId, userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.EqualTo(1));
-    }
-
-    [Test]
-    public async Task GetEntryStatus_Returns2_NoReply()
-    {
-        // Arrange
-        const int journalEntryId = 42;
-        const string userId = "abc";
-        var entity = new JournalEntryListEntity { Transcript = "Dillon" };
-        var (unit, repo) = CreateUnit();
-        repo.Setup(s => s.JournalEntryListGetByUserId(journalEntryId, userId, CancellationToken.None))
-            .ReturnsAsync(entity);
-
-        // Act
-        var result = await unit.GetEntryStatus(journalEntryId, userId, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(2));
-    }
-
-    [Test]
-    public async Task GetEntryStatus_Returns3_Complete()
-    {
-        // Arrange
-        const int journalEntryId = 42;
-        const string userId = "abc";
-        var entity = new JournalEntryListEntity { Transcript = "Dillon", ResponsePath = "Silly" };
-        var (unit, repo) = CreateUnit();
-        repo.Setup(s => s.JournalEntryListGetByUserId(journalEntryId, userId, CancellationToken.None))
-            .ReturnsAsync(entity);
-
-        // Act
-        var result = await unit.GetEntryStatus(journalEntryId, userId, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(3));
+        Assert.That(result, Is.EqualTo(entity));
     }
 
     #endregion
