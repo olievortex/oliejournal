@@ -5,6 +5,7 @@ import 'package:oliejournal_app/models/journal_entry_model.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
 import 'package:oliejournal_app/pages/home/components/home_header.dart';
+import 'package:oliejournal_app/pages/journal_entry_detail_page.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -101,7 +102,21 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     final messenger = ScaffoldMessenger.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const HomeHeader(), elevation: 0),
+      appBar: AppBar(
+        title: const HomeHeader(),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Reload entries',
+            onPressed: () {
+              // simply ask the model to reload; the loading indicator will
+              // show automatically via Consumer above.
+              context.read<OlieModel>().fetchEntries();
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: EdgeInsets.only(
           left: 16,
@@ -159,6 +174,11 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
       child: ListTile(
         title: Text(snippet),
         subtitle: Text('Created: ${entry.created.toLocal()}'),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => JournalEntryDetailPage(entry: entry),
+          ));
+        },
         trailing: entry.responsePath != null
             ? Row(
                 mainAxisSize: MainAxisSize.min,
