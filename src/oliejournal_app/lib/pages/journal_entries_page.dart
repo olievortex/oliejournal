@@ -74,7 +74,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
   /// start playing an audio file from the given URL inside the app using
   /// the `audioplayers` package.  we also update [_playingEntryId] to keep
   /// track of the currently active entry.
-  Future<void> _playUrl(String url, int entryId) async {
+  Future<void> _playUrl(String url, int entryId, ScaffoldMessengerState messenger) async {
     try {
       await _audioPlayer.setSource(UrlSource(url));
       await _audioPlayer.resume();
@@ -82,7 +82,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
         _playingEntryId = entryId;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Could not play audio')),
       );
     }
@@ -98,6 +98,8 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const HomeHeader(), elevation: 0),
       body: Padding(
@@ -110,7 +112,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
           children: [
             const Text('Journal Entries'),
             const SizedBox(height: 16),
-            Expanded(child: _entryList()),
+            Expanded(child: _entryList(messenger)),
             const HomeFooter(),
           ],
         ),
@@ -118,7 +120,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     );
   }
 
-  Widget _entryList() {
+  Widget _entryList(ScaffoldMessengerState messenger) {
     return Consumer<OlieModel>(
       builder: (context, model, child) {
         if (model.isLoading) {
@@ -141,15 +143,15 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
           itemCount: model.journalEntries.length,
           itemBuilder: (context, index) {
             final entry = model.journalEntries[index];
-            return _entryTile(entry);
+            return _entryTile(entry, messenger);
           },
         );
       },
     );
   }
 
-  Widget _entryTile(JournalEntryModel entry) {
-    final String fullText = entry.transcript ?? '';
+  Widget _entryTile(JournalEntryModel entry, ScaffoldMessengerState messenger) {
+    final String fullText = entry.transcript ?? 'Waiting for transcript...';
     final snippet = fullText.length <= 100 ? fullText : fullText.substring(0, 100);
 
     return Card(
@@ -163,7 +165,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.play_arrow),
-                    onPressed: () => _playUrl(entry.responsePath!, entry.id),
+                    onPressed: () => _playUrl(entry.responsePath!, entry.id, messenger),
                   ),
                   IconButton(
                     icon: const Icon(Icons.stop),
