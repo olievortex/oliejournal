@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_windows
   flutter_secure_storage_windows
   kinde_flutter_sdk
   permission_handler_windows
