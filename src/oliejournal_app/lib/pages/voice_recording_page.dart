@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:oliejournal_app/pages/home/components/home_footer.dart';
 import 'package:oliejournal_app/pages/home/components/home_header.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
@@ -152,122 +153,147 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
   @override
   Widget build(BuildContext context) {
+    // wrap main content in an Expanded so footer stays at bottom
     return Scaffold(
       appBar: AppBar(title: const HomeHeader(), elevation: 0),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Timer Display
-              Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.blue.shade300, width: 2),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      _isRecording ? 'Recording...' : 'Ready',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.blue.shade600,
-                        fontWeight: FontWeight.w600,
+      body: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.viewPaddingOf(context).bottom,
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Instructions plus timer display
+                      Text(
+                        'Tap "Start Recording" and begin dictating your field notes. You have one minute per entry.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _formatTime(_secondsRemaining),
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: _isRecording ? Colors.red : Colors.blue,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.blue.shade300, width: 2),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              _isRecording ? 'Recording...' : 'Ready',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.blue.shade600,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _formatTime(_secondsRemaining),
+                              style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                                color: _isRecording ? Colors.red : Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 48),
+
+                      // Recording Status
+                      if (_isRecording)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Recording in progress...',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        )
+                      else if (_recordingPath != null)
+                        Text(
+                          'Last recording saved',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      else
+                        Text(
+                          'No recording yet',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                        ),
+                      const SizedBox(height: 48),
+
+                      // Buttons – use Wrap to avoid horizontal overflow on narrow screens
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          // Start Recording Button
+                          ElevatedButton.icon(
+                            onPressed: _isRecording ? null : _startRecording,
+                            icon: const Icon(Icons.mic),
+                            label: const Text('Start Recording'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
+                              ),
+                              backgroundColor: Colors.blue,
+                              disabledBackgroundColor: Colors.grey.shade400,
+                            ),
+                          ),
+
+                          // Stop Recording Button
+                          ElevatedButton.icon(
+                            onPressed: _isRecording ? _stopRecording : null,
+                            icon: const Icon(Icons.stop),
+                            label: const Text('Stop Recording'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
+                              ),
+                              backgroundColor: Colors.red,
+                              disabledBackgroundColor: Colors.grey.shade400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 48),
-
-              // Recording Status
-              if (_isRecording)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Recording in progress...',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                )
-              else if (_recordingPath != null)
-                Text(
-                  'Last recording saved',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.green,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-              else
-                Text(
-                  'No recording yet',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                ),
-              const SizedBox(height: 48),
-
-              // Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Start Recording Button
-                  ElevatedButton.icon(
-                    onPressed: _isRecording ? null : _startRecording,
-                    icon: const Icon(Icons.mic),
-                    label: const Text('Start Recording'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      backgroundColor: Colors.blue,
-                      disabledBackgroundColor: Colors.grey.shade400,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-
-                  // Stop Recording Button
-                  ElevatedButton.icon(
-                    onPressed: _isRecording ? _stopRecording : null,
-                    icon: const Icon(Icons.stop),
-                    label: const Text('Stop Recording'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      backgroundColor: Colors.red,
-                      disabledBackgroundColor: Colors.grey.shade400,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            const HomeFooter(),
+          ],
         ),
       ),
     );

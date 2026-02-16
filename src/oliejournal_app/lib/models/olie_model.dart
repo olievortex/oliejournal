@@ -10,8 +10,11 @@ class OlieModel extends ChangeNotifier {
 
   bool isLoggedIn = false;
   bool isLoading = false;
-  String get fullName {
+  String get nameAbbr {
     return '${_profile?.givenName?[0]}${_profile?.familyName?[0]}';
+  }
+  String get nameFirst {
+    return _profile?.givenName ?? 'anonymous';
   }
 
   String? token;

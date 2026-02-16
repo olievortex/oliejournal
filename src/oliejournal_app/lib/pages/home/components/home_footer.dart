@@ -9,8 +9,6 @@ class HomeFooter extends StatelessWidget {
     return SizedBox(
       child: Column(
         children: [
-          Text(appTitle, style: kTitleText),
-          verticalSpaceSmall,
           Text(
             '© 2026 AntiHoist Entertainment LLC. All rights reserved',
             style: kRobotoText.copyWith(
