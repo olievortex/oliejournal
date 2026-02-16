@@ -14,19 +14,24 @@ class JournalEntryModel {
     required this.created,
     required this.transcript,
     required this.responsePath,
-    required this.responseText
+    required this.responseText,
   });
 
   factory JournalEntryModel.fromJson(Map<String, dynamic> json) {
     final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    
+
+    String? responsePath = json['responsePath'] as String?;
+    if (responsePath != null) {
+      responsePath = 'https://oliejournal.olievortex.com/videos/$responsePath';
+    }
+
     return JournalEntryModel(
       id: json['id'] as int,
       userId: json['userId'] as String,
       created: format.parse(json['created']),
       transcript: json['transcript'] as String?,
-      responsePath: json['responsePath'] as String?,
-      responseText: json['responseText'] as String?
+      responsePath: responsePath,
+      responseText: json['responseText'] as String?,
     );
   }
 }

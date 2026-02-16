@@ -64,8 +64,6 @@ class OlieModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// refreshes a single journal entry using the new endpoint.  replaces the
-  /// existing entry in the list if found; otherwise does nothing.
   Future<void> fetchEntryStatus(int id) async {
     // we intentionally don't toggle isLoading here because it would drive
     // the entire UI busy indicator while just one row is updated.

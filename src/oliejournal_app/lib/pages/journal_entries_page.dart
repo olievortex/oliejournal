@@ -26,18 +26,6 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
   /// timers keyed by entry id so that we don't re-create the same timer every
   /// time build() runs.
   final Map<int, Timer> _reloadTimers = {};
-  bool _initialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      // kick off the initial load when the page is first inserted into the
-      // tree.
-      Provider.of<OlieModel>(context, listen: false).fetchEntries();
-      _initialized = true;
-    }
-  }
 
   @override
   void dispose() {
