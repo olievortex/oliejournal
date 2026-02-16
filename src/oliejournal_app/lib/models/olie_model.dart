@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kinde_flutter_sdk/kinde_flutter_sdk.dart';
 import 'package:oliejournal_app/backend.dart';
 import 'package:oliejournal_app/models/forecast_model.dart';
+import 'package:oliejournal_app/models/journal_entry_model.dart';
 
 class OlieModel extends ChangeNotifier {
   final KindeFlutterSDK _kindeClient = KindeFlutterSDK.instance;
@@ -17,6 +18,7 @@ class OlieModel extends ChangeNotifier {
 
   String? errorMessage;
   ForecastModel? forecast;
+  List<JournalEntryModel> journalEntries = [];
 
   OlieModel() {
     _kindeClient.isAuthenticated().then((value) {
@@ -44,6 +46,40 @@ class OlieModel extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> fetchEntries() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      journalEntries = await Backend.fetchJournalEntries(token);
+      errorMessage = null;
+    } catch (ex) {
+      errorMessage = ex.toString();
+      forecast = null;
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// refreshes a single journal entry using the new endpoint.  replaces the
+  /// existing entry in the list if found; otherwise does nothing.
+  Future<void> fetchEntryStatus(int id) async {
+    // we intentionally don't toggle isLoading here because it would drive
+    // the entire UI busy indicator while just one row is updated.
+    try {
+      final updated = await Backend.fetchJournalEntry(id, token);
+      final idx = journalEntries.indexWhere((e) => e.id == id);
+      if (idx != -1) {
+        journalEntries[idx] = updated;
+        notifyListeners();
+      }
+    } catch (ex) {
+      // no field to surface this at the moment; store for diagnostics
+      errorMessage = ex.toString();
+    }
   }
 
   //endregion

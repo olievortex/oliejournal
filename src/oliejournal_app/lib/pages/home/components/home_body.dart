@@ -5,6 +5,7 @@ import 'package:oliejournal_app/pages/forecast_page.dart';
 import 'package:oliejournal_app/pages/voice_recording_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:oliejournal_app/pages/journal_entries_page.dart';
 
 class HomeBody extends StatelessWidget {
   const HomeBody({super.key});
@@ -131,6 +132,28 @@ class HomeBody extends StatelessWidget {
           },
           child: Text(
             "Create Journal Entry",
+            textAlign: TextAlign.center,
+            style: kRobotoText.copyWith(
+              fontWeight: kFwBlack,
+              color: Colors.black,
+              fontSize: kHeadingTwo,
+            ),
+          ),
+        ),
+        MaterialButton(
+          elevation: 0,
+          color: Colors.white,
+          onPressed: () {
+            // ensure the entries are loaded before navigating so the destination
+            // can display immediately
+            olieModel.fetchEntries();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const JournalEntriesPage()),
+            );
+          },
+          child: Text(
+            "View Journal Entries",
             textAlign: TextAlign.center,
             style: kRobotoText.copyWith(
               fontWeight: kFwBlack,
