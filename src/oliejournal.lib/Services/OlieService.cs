@@ -133,7 +133,7 @@ public class OlieService : IOlieService
         var audioConfig = new AudioConfig()
         {
             AudioEncoding = AudioEncoding.Linear16,
-            SpeakingRate = 1.5,
+            SpeakingRate = 1.3,
         };
 
         // Perform the text-to-speech request on the text input with the selected voice parameters and
