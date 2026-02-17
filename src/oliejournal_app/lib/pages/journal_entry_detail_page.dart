@@ -46,8 +46,7 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
     super.dispose();
   }
 
-  Future<void> _play() async {
-    final url = widget.entry.responsePath;
+  Future<void> _play(String? url) async {
     if (url == null) return;
 
     final messenger = ScaffoldMessenger.of(context);
@@ -131,21 +130,34 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
                   const SizedBox(height: 8),
                   Text('Created: ${format.format(entry.created.toLocal())}'),
                   const SizedBox(height: 16),
-                  const Text('Transcript:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Transcript:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 4),
                   Text(entry.transcript ?? 'Processing...'),
                   const SizedBox(height: 16),
-                  const Text('Chatbot response:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Chatbot response:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 4),
                   Text(entry.responseText ?? 'Processing...'),
                   const SizedBox(height: 16),
                   if (entry.responsePath != null) ...[
-                    const Text('Chatbot audio:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Chatbot audio:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Row(
                       children: [
                         IconButton(
                           icon: const Icon(Icons.play_arrow),
-                          onPressed: _playing ? null : _play,
+                          onPressed: _playing
+                              ? null
+                              : () async {
+                                  _play(entry.responsePath);
+                                },
                         ),
                         IconButton(
                           icon: const Icon(Icons.stop),
