@@ -201,11 +201,12 @@ public class JournalProcessTests
     {
         // Arrange
         var (unit, ingest, _, _, _) = CreateUnit();
-        ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<OlieWavInfo>(), CancellationToken.None))
+        ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(),
+            It.IsAny<float?>(), It.IsAny<float?>(), It.IsAny<OlieWavInfo>(), CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
 
         // Act
-        var result = await unit.Ingest(string.Empty, null!, null!, null!, CancellationToken.None);
+        var result = await unit.Ingest(string.Empty, null!, null, null, null!, null!, CancellationToken.None);
 
         // Assert
         Assert.That(result, Is.EqualTo(123));
@@ -223,7 +224,7 @@ public class JournalProcessTests
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
 
         // Act
-        var result = await unit.Ingest(userId, null!, null!, null!, CancellationToken.None);
+        var result = await unit.Ingest(userId, null!, null, null, null!, null!, CancellationToken.None);
 
         // Assert
         Assert.That(result, Is.EqualTo(123));

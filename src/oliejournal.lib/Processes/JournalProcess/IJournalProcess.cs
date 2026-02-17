@@ -7,6 +7,6 @@ public interface IJournalProcess
 {
     Task Voiceover(int journalEntryId, CancellationToken ct);
     Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct);
-    Task<int> Ingest(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct);
+    Task<int> Ingest(string userId, Stream audio, float? latitude, float? longitude, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct);
     Task Transcribe(int id, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct);
 }

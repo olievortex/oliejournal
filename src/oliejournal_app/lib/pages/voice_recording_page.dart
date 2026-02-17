@@ -5,6 +5,11 @@ import 'package:oliejournal_app/pages/home/components/home_header.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
+import 'dart:io';
+import 'package:provider/provider.dart';
+import 'package:oliejournal_app/models/olie_model.dart';
+import 'package:oliejournal_app/backend.dart';
+import 'package:geolocator/geolocator.dart';
 
 class VoiceRecordingPage extends StatefulWidget {
   const VoiceRecordingPage({super.key});
@@ -106,7 +111,9 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       });
 
       if (path != null) {
-        _showSuccessDialog('Recording saved to:\n$path');
+        // ask user if they want to upload
+        await _showSuccessDialog('Recording saved to:\n$path');
+        _askUpload(path);
       }
     } catch (e) {
       _showErrorDialog('Failed to stop recording: $e');
@@ -129,8 +136,8 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
     );
   }
 
-  void _showSuccessDialog(String message) {
-    showDialog(
+  Future<void> _showSuccessDialog(String message) async {
+    await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Success'),
@@ -143,6 +150,85 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
         ],
       ),
     );
+  }
+
+  /// after recording finishes, prompt the user about uploading.
+  Future<void> _askUpload(String path) async {
+    final shouldUpload = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Upload Recording?'),
+        content: const Text('Would you like to upload this audio file now?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldUpload == true) {
+      await _uploadRecording(path);
+    }
+  }
+
+  Future<void> _uploadRecording(String path) async {
+    final model = context.read<OlieModel>();
+    if (model.token == null) {
+      _showErrorDialog('Not authenticated; please log in before uploading.');
+      return;
+    }
+
+    Position? position;
+    try {
+      position = await _determinePosition();
+    } catch (e) {
+      // best-effort; ignore location failures but log
+      debugPrint('Location error: $e');
+    }
+
+    try {
+      final file = File(path);
+      await Backend.uploadAudioEntry(
+        model.token,
+        file,
+        latitude: position?.latitude,
+        longitude: position?.longitude,
+      );
+      _showSuccessDialog('Audio uploaded successfully.');
+    } catch (e) {
+      _showErrorDialog('Upload failed: $e');
+    }
+  }
+
+  /// Returns current position or throws if location can't be determined.
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are permanently denied');
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
   String _formatTime(int seconds) {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using oliejournal.api.Models;
 using oliejournal.data.Entities;
 using oliejournal.lib;
@@ -36,7 +37,7 @@ public static class JournalEndpoints
         return TypedResults.Ok(await business.GetEntryList(userId, ct));
     }
 
-    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
+    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, [FromForm] string? latitude, [FromForm] string? longitude, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
@@ -45,7 +46,10 @@ public static class JournalEndpoints
         var sender = config.ServiceBusSender();
         var client = config.BlobContainerClient();
 
-        var id = await process.Ingest(userId, stream, sender, client, ct);
+        var lat = latitude.SafeFloat();
+        var lon = longitude.SafeFloat();
+
+        var id = await process.Ingest(userId, stream, lat, lon, sender, client, ct);
 
         return TypedResults.Ok(new IntResultModel { Id = id });
     }
