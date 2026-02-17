@@ -72,11 +72,13 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
   void _maybeStartTimer(JournalEntryModel entry, OlieModel model) {
     if (entry.responsePath == null && _reloadTimer == null) {
       _reloadTimer = Timer(const Duration(seconds: 20), () async {
-        await model.fetchEntryStatus(entry.id);
+        final updated = await model.fetchEntryStatus(entry.id);
         setState(() {
           _reloadTimer?.cancel();
           _reloadTimer = null;
         });
+
+        _maybeStartTimer(updated ?? entry, model);
       });
     }
   }
@@ -129,14 +131,14 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
                   const SizedBox(height: 16),
                   const Text('Transcript:', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(entry.transcript ?? '—'),
+                  Text(entry.transcript ?? 'Processing...'),
                   const SizedBox(height: 16),
-                  const Text('Response text:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('AI Feedback:', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(entry.responseText ?? '—'),
+                  Text(entry.responseText ?? 'Processing...'),
                   const SizedBox(height: 16),
                   if (entry.responsePath != null) ...[
-                    const Text('Response audio:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('AI Feedback Audio:', style: TextStyle(fontWeight: FontWeight.bold)),
                     Row(
                       children: [
                         IconButton(
