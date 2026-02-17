@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/models/journal_entry_model.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
@@ -68,7 +69,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
           // Our timer is a one-shot, so delete it.
           _reloadTimers.remove(entry.id)?.cancel();
         });
-        
+
         // Try it again
         _maybeStartTimerForEntry(updated ?? entry, model);
       });
@@ -78,7 +79,11 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
   /// start playing an audio file from the given URL inside the app using
   /// the `audioplayers` package.  we also update [_playingEntryId] to keep
   /// track of the currently active entry.
-  Future<void> _playUrl(String url, int entryId, ScaffoldMessengerState messenger) async {
+  Future<void> _playUrl(
+    String url,
+    int entryId,
+    ScaffoldMessengerState messenger,
+  ) async {
     try {
       await _audioPlayer.setSource(UrlSource(url));
       await _audioPlayer.resume();
@@ -168,9 +173,9 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     );
   }
 
-  String limitTextWordSafe(String text, int maxLength) {
+  String _limitTextWordSafe(String text, int maxLength) {
     if (text.length <= maxLength) return text;
-    
+
     // Truncate and find the last space to avoid cutting a word
     String subString = text.substring(0, maxLength);
     var result = subString.substring(0, subString.lastIndexOf(' ')).trim();
@@ -180,17 +185,24 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     return result;
   }
 
+  String _formatLocalTime(DateTime value) {
+    var format = DateFormat.yMd().add_jm();
+    return format.format(value.toLocal());
+  }
+
   Widget _entryTile(JournalEntryModel entry, ScaffoldMessengerState messenger) {
     final String fullText = entry.transcript ?? 'Waiting for transcript...';
-    final snippet = limitTextWordSafe(fullText, 200);
+    final snippet = _limitTextWordSafe(fullText, 200);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => JournalEntryDetailPage(entry: entry),
-          ));
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => JournalEntryDetailPage(entry: entry),
+            ),
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -198,34 +210,52 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(snippet, style: kRobotoText),
-              const SizedBox(height: 4),
-              Text('Created: ${entry.created.toLocal()}',
-                  style: kRobotoText.copyWith(
-                    fontSize: kBodySmall,
-                    color: kColorGrey
-                  )),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: entry.responsePath != null
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.play_arrow),
-                            onPressed: () => _playUrl(entry.responsePath!, entry.id, messenger),
+              Row(
+                children: [
+                  Text(
+                    'Created: ${_formatLocalTime(entry.created)}',
+                    style: kRobotoText.copyWith(
+                      fontSize: kBodySmall,
+                      color: kColorGrey,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'AI Feedback: ',
+                    style: kRobotoText.copyWith(
+                      fontSize: kBodySmall,
+                      color: kColorGrey,
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: entry.responsePath != null
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.play_arrow),
+                                onPressed: () => _playUrl(
+                                  entry.responsePath!,
+                                  entry.id,
+                                  messenger,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.stop),
+                                onPressed: _playingEntryId == entry.id
+                                    ? _stopPlayback
+                                    : null,
+                              ),
+                            ],
+                          )
+                        : const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.stop),
-                            onPressed: _playingEntryId == entry.id ? _stopPlayback : null,
-                          ),
-                        ],
-                      )
-                    : const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+                  ),
+                ],
               ),
             ],
           ),

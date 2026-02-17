@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class JournalEntryModel {
   final int id;
   final String userId;
@@ -18,8 +16,6 @@ class JournalEntryModel {
   });
 
   factory JournalEntryModel.fromJson(Map<String, dynamic> json) {
-    final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
     String? responsePath = json['responsePath'] as String?;
     if (responsePath != null) {
       responsePath = 'https://oliejournal.olievortex.com/videos/$responsePath';
@@ -28,7 +24,7 @@ class JournalEntryModel {
     return JournalEntryModel(
       id: json['id'] as int,
       userId: json['userId'] as String,
-      created: format.parse(json['created']),
+      created: DateTime.parse(json['created']),
       transcript: json['transcript'] as String?,
       responsePath: responsePath,
       responseText: json['responseText'] as String?,
