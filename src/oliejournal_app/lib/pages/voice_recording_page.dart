@@ -21,14 +21,15 @@ class VoiceRecordingPage extends StatefulWidget {
 class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
   final AudioRecorder _audioRecorder = AudioRecorder();
   Timer? _timer;
-  int _secondsRemaining = 60;
+  int _secondsRemaining = 55;
   bool _isRecording = false;
   String? _recordingPath;
+  String _recordingFinished = 'Last recording saved! Start a new recording.';
 
   @override
   void initState() {
     super.initState();
-    _requestMicrophonePermission();
+    _fetchPermission();
   }
 
   @override
@@ -38,6 +39,11 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
     super.dispose();
   }
 
+  Future<void> _fetchPermission() async {
+    await _requestMicrophonePermission();
+    await _requestPositionPermission();
+  }
+
   Future<void> _requestMicrophonePermission() async {
     final status = await Permission.microphone.request();
     if (!status.isGranted) {
@@ -45,6 +51,25 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Microphone permission is required to record audio.'),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _requestPositionPermission() async {
+    LocationPermission permission;
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Enable location permission to record your journaling location.'),
           ),
         );
       }
@@ -73,7 +98,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
         setState(() {
           _isRecording = true;
-          _secondsRemaining = 60;
+          _secondsRemaining = 55;
           _recordingPath = outputPath;
         });
 
@@ -106,7 +131,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
       setState(() {
         _isRecording = false;
-        _secondsRemaining = 60;
+        _secondsRemaining = 55;
         _recordingPath = path;
       });
 
@@ -171,6 +196,10 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       ),
     );
 
+    setState(() {
+      _recordingFinished = 'Recording was not saved! Start a new recording.';
+    });
+
     if (shouldUpload == true) {
       await _uploadRecording(path);
     }
@@ -200,6 +229,11 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
         longitude: position?.longitude,
       );
       _showSuccessDialog('Audio uploaded successfully.');
+
+      setState(() {
+        _recordingFinished = 'Recording uploaded!';
+      });
+
     } catch (e) {
       _showErrorDialog('Upload failed: $e');
     }
@@ -319,8 +353,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                           ],
                         )
                       else if (_recordingPath != null)
-                        Text(
-                          'Last recording saved',
+                        Text(_recordingFinished,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.green,
                             fontWeight: FontWeight.w600,
