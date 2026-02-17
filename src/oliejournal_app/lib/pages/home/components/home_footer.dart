@@ -10,7 +10,7 @@ class HomeFooter extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '© 2026 AntiHoist Entertainment LLC. All rights reserved',
+            '© 2026 AntiHoist Entertainment, LLC. All rights reserved',
             style: kRobotoText.copyWith(
               fontWeight: kFwMedium,
               color: kColorGrey,

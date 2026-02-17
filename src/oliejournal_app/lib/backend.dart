@@ -62,7 +62,7 @@ class Backend {
     String? token,
   ) async {
     final uri = Uri.parse(
-      'https://oliejournal.olievortex.com/api/journal/entry/$id',
+      'https://oliejournal.olievortex.com/api/journal/entries/$id',
     );
     final response = await http.get(
       uri,

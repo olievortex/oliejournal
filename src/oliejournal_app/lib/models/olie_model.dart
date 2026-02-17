@@ -67,7 +67,7 @@ class OlieModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchEntryStatus(int id) async {
+  Future<JournalEntryModel?> fetchEntryStatus(int id) async {
     // we intentionally don't toggle isLoading here because it would drive
     // the entire UI busy indicator while just one row is updated.
     try {
@@ -77,9 +77,13 @@ class OlieModel extends ChangeNotifier {
         journalEntries[idx] = updated;
         notifyListeners();
       }
+
+      return updated;
     } catch (ex) {
       // no field to surface this at the moment; store for diagnostics
       errorMessage = ex.toString();
+
+      return null;
     }
   }
 

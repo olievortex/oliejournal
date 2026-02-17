@@ -112,7 +112,6 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
       if (path != null) {
         // ask user if they want to upload
-        await _showSuccessDialog('Recording saved to:\n$path');
         _askUpload(path);
       }
     } catch (e) {

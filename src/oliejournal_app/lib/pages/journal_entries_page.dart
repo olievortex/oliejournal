@@ -62,12 +62,14 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     if (entry.responsePath == null && !_reloadTimers.containsKey(entry.id)) {
       _reloadTimers[entry.id] = Timer(const Duration(seconds: 20), () async {
         // now that we have a dedicated endpoint we only refresh this entry.
-        await model.fetchEntryStatus(entry.id);
+        final updated = await model.fetchEntryStatus(entry.id);
         setState(() {
-          // always remove our timer after it fires. if the entry still lacks a
-          // response path we'll recreate a new timer in the next build pass.
+          // Our timer is a one-shot, so delete it.
           _reloadTimers.remove(entry.id)?.cancel();
         });
+        
+        // Try it again
+        _maybeStartTimerForEntry(updated ?? entry, model);
       });
     }
   }
