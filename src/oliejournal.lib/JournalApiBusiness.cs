@@ -1,17 +1,19 @@
 ﻿using oliejournal.data;
-using oliejournal.data.Entities;
+using oliejournal.lib.Models;
 
 namespace oliejournal.lib;
 
 public class JournalApiBusiness(IMyRepository repo) : IJournalApiBusiness
 {
-    public async Task<List<JournalEntryListEntity>> GetEntryList(string userId, CancellationToken ct)
+    public async Task<List<JournalEntryListModel>> GetEntryList(string userId, CancellationToken ct)
     {
-        return await repo.JournalEntryListGetByUserId(userId, ct);
+        return [.. (await repo.JournalEntryListGetByUserId(userId, ct)).Select(JournalEntryListModel.FromEntity)];
     }
 
-    public async Task<JournalEntryListEntity?> GetEntry(int journalEntryId, string userId, CancellationToken ct)
+    public async Task<JournalEntryListModel?> GetEntry(int journalEntryId, string userId, CancellationToken ct)
     {
-        return await repo.JournalEntryListGetByUserId(journalEntryId, userId, ct);
+        var result = await repo.JournalEntryListGetByUserId(journalEntryId, userId, ct);
+
+        return result is null ? null : JournalEntryListModel.FromEntity(result);
     }
 }

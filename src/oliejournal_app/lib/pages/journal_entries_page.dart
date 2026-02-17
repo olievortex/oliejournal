@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/models/journal_entry_model.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
@@ -167,39 +168,68 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     );
   }
 
+  String limitTextWordSafe(String text, int maxLength) {
+    if (text.length <= maxLength) return text;
+    
+    // Truncate and find the last space to avoid cutting a word
+    String subString = text.substring(0, maxLength);
+    var result = subString.substring(0, subString.lastIndexOf(' ')).trim();
+
+    result = '$result...';
+
+    return result;
+  }
+
   Widget _entryTile(JournalEntryModel entry, ScaffoldMessengerState messenger) {
     final String fullText = entry.transcript ?? 'Waiting for transcript...';
-    final snippet = fullText.length <= 100 ? fullText : fullText.substring(0, 100);
+    final snippet = limitTextWordSafe(fullText, 200);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(snippet),
-        subtitle: Text('Created: ${entry.created.toLocal()}'),
+      child: InkWell(
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => JournalEntryDetailPage(entry: entry),
           ));
         },
-        trailing: entry.responsePath != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.play_arrow),
-                    onPressed: () => _playUrl(entry.responsePath!, entry.id, messenger),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.stop),
-                    onPressed: _playingEntryId == entry.id ? _stopPlayback : null,
-                  ),
-                ],
-              )
-            : const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(snippet, style: kRobotoText),
+              const SizedBox(height: 4),
+              Text('Created: ${entry.created.toLocal()}',
+                  style: kRobotoText.copyWith(
+                    fontSize: kBodySmall,
+                    color: kColorGrey
+                  )),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: entry.responsePath != null
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.play_arrow),
+                            onPressed: () => _playUrl(entry.responsePath!, entry.id, messenger),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.stop),
+                            onPressed: _playingEntryId == entry.id ? _stopPlayback : null,
+                          ),
+                        ],
+                      )
+                    : const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
               ),
+            ],
+          ),
+        ),
       ),
     );
   }

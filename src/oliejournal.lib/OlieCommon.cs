@@ -21,6 +21,11 @@ public static class OlieCommon
         return null;
     }
 
+    public static DateTime AsUtc(this DateTime value)
+    {
+        return new DateTime(value.Ticks, DateTimeKind.Utc);
+    }
+
     [ExcludeFromCodeCoverage]
     public static void AddOlieLibScopes(this IServiceCollection services)
     {
