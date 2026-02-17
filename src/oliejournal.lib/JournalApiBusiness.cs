@@ -10,13 +10,8 @@ public class JournalApiBusiness(IMyRepository repo) : IJournalApiBusiness
         return await repo.JournalEntryListGetByUserId(userId, ct);
     }
 
-    public async Task<int> GetEntryStatus(int journalEntryId, string userId, CancellationToken ct)
+    public async Task<JournalEntryListEntity?> GetEntry(int journalEntryId, string userId, CancellationToken ct)
     {
-        var result = await repo.JournalEntryListGetByUserId(journalEntryId, userId, ct);
-        if (result == null) { return 0; }
-
-        if (result.Transcript == null) { return 1; }
-        if (result.ResponsePath == null) { return 2; }
-        return 3;
+        return await repo.JournalEntryListGetByUserId(journalEntryId, userId, ct);
     }
 }

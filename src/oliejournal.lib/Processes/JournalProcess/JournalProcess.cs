@@ -50,7 +50,7 @@ public class JournalProcess(
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
     }
 
-    public async Task<int> Ingest(string userId, Stream audio, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
+    public async Task<int> Ingest(string userId, Stream audio, float? latitude, float? longitude, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {
         var file = await ingestion.GetBytesFromStream(audio, ct);
         var hash = ingestion.CreateHash(file);
@@ -61,7 +61,7 @@ public class JournalProcess(
         var wavInfo = ingestion.EnsureAudioValidates(file);
         var localPath = await ingestion.WriteAudioFileToTemp(file, ct);
         var blobPath = await ingestion.WriteAudioFileToBlob(localPath, client, ct);
-        entry = await ingestion.CreateJournalEntry(userId, blobPath, file.Length, hash, wavInfo, ct);
+        entry = await ingestion.CreateJournalEntry(userId, blobPath, file.Length, hash, latitude, longitude, wavInfo, ct);
 
     SendMessage:
         await ingestion.CreateJournalMessage(entry.Id, AudioProcessStepEnum.Transcript, sender, ct);

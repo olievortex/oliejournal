@@ -13,6 +13,14 @@ public static class OlieCommon
         return str.Length <= length ? str : str[..length];
     }
 
+    public static float? SafeFloat(this string? str)
+    {
+        if (string.IsNullOrWhiteSpace(str)) return null;
+        if (float.TryParse(str, out float value)) return value;
+
+        return null;
+    }
+
     [ExcludeFromCodeCoverage]
     public static void AddOlieLibScopes(this IServiceCollection services)
     {

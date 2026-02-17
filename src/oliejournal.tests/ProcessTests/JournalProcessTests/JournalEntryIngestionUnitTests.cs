@@ -48,6 +48,8 @@ public class JournalEntryIngestionUnitTests
     public async Task CreateJournalEntry_SetsPropertiesAndCallsRepo()
     {
         // Arrange
+        const float lat = 123;
+        const float lon = 234;
         var (unit, _, _, repo) = CreateUnit();
         repo.Setup(s => s.JournalEntryCreate(It.IsAny<JournalEntryEntity>(), CancellationToken.None))
             .Callback<JournalEntryEntity, CancellationToken>((e, _) => { e.Id = 123; });
@@ -61,7 +63,7 @@ public class JournalEntryIngestionUnitTests
         };
 
         // Act
-        var entity = await unit.CreateJournalEntry("user-1", "path.wav", 500, "A5DF", info, CancellationToken.None);
+        var entity = await unit.CreateJournalEntry("user-1", "path.wav", 500, "A5DF", lat, lon, info, CancellationToken.None);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -76,6 +78,8 @@ public class JournalEntryIngestionUnitTests
             Assert.That(entity.Created, Is.Not.EqualTo(DateTime.MinValue));
             Assert.That(entity.AudioDuration, Is.EqualTo((int)info.Duration.TotalSeconds));
             Assert.That(entity.AudioHash, Is.EqualTo("A5DF"));
+            Assert.That(entity.Latitude, Is.EqualTo(lat));
+            Assert.That(entity.Longitude, Is.EqualTo(lon));
         }
     }
 

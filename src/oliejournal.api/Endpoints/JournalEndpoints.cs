@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using oliejournal.api.Models;
 using oliejournal.data.Entities;
 using oliejournal.lib;
@@ -13,16 +14,19 @@ public static class JournalEndpoints
     public static void MapJournalEndpoints(this WebApplication app)
     {
         app.MapGet("/api/journal/entries", GetEntryList).RequireAuthorization();
-        app.MapGet("/api/journal/entryStatus/{id}", GetEntryStatus).RequireAuthorization();
+        app.MapGet("/api/journal/entries/{id}", GetEntry).RequireAuthorization();
         app.MapPost("/api/journal/audioEntry", PostAudioEntry).DisableAntiforgery().RequireAuthorization();
     }
 
-    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> GetEntryStatus(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
+    public static async Task<Results<Ok<JournalEntryListEntity>, NotFound, UnauthorizedHttpResult>> GetEntry(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
 
-        return TypedResults.Ok(new IntResultModel { Id = await business.GetEntryStatus(id, userId, ct) });
+        var entry = await business.GetEntry(id, userId, ct);
+        if (entry is null) return TypedResults.NotFound();
+
+        return TypedResults.Ok(entry);
     }
 
     public static async Task<Results<Ok<List<JournalEntryListEntity>>, UnauthorizedHttpResult>> GetEntryList(ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
@@ -33,7 +37,7 @@ public static class JournalEndpoints
         return TypedResults.Ok(await business.GetEntryList(userId, ct));
     }
 
-    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
+    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, [FromForm] string? latitude, [FromForm] string? longitude, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
@@ -42,7 +46,10 @@ public static class JournalEndpoints
         var sender = config.ServiceBusSender();
         var client = config.BlobContainerClient();
 
-        var id = await process.Ingest(userId, stream, sender, client, ct);
+        var lat = latitude.SafeFloat();
+        var lon = longitude.SafeFloat();
+
+        var id = await process.Ingest(userId, stream, lat, lon, sender, client, ct);
 
         return TypedResults.Ok(new IntResultModel { Id = id });
     }

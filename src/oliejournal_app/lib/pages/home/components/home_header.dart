@@ -44,7 +44,7 @@ class HomeHeader extends StatelessWidget {
                 child: Container(
                   color: kColorLightGrey,
                   alignment: Alignment.center,
-                  child: Text(olieModel.fullName, style: kTitleText),
+                  child: Text(olieModel.nameAbbr, style: kTitleText),
                 ),
               ),
             ),
@@ -63,7 +63,7 @@ class HomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  olieModel.fullName,
+                  olieModel.nameAbbr,
                   style: kRobotoText.copyWith(fontSize: kHeadingTwo),
                 ),
                 const SizedBox(height: 10),
