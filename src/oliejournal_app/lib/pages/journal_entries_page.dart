@@ -220,42 +220,42 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Text(
-                    'AI Feedback: ',
-                    style: kRobotoText.copyWith(
-                      fontSize: kBodySmall,
-                      color: kColorGrey,
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: entry.responsePath != null
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.play_arrow),
-                                onPressed: () => _playUrl(
-                                  entry.responsePath!,
-                                  entry.id,
-                                  messenger,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.stop),
-                                onPressed: _playingEntryId == entry.id
-                                    ? _stopPlayback
-                                    : null,
-                              ),
-                            ],
-                          )
-                        : const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                  ),
                 ],
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: entry.responsePath != null
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Chatbot response:',
+                            style: kRobotoText.copyWith(
+                              fontSize: kBodySmall,
+                              color: kColorGrey,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.play_arrow),
+                            onPressed: () => _playUrl(
+                              entry.responsePath!,
+                              entry.id,
+                              messenger,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.stop),
+                            onPressed: _playingEntryId == entry.id
+                                ? _stopPlayback
+                                : null,
+                          ),
+                        ],
+                      )
+                    : const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
               ),
             ],
           ),

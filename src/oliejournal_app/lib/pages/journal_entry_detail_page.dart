@@ -133,12 +133,12 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
                   const SizedBox(height: 4),
                   Text(entry.transcript ?? 'Processing...'),
                   const SizedBox(height: 16),
-                  const Text('AI Feedback:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Chatbot response:', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
                   Text(entry.responseText ?? 'Processing...'),
                   const SizedBox(height: 16),
                   if (entry.responsePath != null) ...[
-                    const Text('AI Feedback Audio:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Chatbot audio', style: TextStyle(fontWeight: FontWeight.bold)),
                     Row(
                       children: [
                         IconButton(
