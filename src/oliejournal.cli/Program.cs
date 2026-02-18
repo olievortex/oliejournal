@@ -9,6 +9,7 @@ using oliejournal.cli.Commands;
 using oliejournal.data;
 using oliejournal.lib;
 using oliejournal.lib.Services;
+using System.Runtime.InteropServices;
 
 namespace oliejournal.cli;
 
@@ -27,12 +28,12 @@ public class Program
         var logger = CreateLogger<Program>();
         var cts = new CancellationTokenSource();
 
-        Console.CancelKeyPress += (e, s) =>
+        PosixSignalRegistration.Create(PosixSignal.SIGINT, signalContext =>
         {
             cts.Cancel();
             Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli - SIGINT detected.");
-            s.Cancel = true;
-        };
+            signalContext.Cancel = true;
+        });
 
         try
         {
