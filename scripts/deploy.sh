@@ -56,10 +56,6 @@ echo oliejournal.cli - dotnet publish
 dotnet publish ${baseCli}/oliejournal.cli.csproj --configuration Release --no-restore --no-build
 
 echo
-echo oliejournal.cli audiprocessqueue - start process
-~/oliejournal/start_audioprocessqueue.sh
-
-echo
 echo oliejournal.api - stop website
 ~/oliejournal/stop_api.sh
 
@@ -80,6 +76,10 @@ tar -cf ../publish.tar *
 cd ${cliPub}
 rm -rf *
 tar -xf ${baseCli}/bin/Release/net10.0/publish.tar
+
+echo
+echo oliejournal.cli audiprocessqueue - start process
+~/oliejournal/start_audioprocessqueue.sh
 
 echo
 echo Wait to see if websites start - 20s
