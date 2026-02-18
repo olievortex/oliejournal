@@ -42,13 +42,6 @@ public class Program
             signalContext.Cancel = true;
         });
 
-        PosixSignalRegistration.Create(PosixSignal.SIGHUP, signalContext =>
-        {
-            cts.Cancel();
-            Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli - SIGHUP detected.");
-            signalContext.Cancel = true;
-        });
-
         try
         {
             Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli");
