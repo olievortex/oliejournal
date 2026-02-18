@@ -6,6 +6,7 @@ import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:intl/intl.dart';
 
 /// Displays everything the backend sends back for a single entry.
 ///
@@ -23,6 +24,7 @@ class JournalEntryDetailPage extends StatefulWidget {
 
 class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final format = DateFormat.yMd().add_jm();
   bool _playing = false;
 
   Timer? _reloadTimer;
@@ -44,8 +46,7 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
     super.dispose();
   }
 
-  Future<void> _play() async {
-    final url = widget.entry.responsePath;
+  Future<void> _play(String? url) async {
     if (url == null) return;
 
     final messenger = ScaffoldMessenger.of(context);
@@ -127,23 +128,36 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
                 children: [
                   Text('ID: ${entry.id}'),
                   const SizedBox(height: 8),
-                  Text('Created: ${entry.created.toLocal()}'),
+                  Text('Created: ${format.format(entry.created.toLocal())}'),
                   const SizedBox(height: 16),
-                  const Text('Transcript:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Transcript:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 4),
                   Text(entry.transcript ?? 'Processing...'),
                   const SizedBox(height: 16),
-                  const Text('AI Feedback:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Chatbot response:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 4),
                   Text(entry.responseText ?? 'Processing...'),
                   const SizedBox(height: 16),
                   if (entry.responsePath != null) ...[
-                    const Text('AI Feedback Audio:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Chatbot audio:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Row(
                       children: [
                         IconButton(
                           icon: const Icon(Icons.play_arrow),
-                          onPressed: _playing ? null : _play,
+                          onPressed: _playing
+                              ? null
+                              : () async {
+                                  _play(entry.responsePath);
+                                },
                         ),
                         IconButton(
                           icon: const Icon(Icons.stop),

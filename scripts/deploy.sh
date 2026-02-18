@@ -31,6 +31,10 @@ if [ ! -x ${sourcePath} ]; then
     exit 1
 fi
 
+echo
+echo oliejournal.cli audiprocessqueue - stop process
+~/oliejournal/stop_audioprocessqueue.sh
+
 echo oliejournal - dotnet clean
 cd ${basePath}
 dotnet clean
@@ -72,6 +76,10 @@ tar -cf ../publish.tar *
 cd ${cliPub}
 rm -rf *
 tar -xf ${baseCli}/bin/Release/net10.0/publish.tar
+
+echo
+echo oliejournal.cli audiprocessqueue - start process
+~/oliejournal/start_audioprocessqueue.sh
 
 echo
 echo Wait to see if websites start - 20s

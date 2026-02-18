@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using oliejournal.api.Models;
-using oliejournal.data.Entities;
 using oliejournal.lib;
+using oliejournal.lib.Models;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using System.Security.Claims;
@@ -18,7 +18,7 @@ public static class JournalEndpoints
         app.MapPost("/api/journal/audioEntry", PostAudioEntry).DisableAntiforgery().RequireAuthorization();
     }
 
-    public static async Task<Results<Ok<JournalEntryListEntity>, NotFound, UnauthorizedHttpResult>> GetEntry(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
+    public static async Task<Results<Ok<JournalEntryListModel>, NotFound, UnauthorizedHttpResult>> GetEntry(int id, ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
@@ -29,7 +29,7 @@ public static class JournalEndpoints
         return TypedResults.Ok(entry);
     }
 
-    public static async Task<Results<Ok<List<JournalEntryListEntity>>, UnauthorizedHttpResult>> GetEntryList(ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
+    public static async Task<Results<Ok<List<JournalEntryListModel>>, UnauthorizedHttpResult>> GetEntryList(ClaimsPrincipal user, IJournalApiBusiness business, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();

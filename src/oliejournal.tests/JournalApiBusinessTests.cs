@@ -45,7 +45,6 @@ public class JournalApiBusinessTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result, Is.EqualTo(entities));
             Assert.That(result[0].UserId, Is.EqualTo(userId));
             Assert.That(result[0].Id, Is.EqualTo(id));
             Assert.That(result[0].ResponseText, Is.EqualTo(responseTest));
@@ -89,7 +88,8 @@ public class JournalApiBusinessTests
         var result = await unit.GetEntry(journalEntryId, userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.EqualTo(entity));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Id, Is.EqualTo(entity.Id));
     }
 
     #endregion

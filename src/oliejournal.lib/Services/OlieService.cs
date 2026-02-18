@@ -133,7 +133,7 @@ public class OlieService : IOlieService
         var audioConfig = new AudioConfig()
         {
             AudioEncoding = AudioEncoding.Linear16,
-            SpeakingRate = 1.5,
+            SpeakingRate = 1.3,
         };
 
         // Perform the text-to-speech request on the text input with the selected voice parameters and
@@ -308,17 +308,24 @@ public class OlieService : IOlieService
 
     public async Task<OlieServiceBusReceivedMessage<T>?> ServiceBusReceiveJson<T>(ServiceBusReceiver receiver, TimeSpan timeout, CancellationToken ct)
     {
-        var message = await receiver.ReceiveMessageAsync(timeout, ct);
-        if (message is null) return null;
-        var json = message.Body.ToString();
-        var body = JsonConvert.DeserializeObject<T>(json)
-            ?? throw new InvalidCastException(json);
-
-        return new OlieServiceBusReceivedMessage<T>
+        try
         {
-            ServiceBusReceivedMessage = message,
-            Body = body
-        };
+            var message = await receiver.ReceiveMessageAsync(timeout, ct);
+            if (message is null) return null;
+            var json = message.Body.ToString();
+            var body = JsonConvert.DeserializeObject<T>(json)
+                ?? throw new InvalidCastException(json);
+
+            return new OlieServiceBusReceivedMessage<T>
+            {
+                ServiceBusReceivedMessage = message,
+                Body = body
+            };
+        }
+        catch (TaskCanceledException)
+        {
+            return null;
+        }
     }
 
     #endregion

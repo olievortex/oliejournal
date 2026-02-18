@@ -212,6 +212,10 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       return;
     }
 
+    setState(() {
+      _recordingFinished = 'Don\'t leave this page. Getting your location.';
+    });
+
     Position? position;
     try {
       position = await _determinePosition();
@@ -219,6 +223,10 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       // best-effort; ignore location failures but log
       debugPrint('Location error: $e');
     }
+
+    setState(() {
+      _recordingFinished = 'Don\'t leave this page. Uploading your recording.';
+    });
 
     try {
       final file = File(path);

@@ -1,9 +1,9 @@
-﻿using oliejournal.data.Entities;
+﻿using oliejournal.lib.Models;
 
 namespace oliejournal.lib;
 
 public interface IJournalApiBusiness
 {
-    Task<List<JournalEntryListEntity>> GetEntryList(string userId, CancellationToken ct);
-    Task<JournalEntryListEntity?> GetEntry(int journalEntryId, string userId, CancellationToken ct);
+    Task<List<JournalEntryListModel>> GetEntryList(string userId, CancellationToken ct);
+    Task<JournalEntryListModel?> GetEntry(int journalEntryId, string userId, CancellationToken ct);
 }
