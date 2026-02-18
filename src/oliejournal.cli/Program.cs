@@ -18,23 +18,28 @@ public class Program
     private static ServiceProvider _serviceProvider = new ServiceCollection().BuildServiceProvider();
     private static IHost _host = Host.CreateDefaultBuilder().Build();
 
-    private static int Main(string[] args)
+    private static async Task<int> Main(string[] args)
     {
         AddBaseServices();
         AddHostServices();
 
         var exitCode = 0;
         var logger = CreateLogger<Program>();
-        var ct = CancellationToken.None;
+        var cts = new CancellationTokenSource();
+
+        Console.CancelKeyPress += (e, s) =>
+        {
+            cts.Cancel();
+            Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli - SIGINT detected.");
+            s.Cancel = true;
+        };
 
         try
         {
             Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli");
             logger.LogInformation("{timeStamp} oliejournal.cli", DateTime.UtcNow.ToString("u"));
 
-            var t = MainAsync(args, ct);
-            t.Wait();
-            exitCode = t.Result;
+            exitCode = await MainAsync(args, cts.Token);
         }
         catch (Exception ex)
         {
