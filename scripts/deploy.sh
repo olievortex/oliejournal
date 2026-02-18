@@ -31,6 +31,10 @@ if [ ! -x ${sourcePath} ]; then
     exit 1
 fi
 
+echo
+echo oliejournal.cli audiprocessqueue - stop process
+~/oliejournal/stop_audioprocessqueue.sh
+
 echo oliejournal - dotnet clean
 cd ${basePath}
 dotnet clean
@@ -50,6 +54,10 @@ dotnet publish ${baseApi}/oliejournal.api.csproj --configuration Release --no-re
 
 echo oliejournal.cli - dotnet publish
 dotnet publish ${baseCli}/oliejournal.cli.csproj --configuration Release --no-restore --no-build
+
+echo
+echo oliejournal.cli audiprocessqueue - start process
+~/oliejournal/start_audioprocessqueue.sh
 
 echo
 echo oliejournal.api - stop website
