@@ -1,0 +1,73 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="storm-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cloud-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#64748b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#475569;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lightning-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="512" cy="512" r="512" fill="url(#storm-gradient)" />
+
+  <!-- Main Cloud Shape -->
+  <g>
+    <!-- Left cloud bump -->
+    <ellipse cx="340" cy="420" rx="110" ry="130" fill="url(#cloud-gradient)" opacity="0.95" />
+    <!-- Main cloud center -->
+    <ellipse cx="480" cy="380" rx="140" ry="140" fill="url(#cloud-gradient)" />
+    <!-- Right cloud bump -->
+    <ellipse cx="640" cy="420" rx="120" ry="130" fill="url(#cloud-gradient)" opacity="0.95" />
+  </g>
+
+  <!-- Cloud bottom outline (for definition) -->
+  <path d="M 280 500 Q 280 560 340 580 Q 480 620 640 580 Q 700 560 700 500" fill="url(#cloud-gradient)" opacity="0.85" />
+
+  <!-- Lightning Bolt - Main Strike -->
+  <g filter="drop-shadow(0 0 20px rgba(251, 191, 36, 0.6))">
+    <!-- Main bolt -->
+    <polygon points="500,320 560,420 480,420 560,580 420,580 520,750 380,850 580,520 480,520 580,320" 
+             fill="url(#lightning-gradient)" stroke="#f9a825" stroke-width="2" stroke-linejoin="round" />
+  </g>
+
+  <!-- Lightning Glow Effect -->
+  <polygon points="500,320 560,420 480,420 560,580 420,580 520,750 380,850 580,520 480,520 580,320" 
+           fill="none" stroke="#fef3c7" stroke-width="8" opacity="0.3" stroke-linejoin="round" />
+
+  <!-- Notepad Corner - Bottom Right -->
+  <g opacity="0.9">
+    <!-- Paper stack effect -->
+    <rect x="620" y="650" width="200" height="160" rx="12" fill="#e2e8f0" />
+    <rect x="630" y="660" width="190" height="150" rx="10" fill="#f1f5f9" />
+    
+    <!-- Lines on paper (representing notes) -->
+    <line x1="650" y1="690" x2="800" y2="690" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+    <line x1="650" y1="730" x2="800" y2="730" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+    <line x1="650" y1="770" x2="750" y2="770" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+  </g>
+
+  <!-- Pencil Mark (small accent) -->
+  <g opacity="0.8">
+    <rect x="810" y="665" width="8" height="60" fill="#ea580c" rx="4" />
+    <polygon points="818,665 814,655 822,655" fill="#ea580c" />
+  </g>
+
+  <!-- Rain Drops - Small Details -->
+  <g opacity="0.6">
+    <ellipse cx="300" cy="700" rx="12" ry="20" fill="#60a5fa" />
+    <ellipse cx="750" cy="680" rx="10" ry="18" fill="#60a5fa" />
+  </g>
+
+  <!-- Decorative Stars/Indicators (subtle) -->
+  <g opacity="0.5">
+    <circle cx="280" cy="250" r="8" fill="#fbbf24" />
+    <circle cx="730" cy="280" r="6" fill="#fbbf24" />
+  </g>
+</svg>

@@ -87,7 +87,9 @@ select
     "je"."Created" AS "Created",
     "jt"."Transcript" AS "Transcript",
     "jc"."Message" AS "ResponseText",
-    "je"."ResponsePath" AS "ResponsePath"
+    "je"."ResponsePath" AS "ResponsePath",
+    "je"."Latitude" AS "Latitude",
+    "je"."Longitude" AS "Longitude"
 from
     (("oliejournal"."JournalEntries" "je"
 left join (

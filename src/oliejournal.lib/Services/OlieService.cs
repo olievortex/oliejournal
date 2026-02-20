@@ -10,6 +10,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
@@ -47,7 +48,26 @@ public class OlieService : IOlieService
 
     #endregion
 
+    #region Directory
+
+    public List<string> DirectoryList(string path)
+    {
+        if (!Directory.Exists(path)) return [];
+        var files = Directory.GetFiles(path).ToList();
+        return files;
+    }
+
+    #endregion
+
     #region File
+
+    public void FileCompressGzip(string sourceFile, string destinationFile)
+    {
+        using var originalFileStream = File.Open(sourceFile, FileMode.Open);
+        using var compressedFileStream = File.Create(destinationFile);
+        using var compressionStream = new GZipStream(compressedFileStream, CompressionLevel.Optimal);
+        originalFileStream.CopyTo(compressionStream);
+    }
 
     public void FileCreateDirectory(string path)
     {
@@ -60,6 +80,18 @@ public class OlieService : IOlieService
     public void FileDelete(string path)
     {
         File.Delete(path);
+    }
+
+    public void FileDeleteNoEx(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch
+        {
+            // Do Nothing
+        }
     }
 
     public bool FileExists(string path)

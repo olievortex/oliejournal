@@ -26,6 +26,8 @@ public class JournalApiBusinessTests
         const string responseTest = "bcd";
         const string responsePath = "cde";
         const string transcript = "def";
+        const float lat = 45.123f;
+        const float lon = -93.456f;
         var entities = new List<JournalEntryListEntity> {
             new() {
                 Id = id,
@@ -33,6 +35,8 @@ public class JournalApiBusinessTests
                 ResponseText = responseTest,
                 ResponsePath = responsePath,
                 Transcript = transcript,
+                Latitude = lat,
+                Longitude = lon,
                 Created = DateTime.UtcNow }
         };
         var (unit, repo) = CreateUnit();
@@ -51,6 +55,8 @@ public class JournalApiBusinessTests
             Assert.That(result[0].ResponsePath, Is.EqualTo(responsePath));
             Assert.That(result[0].Transcript, Is.EqualTo(transcript));
             Assert.That(result[0].Created, Is.Not.EqualTo(DateTime.MinValue));
+            Assert.That(result[0].Latitude, Is.EqualTo(lat).Within(0.0001));
+            Assert.That(result[0].Longitude, Is.EqualTo(lon).Within(0.0001));
         }
     }
 

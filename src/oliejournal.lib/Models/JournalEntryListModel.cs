@@ -10,6 +10,8 @@ public class JournalEntryListModel
     public string? Transcript { get; init; }
     public string? ResponsePath { get; init; }
     public string? ResponseText { get; init; }
+    public float? Latitude { get; init; }
+    public float? Longitude { get; init; }
 
     public static JournalEntryListModel FromEntity(JournalEntryListEntity entity)
     {
@@ -21,6 +23,8 @@ public class JournalEntryListModel
             Transcript = entity.Transcript,
             ResponsePath = entity.ResponsePath,
             ResponseText = entity.ResponseText,
+            Latitude = entity.Latitude,
+            Longitude = entity.Longitude,
         };
     }
 }

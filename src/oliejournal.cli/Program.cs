@@ -21,21 +21,20 @@ public class Program
 
     private static async Task<int> Main(string[] args)
     {
-        AddBaseServices();
-        AddHostServices();
+        AddServices();
 
         var exitCode = 0;
         var logger = CreateLogger<Program>();
         var cts = new CancellationTokenSource();
 
-        PosixSignalRegistration.Create(PosixSignal.SIGINT, signalContext =>
+        using var sigint = PosixSignalRegistration.Create(PosixSignal.SIGINT, signalContext =>
         {
             cts.Cancel();
             Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli - SIGINT detected.");
             signalContext.Cancel = true;
         });
 
-        PosixSignalRegistration.Create(PosixSignal.SIGTERM, signalContext =>
+        using var sigterm = PosixSignalRegistration.Create(PosixSignal.SIGTERM, signalContext =>
         {
             cts.Cancel();
             Console.WriteLine($"{DateTime.UtcNow:u} oliejournal.cli - SIGTERM detected.");
@@ -69,13 +68,11 @@ public class Program
     private static async Task<int> MainAsync(string[] args, CancellationToken ct)
     {
         var olieArgs = new OlieArgs(args);
-        var olieConfig = CreateService<IOlieConfig>();
-        var scopeFactory = _host.Services.GetRequiredService<IServiceScopeFactory>();
-        var os = _host.Services.GetRequiredService<IOlieService>();
 
         return olieArgs.Command switch
         {
-            OlieArgs.CommandsEnum.AudioProcessQueue => await new CommandAudioProcessQueue(scopeFactory, olieConfig, os).Run(ct),
+            OlieArgs.CommandsEnum.AudioProcessQueue => await CreateService<CommandAudioProcessQueue>().Run(ct),
+            OlieArgs.CommandsEnum.DeleteOldContent => await CreateService<CommandDeleteOldContent>().Run(ct),
             _ => throw new ArgumentException($"The command {olieArgs.Command} is not implemented yet."),
         };
     }
@@ -90,18 +87,23 @@ public class Program
         return _serviceProvider.GetRequiredService<T>();
     }
 
-    private static void AddBaseServices()
+    private static void AddServices()
     {
         var services = new ServiceCollection();
-        var config = new ConfigurationBuilder()
+        var configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .AddUserSecrets<Program>()
             .Build();
-        var olieConfig = new OlieConfig(config);
+        var config = new OlieConfig(configuration);
+        var host = new OlieHost
+        {
+            ServiceScopeFactory = CreateHostServices(configuration).Services
+                .GetRequiredService<IServiceScopeFactory>()
+        };
 
         services.AddLogging(builder =>
         {
-            var connectionString = olieConfig.ApplicationInsightsConnectionString;
+            var connectionString = config.ApplicationInsightsConnectionString;
 
             // Only Application Insights is registered as a logger provider
             builder.AddApplicationInsights(
@@ -110,17 +112,21 @@ public class Program
             );
         });
         services.Configure<TelemetryConfiguration>(config => config.TelemetryChannel = _channel);
-        services.AddSingleton(_ => (IConfiguration)config);
+        services.AddSingleton(_ => (IConfiguration)configuration);
+        services.AddSingleton(_ => host);
         services.AddSingleton<IOlieConfig, OlieConfig>();
         services.AddScoped<IOlieService, OlieService>();
+
+        // Commands
+        services.AddScoped<CommandAudioProcessQueue>();
+        services.AddScoped<CommandDeleteOldContent>();
 
         _serviceProvider = services.BuildServiceProvider();
     }
 
-    private static void AddHostServices()
+    private static IHost CreateHostServices(IConfiguration config)
     {
-        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
-        var olieConfig = new OlieConfig(configuration);
+        var olieConfig = new OlieConfig(config);
 
         var host = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -136,12 +142,12 @@ public class Program
 
                 #endregion
 
-                services.AddSingleton(_ => configuration);
+                services.AddSingleton(_ => config);
                 services.AddOlieLibScopes();
             })
             .Build();
 
-        _host = host;
+        return host;
     }
 
     private static void FlushChannel()

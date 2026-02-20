@@ -11,6 +11,8 @@ public class JournalEntryListEntity
     public string? Transcript { get; set; }
     public string? ResponsePath { get; set; }
     public string? ResponseText { get; set; }
+    public float? Latitude { get; set; }
+    public float? Longitude { get; set; }
 }
 
 //-- oliejournal.v_JournalEntryList source
@@ -22,7 +24,9 @@ public class JournalEntryListEntity
 //    "je"."Created" AS "Created",
 //    "jt"."Transcript" AS "Transcript",
 //    "jc"."Message" AS "ResponseText",
-//    "je"."ResponsePath" AS "ResponsePath"
+//    "je"."ResponsePath" AS "ResponsePath",
+//    "je"."Latitude" AS "Latitude",
+//    "je"."Longitude" AS "Longitude"
 //from
 //    (("oliejournal"."JournalEntries" "je"
 //left join (

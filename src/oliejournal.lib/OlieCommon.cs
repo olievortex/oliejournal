@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using oliejournal.data;
+using oliejournal.lib.Processes.DeleteOldContentProcess;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using System.Diagnostics.CodeAnalysis;
@@ -48,6 +49,13 @@ public static class OlieCommon
 
         #endregion
 
+        #region DeleteOldContentProcess Dependencies
+
+        services.AddScoped<IMySqlMaintenance, MySqlMaintenance>();
+
+        #endregion
+
         services.AddScoped<IJournalApiBusiness, JournalApiBusiness>();
+        services.AddScoped<IDeleteOldContentProcess, DeleteOldContentProcess>();
     }
 }
