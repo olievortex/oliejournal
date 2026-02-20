@@ -14,6 +14,12 @@ public interface IOlieService
 
     #endregion
 
+    #region Directory
+
+    List<string> DirectoryList(string path);
+
+    #endregion
+
     #region Ffmpeg
 
     Task FfmpegWavToMp3(string audioIn, string mp3Out, string ffmpegPath, CancellationToken ct);
@@ -22,12 +28,11 @@ public interface IOlieService
 
     #region File
 
+    void FileCompressGzip(string sourceFile, string destinationFile);
     void FileCreateDirectory(string path);
-
     void FileDelete(string path);
-
+    void FileDeleteNoEx(string path);
     bool FileExists(string path);
-
     Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct);
 
     #endregion

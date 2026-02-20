@@ -8,6 +8,8 @@ public interface IOlieConfig
     string FfmpegPath { get; }
     string GoldPath { get; }
     string GoogleVoiceName { get; }
+    Uri MySqlBackupContainer { get; }
+    string MySqlBackupPath { get; }
     string MySqlConnection { get; }
     string OpenAiApiKey { get; }
     string OpenAiModel { get; }

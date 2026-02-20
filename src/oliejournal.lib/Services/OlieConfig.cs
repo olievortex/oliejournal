@@ -13,6 +13,8 @@ public class OlieConfig(IConfiguration config) : IOlieConfig
     public string FfmpegPath => GetString("OlieFfmpegPath");
     public string GoldPath => GetString("OlieGoldPath");
     public string GoogleVoiceName => GetString("OlieGoogleVoiceName");
+    public Uri MySqlBackupContainer => new(GetString("OlieMySqlBackupContainer"));
+    public string MySqlBackupPath => GetString("OlieMySqlBackupPath");
     public string MySqlConnection => GetString("OlieMySqlConnection");
     public string OpenAiApiKey => GetString("OlieOpenAiApiKey");
     public string OpenAiModel => GetString("OlieOpenAiModel");
