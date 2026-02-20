@@ -47,6 +47,18 @@ Secure the file to prevent inadvertant revelations or alterations.
     # chmod go-rx source.sh
     # chmod u-w source.sh
 
+## MySQL
+We will copy some MySQL scripts out of the repository and customize them.
+
+    # cp ~/source/repos/oliejournal/scripts/oliejournal_backup.sh ~/oliejournal
+
+Replace the asterisks with the appropriate host, port, username, and password for both scripts. Don't wrap the IPv6 adress in brackets. Run both scripts and confirm the sql dump files were created in /var/backup/mysql.
+
+Secure the files to prevent inadvertant revelations or alterations.
+
+    # chmod go-rx oliejournal_backup.sh
+    # chmod u-w oliejournal_backup.sh
+
 ## Install oliejournal
     # ~/oliejournal/deploy.sh
     # dotnet dev-certs https --trust
