@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:oliejournal_app/models/journal_entry_model.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
@@ -24,6 +26,7 @@ class JournalEntryDetailPage extends StatefulWidget {
 
 class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final MapController _mapController = MapController();
   final format = DateFormat.yMd().add_jm();
   bool _playing = false;
 
@@ -144,6 +147,93 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
                   const SizedBox(height: 4),
                   Text(entry.responseText ?? 'Processing...'),
                   const SizedBox(height: 16),
+                  if (entry.latitude != null && entry.longitude != null) ...[
+                    const Text(
+                      'Location:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      height: 220,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Stack(
+                          children: [
+                            FlutterMap(
+                              mapController: _mapController,
+                              options: MapOptions(
+                                initialCenter: LatLng(
+                                  entry.latitude!,
+                                  entry.longitude!,
+                                ),
+                                initialZoom: 14,
+                                interactionOptions: const InteractionOptions(
+                                  flags: InteractiveFlag.pinchZoom |
+                                      InteractiveFlag.drag,
+                                ),
+                              ),
+                              children: [
+                                TileLayer(
+                                  urlTemplate:
+                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  userAgentPackageName: 'oliejournal_app',
+                                ),
+                                MarkerLayer(
+                                  markers: [
+                                    Marker(
+                                      point: LatLng(
+                                        entry.latitude!,
+                                        entry.longitude!,
+                                      ),
+                                      width: 40,
+                                      height: 40,
+                                      child: const Icon(
+                                        Icons.location_pin,
+                                        color: Colors.red,
+                                        size: 36,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Positioned(
+                              right: 8,
+                              bottom: 8,
+                              child: Column(
+                                children: [
+                                  FloatingActionButton.small(
+                                    heroTag: 'zoom_in',
+                                    onPressed: () {
+                                      final currentZoom = _mapController.camera.zoom;
+                                      _mapController.move(
+                                        _mapController.camera.center,
+                                        currentZoom + 1,
+                                      );
+                                    },
+                                    child: const Icon(Icons.add),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  FloatingActionButton.small(
+                                    heroTag: 'zoom_out',
+                                    onPressed: () {
+                                      final currentZoom = _mapController.camera.zoom;
+                                      _mapController.move(
+                                        _mapController.camera.center,
+                                        currentZoom - 1,
+                                      );
+                                    },
+                                    child: const Icon(Icons.remove),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   if (entry.responsePath != null) ...[
                     const Text(
                       'Chatbot audio:',

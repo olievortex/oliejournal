@@ -5,6 +5,8 @@ class JournalEntryModel {
   final String? transcript;
   final String? responsePath;
   final String? responseText;
+  final double? latitude;
+  final double? longitude;
 
   const JournalEntryModel({
     required this.id,
@@ -13,6 +15,8 @@ class JournalEntryModel {
     required this.transcript,
     required this.responsePath,
     required this.responseText,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory JournalEntryModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +32,8 @@ class JournalEntryModel {
       transcript: json['transcript'] as String?,
       responsePath: responsePath,
       responseText: json['responseText'] as String?,
+      latitude: json['latitude'] as double?,
+      longitude: json['longitude'] as double?,
     );
   }
 }
