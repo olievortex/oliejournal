@@ -22,7 +22,7 @@ public class MySqlMaintenance(IOlieService os, IOlieConfig config) : IMySqlMaint
 
         foreach (var file in files)
         {
-            if (!(file.Contains("_olieblind_dev.sql") || file.Contains("_olieblind.sql"))) continue;
+            if (!(file.Contains("_oliejournal_dev.sql") || file.Contains("_oliejournal.sql"))) continue;
 
             result.Add(new BackupFile { BackupFilePath = file });
         }
