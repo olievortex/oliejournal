@@ -23,7 +23,7 @@
 # m h  dom mon dow   command
 #### Housekeeping
 0 1 * * * /home/olievortex/oliejournal/oliejournal_backup.sh
-# 10 1 * * * /home/olievortex/olieblind/startOlieBlind.Cli.sh deleteoldcontent
+10 1 * * * /home/olievortex/oliejournal/start_cli.sh deleteoldcontent
 
 #### Startup
 @reboot sleep 10; /home/olievortex/oliejournal/start_api.sh
