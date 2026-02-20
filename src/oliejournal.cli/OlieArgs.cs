@@ -7,6 +7,7 @@ public class OlieArgs
     public enum CommandsEnum
     {
         AudioProcessQueue,
+        DeleteOldContent
     }
 
     public OlieArgs(string[] args)
@@ -18,6 +19,7 @@ public class OlieArgs
         Command = command switch
         {
             "audioprocessqueue" => CommandsEnum.AudioProcessQueue,
+            "deleteoldcontent" => CommandsEnum.DeleteOldContent,
             _ => throw new ArgumentException($"Unknown command {command}")
         };
     }

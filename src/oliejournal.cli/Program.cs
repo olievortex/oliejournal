@@ -72,6 +72,7 @@ public class Program
         return olieArgs.Command switch
         {
             OlieArgs.CommandsEnum.AudioProcessQueue => await CreateService<CommandAudioProcessQueue>().Run(ct),
+            OlieArgs.CommandsEnum.DeleteOldContent => await CreateService<CommandDeleteOldContent>().Run(ct),
             _ => throw new ArgumentException($"The command {olieArgs.Command} is not implemented yet."),
         };
     }
@@ -111,13 +112,14 @@ public class Program
             );
         });
         services.Configure<TelemetryConfiguration>(config => config.TelemetryChannel = _channel);
-        services.AddSingleton(_ => (IConfiguration)config);
+        services.AddSingleton(_ => (IConfiguration)configuration);
         services.AddSingleton(_ => host);
         services.AddSingleton<IOlieConfig, OlieConfig>();
         services.AddScoped<IOlieService, OlieService>();
 
         // Commands
         services.AddScoped<CommandAudioProcessQueue>();
+        services.AddScoped<CommandDeleteOldContent>();
 
         _serviceProvider = services.BuildServiceProvider();
     }
