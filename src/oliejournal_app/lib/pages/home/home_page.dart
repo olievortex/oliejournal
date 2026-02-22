@@ -3,9 +3,22 @@ import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/pages/home/components/home_body.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
 import 'package:oliejournal_app/pages/home/components/home_header.dart';
+import 'package:oliejournal_app/pages/tutorial/tutorial_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  Future<void> _openTutorial(BuildContext context) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TutorialPage(
+          onFinished: () async {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +33,13 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             const HomeHeader(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => _openTutorial(context),
+                child: const Text('Tutorial'),
+              ),
+            ),
             verticalSpaceMedium,
             const HomeBody(),
             const Spacer(),
