@@ -5,7 +5,6 @@ import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/forecast_page.dart';
 import 'package:oliejournal_app/pages/voice_recording_page.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:oliejournal_app/pages/journal_entries_page.dart';
 
 class HomeBody extends StatelessWidget {
@@ -25,14 +24,19 @@ class HomeBody extends StatelessWidget {
   Widget _initialContent() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(32),
+      padding: EdgeInsets.all(24),
       decoration: roundedBoxRegular,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          verticalSpaceMedium,
+          Icon(
+            Icons.storm,
+            size: 56,
+            color: Colors.white,
+          ),
+          const SizedBox(height: 20),
           Text(
-            "Let's Start\nauthenticating\nwith KindeAuth",
+            "Storm chase journaling made simple",
             textAlign: TextAlign.center,
             style: kRobotoText.copyWith(
               fontWeight: kFwBlack,
@@ -40,30 +44,22 @@ class HomeBody extends StatelessWidget {
               fontSize: kTitleLarge,
             ),
           ),
-          verticalSpaceMedium,
+          const SizedBox(height: 12),
           Text(
-            "Configure your app",
+            "Record voice notes, generate transcripts, and save location context for every chase.",
+            textAlign: TextAlign.center,
+            style: kRobotoText.copyWith(
+              color: Colors.white,
+              fontSize: kHeadingTwo,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "Create your free account today — no credit card required.",
             textAlign: TextAlign.center,
             style: kTitleText.copyWith(
               fontWeight: kFwBlack,
               color: Colors.white,
-            ),
-          ),
-          verticalSpaceMedium,
-          MaterialButton(
-            elevation: 0,
-            color: Colors.white,
-            onPressed: () {
-              launchUrl(Uri.parse(docsUrl));
-            },
-            child: Text(
-              'Go to docs',
-              textAlign: TextAlign.center,
-              style: kRobotoText.copyWith(
-                fontWeight: kFwBlack,
-                color: Colors.black,
-                fontSize: kHeadingTwo,
-              ),
             ),
           ),
         ],
@@ -110,9 +106,9 @@ class HomeBody extends StatelessWidget {
             ],
           ),
         ),
+        verticalSpaceRegular,
         // only show forecast button in debug builds
         if (kDebugMode) ...[
-          verticalSpaceRegular,
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
@@ -131,7 +127,8 @@ class HomeBody extends StatelessWidget {
             },
           ),
           verticalSpaceRegular,
-        ],        ElevatedButton.icon(
+        ],
+        ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,

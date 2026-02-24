@@ -14,21 +14,21 @@ class _TutorialPageState extends State<TutorialPage> {
 
   static const List<_TutorialPaneData> _panes = [
     _TutorialPaneData(
-      title: 'Welcome to Olie Journal',
+      title: 'Learn from Every Chase',
       description:
-          'Track your day, capture voice notes, and keep your thoughts in one place.',
+          'Learn from the mistakes and decisions made in your prior storm chases.',
       icon: Icons.menu_book_rounded,
     ),
     _TutorialPaneData(
-      title: 'Capture Moments Quickly',
+      title: 'Record Voice and Location',
       description:
-          'Create entries, record audio, and attach context whenever inspiration strikes.',
+          'Record your voice to generate a transcript automatically while capturing your current location.',
       icon: Icons.mic_rounded,
     ),
     _TutorialPaneData(
-      title: 'Build a Journaling Habit',
+      title: 'Improve Entries with Feedback',
       description:
-          'Review your entries over time and stay consistent with your personal reflection.',
+          'Use the chatbot feedback feature to improve your entries and build better storm journals over time.',
       icon: Icons.insights_rounded,
     ),
   ];
