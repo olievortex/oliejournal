@@ -2,8 +2,10 @@
 basePath=~/source/repos/oliejournal/src
 baseApi=${basePath}/oliejournal.api
 baseCli=${basePath}/oliejournal.cli
+baseWeb=${basePath}/oliejournal.web
 apiPub=/opt/oliejournal.api
 cliPub=/opt/oliejournal.cli
+webPub=/opt/oliejournal.web
 sourcePath=~/oliejournal/source.sh
 logPath=/var/log/oliejournal
 set -e
@@ -26,8 +28,8 @@ if [ ! -d ${cliPub} ]; then
     echo "The cli publish directory ${cliPub} doesn't exist"
     exit 1
 fi
-if [ ! -x ${sourcePath} ]; then
-    echo "The sourcing file ${sourcePath} doesn't exist"
+if [ ! -d ${webPub} ]; then
+    echo "The web publish directory ${webPub} doesn't exist"
     exit 1
 fi
 
@@ -42,6 +44,8 @@ rm -rf ${baseApi}/bin
 rm -rf ${baseApi}/obj
 rm -rf ${baseCli}/bin
 rm -rf ${baseCli}/obj
+rm -rf ${baseWeb}/bin
+rm -rf ${baseWeb}/obj
 
 echo oliejournal - dotnet build
 dotnet build --configuration Release
@@ -54,6 +58,9 @@ dotnet publish ${baseApi}/oliejournal.api.csproj --configuration Release --no-re
 
 echo oliejournal.cli - dotnet publish
 dotnet publish ${baseCli}/oliejournal.cli.csproj --configuration Release --no-restore --no-build
+
+echo oliejournal.web - dotnet publish
+dotnet publish ${baseWeb}/oliejournal.web.csproj --configuration Release --no-restore --no-build
 
 echo
 echo oliejournal.api - stop website
@@ -68,6 +75,20 @@ tar -xf ${baseApi}/bin/Release/net10.0/publish.tar
 
 echo oliejournal.api - start website
 ~/oliejournal/start_api.sh
+
+echo
+echo oliejournal.web - stop website
+~/oliejournal/stop_web.sh
+
+echo oliejournal.web - deploy
+cd ${baseWeb}/bin/Release/net10.0/publish
+tar -cf ../publish.tar *
+cd ${webPub}
+rm -rf *
+tar -xf ${baseWeb}/bin/Release/net10.0/publish.tar
+
+echo oliejournal.web - start website
+~/oliejournal/start_web.sh
 
 echo
 echo oliejournal.cli - deploy
