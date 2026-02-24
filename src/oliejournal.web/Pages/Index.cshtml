@@ -1,10 +1,208 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "OlieJournal | Smart Storm Chasing Journaling";
+    Layout = null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="~/favicon.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="description" content="OlieJournal helps storm chasers capture daily reflections, track patterns, and stay consistent with an intuitive journaling workflow." />
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0 5rem;
+            margin-bottom: 4rem;
+        }
+        .hero-card {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .app-icon {
+            flex-shrink: 0;
+            border-radius: 1rem;
+            background: white;
+            padding: 0.5rem;
+        }
+        .subtitle {
+            font-size: 1.125rem;
+            margin: 1rem 0 1.5rem;
+            opacity: 0.95;
+        }
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .section-intro {
+            font-size: 1.125rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+        .badge-testers {
+            background: #667eea;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        footer {
+            background: #f8f9fa;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <div class="container">
+            <div class="hero-card">
+                <img src="~/favicon.svg"
+                     alt="OlieJournal app icon"
+                     class="app-icon"
+                     width="76"
+                     height="76" />
+                <div>
+                    <h1 class="display-4 fw-bold mb-0">OlieJournal</h1>
+                    <p class="subtitle">
+                        A focused journaling experience built to help testers capture moments quickly,
+                        reflect intentionally, and see personal patterns over time.
+                    </p>
+                    <div class="cta-group">
+                        <a class="btn btn-light btn-lg"
+                           href="https://play.google.com/apps/internaltest/4700970325975825545"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            Join Internal Testing on Google Play
+                        </a>
+                        <a class="btn btn-outline-light btn-lg" href="#features">Explore Features</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="features" aria-labelledby="features-title" class="mb-5">
+            <h2 id="features-title" class="display-5 fw-bold text-center mb-3">Key Features</h2>
+            <p class="section-intro text-center">
+                OlieJournal keeps the journaling flow simple, so you can stay consistent without
+                friction while still capturing meaningful detail.
+            </p>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Quick Entry Workflow</h3>
+                            <p class="card-text">Log thoughts in seconds with an intuitive layout designed for daily use.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Reflection Tracking</h3>
+                            <p class="card-text">Review past entries and monitor trends to build stronger self-awareness.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Private by Design</h3>
+                            <p class="card-text">Built with account-based access so your test experience remains personal.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Voice Support</h3>
+                            <p class="card-text">Capture moments naturally with audio-friendly journaling capabilities.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Context Awareness</h3>
+                            <p class="card-text">Add richer context to entries with integrated location and time details.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Cross-Platform Foundation</h3>
+                            <p class="card-text">Developed with Flutter for a consistent and polished experience across devices.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="benefits-title" class="mb-5">
+            <h2 id="benefits-title" class="display-5 fw-bold text-center mb-4">Why Testers Love It</h2>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Frictionless Daily Habit</strong>
+                            A focused interface helps you journal regularly without overthinking the process.
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Meaningful Reflection</strong>
+                            Better visibility into your own patterns supports clearer insights over time.
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Tester-First Access</strong>
+                            Internal testing ensures early access while features continue to improve quickly.
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Mobile-Ready Experience</strong>
+                            Built for real-world, on-the-go journaling anytime inspiration strikes.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="join-title" class="mb-5">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body text-center p-5">
+                    <span class="badge-testers mb-3 d-inline-block">Testers Only</span>
+                    <h2 id="join-title" class="display-6 fw-bold mb-3">Get Early Access</h2>
+                    <p class="lead mb-4">OlieJournal is currently available only through the Google Play internal testing group.</p>
+                    <a class="btn btn-primary btn-lg"
+                       href="https://play.google.com/apps/internaltest/4700970325975825545"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        Open Testing Invitation
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            OlieJournal • Early Access Build • Google Play Internal Testing
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
