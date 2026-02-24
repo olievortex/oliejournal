@@ -64,6 +64,13 @@
             text-align: center;
             color: #6c757d;
         }
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -199,7 +206,14 @@
 
     <footer>
         <div class="container">
-            OlieJournal • Early Access Build • Google Play Internal Testing
+            <div class="mb-2">
+                OlieJournal • &copy; 2026 - Antihoist Entertainmant, LLC
+            </div>
+            <div>
+                <a asp-page="/Privacy">Privacy Policy</a>
+                <span class="mx-2">•</span>
+                <a asp-page="/CookiePolicy">Cookie Policy</a>
+            </div>
         </div>
     </footer>
 
