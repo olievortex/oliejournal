@@ -239,7 +239,7 @@ public class JournalEntryChatbotUnitTests
         const int journalEntryId = 12;
         var entity = new JournalTranscriptEntity();
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.JournalTranscriptGetByJournalEntryFk(journalEntryId, CancellationToken.None))
+        repo.Setup(s => s.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, CancellationToken.None))
             .ReturnsAsync(entity);
 
         // Act

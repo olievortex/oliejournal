@@ -233,7 +233,7 @@ public class JournalEntryTranscribeUnitTests
     {
         // Arrange
         var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptGetByJournalEntryFk(10, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.JournalTranscriptGetActiveByJournalEntryFk(10, It.IsAny<CancellationToken>()))
              .ReturnsAsync(new JournalTranscriptEntity());
 
         // Act
@@ -248,7 +248,7 @@ public class JournalEntryTranscribeUnitTests
     {
         // Arrange
         var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptGetByJournalEntryFk(11, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.JournalTranscriptGetActiveByJournalEntryFk(11, It.IsAny<CancellationToken>()))
              .ReturnsAsync((JournalTranscriptEntity?)null);
 
         // Act

@@ -31,6 +31,11 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
         await repo.JournalTranscriptCreate(entity, ct);
     }
 
+    public async Task DeleteJournalEntry(int journalEntryId, CancellationToken ct)
+    {
+        await repo.JournalTranscriptDelete(journalEntryId, ct);
+    }
+
     public async Task<string> GetAudioFile(string blobPath, BlobContainerClient client, CancellationToken ct)
     {
         var localFile = $"{Path.GetTempPath()}{Path.GetFileName(blobPath)}";
@@ -63,7 +68,7 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
 
     public async Task<bool> IsAlreadyTranscribed(int journalEntryId, CancellationToken ct)
     {
-        return await repo.JournalTranscriptGetByJournalEntryFk(journalEntryId, ct) is not null;
+        return await repo.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, ct) is not null;
     }
 
     public async Task<OlieTranscribeResult> Transcribe(string localFile, CancellationToken ct)

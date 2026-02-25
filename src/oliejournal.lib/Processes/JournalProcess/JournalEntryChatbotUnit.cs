@@ -49,6 +49,16 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         }
     }
 
+    public async Task DeleteJournalChatbot(int id, CancellationToken ct)
+    {
+        await repo.JournalChatbotDelete(id, ct);
+    }
+
+    public async Task DeleteJournalTranscript(int id, CancellationToken ct)
+    {
+        await repo.JournalTranscriptDelete(id, ct);
+    }
+
     public async Task<ConversationEntity> GetConversation(string userId, CancellationToken ct)
     {
         var conversation = (await repo.ConversationGetActiveList(userId, ct)).FirstOrDefault();
@@ -70,10 +80,20 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         return entity;
     }
 
+    public async Task<List<JournalChatbotEntity>> GetJournalChatbots(int journalTranscriptId, CancellationToken ct)
+    {
+        return await repo.JournalChatbotGetByJournalTranscriptFk(journalTranscriptId, ct);
+    }
+
     public async Task<JournalTranscriptEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct)
     {
-        return await repo.JournalTranscriptGetByJournalEntryFk(journalEntryId, ct) ??
+        return await repo.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, ct) ??
             throw new ApplicationException($"JournalTranscript for {journalEntryId} doesn't exist");
+    }
+
+    public async Task<List<JournalTranscriptEntity>> GetJournalTranscripts(int journalEntryId, CancellationToken ct)
+    {
+        return await repo.JournalTranscriptGetByJournalEntryFk(journalEntryId, ct);
     }
 
     public async Task EnsureOpenAiLimit(int limit, CancellationToken ct)
@@ -91,6 +111,6 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
 
     public async Task<bool> IsAlreadyChatbotted(int journalTranscriptId, CancellationToken ct)
     {
-        return await repo.JournalChatbotGetByJournalTranscriptFk(journalTranscriptId, ct) is not null;
+        return await repo.JournalChatbotGetActiveByJournalTranscriptFk(journalTranscriptId, ct) is not null;
     }
 }

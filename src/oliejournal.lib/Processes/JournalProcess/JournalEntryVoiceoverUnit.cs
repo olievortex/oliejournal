@@ -15,7 +15,7 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
 
     public async Task<JournalChatbotEntity> GetChatbotEntryOrThrow(int journalEntryId, CancellationToken ct)
     {
-        return await repo.JournalChatbotGetByJournalEntryId(journalEntryId, ct) ??
+        return await repo.JournalChatbotGetActiveByJournalEntryId(journalEntryId, ct) ??
             throw new ApplicationException($"JournalChatbot for journalEntryId {journalEntryId} doesn't exist");
     }
 

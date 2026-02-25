@@ -9,4 +9,5 @@ public interface IJournalProcess
     Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct);
     Task<int> Ingest(string userId, Stream audio, float? latitude, float? longitude, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct);
     Task Transcribe(int id, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct);
+    Task<bool> DeleteEntry(int journalEntryId, string userId, CancellationToken ct);
 }

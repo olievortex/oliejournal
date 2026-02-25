@@ -52,7 +52,7 @@ public class JournalEntryVoiceoverUnitTests
         const int journalEntryId = 42;
         var entity = new JournalChatbotEntity();
         var (unit, _, _, repo, _) = CreateUnit();
-        repo.Setup(s => s.JournalChatbotGetByJournalEntryId(journalEntryId, CancellationToken.None))
+        repo.Setup(s => s.JournalChatbotGetActiveByJournalEntryId(journalEntryId, CancellationToken.None))
             .ReturnsAsync(entity);
 
         // Act

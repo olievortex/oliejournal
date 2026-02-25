@@ -88,4 +88,35 @@ public class JournalProcess(
     SendMessage:
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.Chatbot, sender, ct);
     }
+
+    public async Task<bool> DeleteEntry(int journalEntryId, string userId, CancellationToken ct)
+    {
+        // Verify ownership
+        var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
+        if (entry is null || entry.UserId != userId) return false;
+
+        // Find all transcripts
+        foreach (var transcript in await chatbot.GetJournalTranscripts(journalEntryId, ct))
+        {
+            foreach (var chatbotEntity in await chatbot.GetJournalChatbots(transcript.Id, ct))
+            {
+                await chatbot.DeleteJournalChatbot(chatbotEntity.Id, ct);
+            }
+
+            // Delete JournalTranscript
+            await chatbot.DeleteJournalTranscript(transcript.Id, ct);
+        }
+
+        // Delete any ongoing OpenAI conversations
+        await chatbot.DeleteConversations(userId, ct);
+
+        // TODO: Delete original voice
+
+        // TODO: Delete chatbot voiceover
+
+        // Finally delete JournalEntry
+        await transcribe.DeleteJournalEntry(journalEntryId, ct);
+
+        return true;
+    }
 }

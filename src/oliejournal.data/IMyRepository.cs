@@ -16,8 +16,10 @@ public interface IMyRepository
     #region JournalChatbot
 
     Task JournalChatbotCreate(JournalChatbotEntity entity, CancellationToken ct);
-    Task<JournalChatbotEntity?> JournalChatbotGetByJournalEntryId(int journalEntryId, CancellationToken ct);
-    Task<JournalChatbotEntity?> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
+    Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalEntryId(int journalEntryId, CancellationToken ct);
+    Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
+    Task<List<JournalChatbotEntity>> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
+    Task JournalChatbotDelete(int id, CancellationToken ct);
 
     #endregion
 
@@ -27,6 +29,7 @@ public interface IMyRepository
     Task<JournalEntryEntity?> JournalEntryGet(int id, CancellationToken ct);
     Task<JournalEntryEntity?> JournalEntryGetByHash(string userId, string hash, CancellationToken ct);
     Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct);
+    Task JournalEntryDelete(int id, CancellationToken ct);
 
     #endregion
 
@@ -40,7 +43,9 @@ public interface IMyRepository
     #region JournalTranscript
 
     Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct);
-    Task<JournalTranscriptEntity?> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct);
+    Task<JournalTranscriptEntity?> JournalTranscriptGetActiveByJournalEntryFk(int journalEntryFk, CancellationToken ct);
+    Task<List<JournalTranscriptEntity>> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct);
+    Task JournalTranscriptDelete(int id, CancellationToken ct);
 
     #endregion
 

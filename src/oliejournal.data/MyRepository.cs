@@ -40,7 +40,7 @@ public class MyRepository(MyContext context) : IMyRepository
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task<JournalChatbotEntity?> JournalChatbotGetByJournalEntryId(int journalEntryId, CancellationToken ct)
+    public async Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalEntryId(int journalEntryId, CancellationToken ct)
     {
         return await context
             .JournalTranscripts
@@ -50,11 +50,28 @@ public class MyRepository(MyContext context) : IMyRepository
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<JournalChatbotEntity?> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct)
+    public async Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct)
     {
         return await context.JournalChatbots
             .Where(w => w.JournalTranscriptFk == journalTranscriptFk && w.Message != null)
             .SingleOrDefaultAsync(ct);
+    }
+
+    public async Task<List<JournalChatbotEntity>> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct)
+    {
+        return await context.JournalChatbots
+            .Where(w => w.JournalTranscriptFk == journalTranscriptFk)
+            .ToListAsync(ct);
+    }
+
+    public async Task JournalChatbotDelete(int id, CancellationToken ct)
+    {
+        var entity = await context.JournalChatbots.FindAsync([id], ct);
+        if (entity is not null)
+        {
+            context.JournalChatbots.Remove(entity);
+            await context.SaveChangesAsync(ct);
+        }
     }
 
     #endregion
@@ -82,6 +99,16 @@ public class MyRepository(MyContext context) : IMyRepository
     {
         context.JournalEntries.Update(entity);
         await context.SaveChangesAsync(ct);
+    }
+
+    public async Task JournalEntryDelete(int id, CancellationToken ct)
+    {
+        var entity = await context.JournalEntries.FindAsync([id], ct);
+        if (entity is not null)
+        {
+            context.JournalEntries.Remove(entity);
+            await context.SaveChangesAsync(ct);
+        }
     }
 
     #endregion
@@ -114,11 +141,28 @@ public class MyRepository(MyContext context) : IMyRepository
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task<JournalTranscriptEntity?> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct)
+    public async Task<JournalTranscriptEntity?> JournalTranscriptGetActiveByJournalEntryFk(int journalEntryFk, CancellationToken ct)
     {
         return await context.JournalTranscripts
             .Where(w => w.JournalEntryFk == journalEntryFk && w.Transcript != null)
             .SingleOrDefaultAsync(ct);
+    }
+
+    public async Task<List<JournalTranscriptEntity>> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct)
+    {
+        return await context.JournalTranscripts
+            .Where(w => w.JournalEntryFk == journalEntryFk)
+            .ToListAsync(ct);
+    }
+
+    public async Task JournalTranscriptDelete(int id, CancellationToken ct)
+    {
+        var entity = await context.JournalTranscripts.FindAsync([id], ct);
+        if (entity is not null)
+        {
+            context.JournalTranscripts.Remove(entity);
+            await context.SaveChangesAsync(ct);
+        }
     }
 
     #endregion
