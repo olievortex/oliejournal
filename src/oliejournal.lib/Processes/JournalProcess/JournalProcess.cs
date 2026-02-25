@@ -37,7 +37,7 @@ public class JournalProcess(
         if (string.IsNullOrWhiteSpace(transcript.Transcript)) goto SendMessage;
 
         await chatbot.EnsureOpenAiLimit(OpenAiLimit, ct);
-        await chatbot.DeleteConversations(entry.UserId, ct);
+        await chatbot.DeleteOpenAIConversations(entry.UserId, ct);
         var conversation = await chatbot.GetConversation(entry.UserId, ct);
 
         var stopwatch = Stopwatch.StartNew();
@@ -89,7 +89,7 @@ public class JournalProcess(
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.Chatbot, sender, ct);
     }
 
-    public async Task<bool> DeleteEntry(int journalEntryId, string userId, CancellationToken ct)
+    public async Task<bool> DeleteEntry(int journalEntryId, string userId, BlobContainerClient client, CancellationToken ct)
     {
         // Verify ownership
         var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
@@ -108,11 +108,13 @@ public class JournalProcess(
         }
 
         // Delete any ongoing OpenAI conversations
-        await chatbot.DeleteConversations(userId, ct);
+        await chatbot.DeleteOpenAIConversations(userId, ct);
 
-        // TODO: Delete original voice
+        // Delete original voice
+        await ingestion.DeleteVoice(entry, client, ct);
 
-        // TODO: Delete chatbot voiceover
+        // Delete chatbot voiceover
+        voiceover.DeleteLocalFile(entry);
 
         // Finally delete JournalEntry
         await transcribe.DeleteJournalEntry(journalEntryId, ct);

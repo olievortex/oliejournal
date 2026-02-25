@@ -54,6 +54,11 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         await os.ServiceBusSendJson(sender, message, ct);
     }
 
+    public async Task DeleteVoice(JournalEntryEntity entry, BlobContainerClient client, CancellationToken ct)
+    {
+        await os.BlobDeleteFile(client, entry.AudioPath, ct);
+    }
+
     public OlieWavInfo EnsureAudioValidates(byte[] file)
     {
         if (file.Length == 0) throw new ApplicationException("WAV file empty");

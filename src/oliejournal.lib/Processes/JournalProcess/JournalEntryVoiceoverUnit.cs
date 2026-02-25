@@ -13,6 +13,14 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
         return owr.GetOlieWavInfo(bytes);
     }
 
+    public void DeleteLocalFile(JournalEntryEntity entry)
+    {
+        if (entry.ResponsePath == null) return;
+
+        var localPath = $"{config.GoldPath}/{entry.ResponsePath}";
+        os.FileDelete(localPath);
+    }
+
     public async Task<JournalChatbotEntity> GetChatbotEntryOrThrow(int journalEntryId, CancellationToken ct)
     {
         return await repo.JournalChatbotGetActiveByJournalEntryId(journalEntryId, ct) ??

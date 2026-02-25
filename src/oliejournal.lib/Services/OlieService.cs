@@ -21,6 +21,12 @@ public class OlieService : IOlieService
 {
     #region Blob
 
+    public async Task BlobDeleteFile(BlobContainerClient client, string fileName, CancellationToken ct)
+    {
+        var blobClient = client.GetBlobClient(fileName);
+        await blobClient.DeleteIfExistsAsync(cancellationToken: ct);
+    }
+
     public async Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
     {
         var blobClient = client.GetBlobClient(fileName);

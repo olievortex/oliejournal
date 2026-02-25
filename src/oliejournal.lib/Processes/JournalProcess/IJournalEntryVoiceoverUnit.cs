@@ -6,6 +6,7 @@ namespace oliejournal.lib.Processes.JournalProcess;
 
 public interface IJournalEntryVoiceoverUnit
 {
+    void DeleteLocalFile(JournalEntryEntity entry);
     Task<OlieWavInfo> GetWavInfo(byte[] bytes);
     Task<JournalChatbotEntity> GetChatbotEntryOrThrow(int journalEntryId, CancellationToken ct);
     Task<string> SaveLocalFile(byte[] bytes, CancellationToken ct);

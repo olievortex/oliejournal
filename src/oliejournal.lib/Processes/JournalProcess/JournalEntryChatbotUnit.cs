@@ -33,7 +33,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         await repo.JournalChatbotCreate(entity, ct);
     }
 
-    public async Task DeleteConversations(string userId, CancellationToken ct)
+    public async Task DeleteOpenAIConversations(string userId, CancellationToken ct)
     {
         var conversations = await repo.ConversationGetActiveList(userId, ct);
 

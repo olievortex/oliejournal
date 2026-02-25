@@ -55,12 +55,14 @@ public static class JournalEndpoints
         return TypedResults.Ok(new IntResultModel { Id = id });
     }
 
-    public static async Task<Results<NoContent, NotFound, UnauthorizedHttpResult>> DeleteEntry(int id, ClaimsPrincipal user, IJournalProcess process, CancellationToken ct)
+    public static async Task<Results<NoContent, NotFound, UnauthorizedHttpResult>> DeleteEntry(int id, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
 
-        var deleted = await process.DeleteEntry(id, userId, ct);
+        var client = config.BlobContainerClient();
+
+        var deleted = await process.DeleteEntry(id, userId, client, ct);
         if (!deleted) return TypedResults.NotFound();
 
         return TypedResults.NoContent();

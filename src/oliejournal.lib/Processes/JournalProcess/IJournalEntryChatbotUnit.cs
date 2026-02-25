@@ -8,7 +8,7 @@ public interface IJournalEntryChatbotUnit
 {
     Task<OlieChatbotResult> Chatbot(string userId, string message, string conversationId, CancellationToken ct);
     Task CreateJournalChatbot(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct);
-    Task DeleteConversations(string userId, CancellationToken ct);
+    Task DeleteOpenAIConversations(string userId, CancellationToken ct);
     Task DeleteJournalChatbot(int id, CancellationToken ct);
     Task DeleteJournalTranscript(int id, CancellationToken ct);
     Task<ConversationEntity> GetConversation(string userId, CancellationToken ct);

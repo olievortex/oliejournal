@@ -8,8 +8,8 @@ public interface IOlieService
 {
     #region Blob
 
+    Task BlobDeleteFile(BlobContainerClient client, string fileName, CancellationToken ct);
     Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct);
-
     Task BlobUploadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct);
 
     #endregion

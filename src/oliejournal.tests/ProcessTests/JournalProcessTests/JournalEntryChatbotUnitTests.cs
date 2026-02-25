@@ -144,7 +144,7 @@ public class JournalEntryChatbotUnitTests
             .ReturnsAsync([entity]);
 
         // Act
-        await unit.DeleteConversations(userId, CancellationToken.None);
+        await unit.DeleteOpenAIConversations(userId, CancellationToken.None);
 
         // Assert
         Assert.That(entity.Deleted, Is.Not.Null);
@@ -164,7 +164,7 @@ public class JournalEntryChatbotUnitTests
             .ReturnsAsync([entity]);
 
         // Act
-        await unit.DeleteConversations(userId, CancellationToken.None);
+        await unit.DeleteOpenAIConversations(userId, CancellationToken.None);
 
         // Assert
         Assert.That(entity.Deleted, Is.Null);
