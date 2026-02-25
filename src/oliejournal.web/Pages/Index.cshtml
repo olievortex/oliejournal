@@ -1,0 +1,278 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "OlieJournal | Smart Storm Chasing Observation Tool";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="~/favicon.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="description" content="OlieJournal helps storm chasers document real-time observations with voice dictation and AI-powered feedback to improve field decision-making." />
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0 5rem;
+            margin-bottom: 4rem;
+        }
+        .hero-card {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .app-icon {
+            flex-shrink: 0;
+            border-radius: 1rem;
+            background: white;
+            padding: 0.5rem;
+        }
+        .subtitle {
+            font-size: 1.125rem;
+            margin: 1rem 0 1.5rem;
+            opacity: 0.95;
+        }
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .section-intro {
+            font-size: 1.125rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+        .badge-testers {
+            background: #667eea;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .screenshot-container {
+            background: #f8f9fa;
+            padding: 3rem 0;
+            margin: 4rem 0;
+        }
+        .screenshot-img {
+            max-width: 350px;
+            width: 100%;
+            height: auto;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+            display: block;
+        }
+        footer {
+            background: #f8f9fa;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <div class="container">
+            <div class="hero-card">
+                <img src="~/favicon.svg"
+                     alt="OlieJournal app icon"
+                     class="app-icon"
+                     width="76"
+                     height="76" />
+                <div>
+                    <h1 class="display-4 fw-bold mb-0">OlieJournal</h1>
+                    <p class="subtitle">
+                        The storm chasing observation tool that turns your voice into documented decisions, 
+                        observations, and waypoints—with AI feedback to sharpen your chase skills.
+                    </p>
+                    <div class="cta-group">
+                        <a class="btn btn-light btn-lg"
+                           href="https://play.google.com/apps/internaltest/4700970325975825545"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            Join Internal Testing on Google Play
+                        </a>
+                        <a class="btn btn-outline-light btn-lg" href="#features">Explore Features</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="features" aria-labelledby="features-title" class="mb-5">
+            <h2 id="features-title" class="display-5 fw-bold text-center mb-3">Built for Chasers in the Field</h2>
+            <p class="section-intro text-center">
+                OlieJournal is designed for real-time use during storm chases. Speak your observations, 
+                log critical decisions, and mark locations—all while keeping your eyes on the storm.
+            </p>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Voice-First Capture</h3>
+                            <p class="card-text">Dictate observations hands-free while driving. OlieJournal transcribes your voice into structured entries instantly.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">AI-Powered Feedback</h3>
+                            <p class="card-text">Get intelligent insights on your observations to improve your chase decision-making and weather analysis skills.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Location Tracking</h3>
+                            <p class="card-text">Automatically capture GPS coordinates with each entry. Mark key locations and visualize your chase path on a map.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Chase Decisions Logger</h3>
+                            <p class="card-text">Document why you chose specific routes or targets. Build a record of decision-making for post-chase analysis.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Weather Observation Notes</h3>
+                            <p class="card-text">Capture real-time conditions, cloud structures, and atmospheric changes while they're happening in the field.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h3 class="h5 card-title">Mobile-Optimized Design</h3>
+                            <p class="card-text">Built with Flutter for fast, reliable performance in the field—even during data-intensive chase days.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="screenshot-container">
+            <div class="container">
+                <div class="row align-items-center g-5 mb-5">
+                    <div class="col-lg-6 order-lg-2">
+                        <img src="~/images/Screenshot_record.png"
+                             alt="OlieJournal voice recording interface for storm chase observations"
+                             class="screenshot-img" />
+                    </div>
+                    <div class="col-lg-6 order-lg-1">
+                        <h2 class="display-6 fw-bold mb-3">Dictate Observations on the Fly</h2>
+                        <p class="lead mb-3">
+                            Speak naturally while chasing—OlieJournal captures your voice and converts it to text in real time.
+                        </p>
+                        <p class="text-muted">
+                            Whether you're noting a developing wall cloud, logging a directional decision, or marking a 
+                            promising intercept location, simply press record and speak. Your observations are transcribed 
+                            accurately so you can focus on the chase.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <img src="~/images/Screenshot_detail.png"
+                             alt="OlieJournal chase entry detail with GPS location map and AI chatbot feedback"
+                             class="screenshot-img" />
+                    </div>
+                    <div class="col-lg-6">
+                        <h2 class="display-6 fw-bold mb-3">Review with Maps & AI Insights</h2>
+                        <p class="lead mb-3">
+                            Every entry includes GPS coordinates mapped out and personalized AI feedback to refine your skills.
+                        </p>
+                        <p class="text-muted">
+                            After the chase, revisit your observations with full location context visualized on an interactive map. 
+                            The built-in chatbot analyzes your notes and provides constructive feedback to help you become a 
+                            more effective storm chaser.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="benefits-title" class="mb-5">
+            <h2 id="benefits-title" class="display-5 fw-bold text-center mb-4">Why Storm Chasers Choose OlieJournal</h2>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Hands-Free Operation</strong>
+                            Designed for safe use while driving—capture critical observations without taking your eyes off the road or the storm.
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Skill Development</strong>
+                            AI-powered feedback helps you identify patterns in your decision-making and improve your observational techniques over time.
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Chase Documentation</strong>
+                            Build a comprehensive log of every chase with timestamps, locations, and detailed notes for analysis and sharing.
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-3">
+                            <strong class="d-block mb-1">Real-Time Reliability</strong>
+                            Optimized for field conditions with fast transcription, offline capability, and instant GPS logging.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="join-title" class="mb-5">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body text-center p-5">
+                    <span class="badge-testers mb-3 d-inline-block">Testers Only</span>
+                    <h2 id="join-title" class="display-6 fw-bold mb-3">Get Early Access</h2>
+                    <p class="lead mb-4">OlieJournal is currently available only through the Google Play internal testing group.</p>
+                    <a class="btn btn-primary btn-lg"
+                       href="https://play.google.com/apps/internaltest/4700970325975825545"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        Open Testing Invitation
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="mb-2">
+                OlieJournal • &copy; 2026 - Antihoist Entertainmant, LLC
+            </div>
+            <div>
+                <a asp-page="/Privacy">Privacy Policy</a>
+                <span class="mx-2">•</span>
+                <a asp-page="/CookiePolicy">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

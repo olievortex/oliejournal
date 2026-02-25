@@ -9,5 +9,7 @@ mkdir -p /opt/oliejournal.api
 chown olievortex:olievortex /opt/oliejournal.api
 mkdir -p /opt/oliejournal.cli
 chown olievortex:olievortex /opt/oliejournal.cli
+mkdir -p /opt/oliejournal.web
+chown olievortex:olievortex /opt/oliejournal.web
 mkdir -p /var/www/videos
 chown olievortex:olievortex /var/www/videos

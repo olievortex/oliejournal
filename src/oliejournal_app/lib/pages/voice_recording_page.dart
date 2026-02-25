@@ -23,6 +23,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
   Timer? _timer;
   int _secondsRemaining = 55;
   bool _isRecording = false;
+  bool _isUploading = false;
   String? _recordingPath;
   String _recordingFinished = 'Last recording saved! Start a new recording.';
 
@@ -213,6 +214,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
     }
 
     setState(() {
+      _isUploading = true;
       _recordingFinished = 'Don\'t leave this page. Getting your location.';
     });
 
@@ -235,14 +237,28 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
         file,
         latitude: position?.latitude,
         longitude: position?.longitude,
+        onRetryScheduled: (retryInfo) {
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _recordingFinished =
+                'Weak reception detected. Waiting for cell reception '
+                'and retrying upload (${retryInfo.nextAttempt}/${retryInfo.maxAttempts}) '
+                'in ${retryInfo.retryDelay.inSeconds}s.';
+          });
+        },
       );
       _showSuccessDialog('Audio uploaded successfully.');
 
       setState(() {
+        _isUploading = false;
         _recordingFinished = 'Recording uploaded!';
       });
-
     } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
       _showErrorDialog('Upload failed: $e');
     }
   }
@@ -360,6 +376,25 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                             ),
                           ],
                         )
+                      else if (_isUploading)
+                        Column(
+                          children: [
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _recordingFinished,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        )
                       else if (_recordingPath != null)
                         Text(_recordingFinished,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -384,7 +419,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                         children: [
                           // Start Recording Button
                           ElevatedButton.icon(
-                            onPressed: _isRecording ? null : _startRecording,
+                            onPressed: _isRecording || _isUploading ? null : _startRecording,
                             icon: const Icon(Icons.mic),
                             label: const Text('Start Recording'),
                             style: ElevatedButton.styleFrom(
