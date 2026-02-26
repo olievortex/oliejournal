@@ -58,7 +58,7 @@ public class JournalEntryVoiceoverUnitTests
         unit.DeleteLocalFile(entry);
 
         // Assert
-        os.Verify(s => s.FileDeleteNoEx(expectedLocalPath), Times.Once);
+        os.Verify(s => s.FileDelete(expectedLocalPath), Times.Once);
     }
 
     [Test]
