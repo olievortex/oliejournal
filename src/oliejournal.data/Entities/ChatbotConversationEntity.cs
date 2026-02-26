@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace oliejournal.data.Entities;
 
-public class ConversationEntity
+public class ChatbotConversationEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -14,9 +14,9 @@ public class ConversationEntity
     public DateTime Timestamp { get; set; }
 }
 
-//-- oliejournal.Conversations definition
+//-- oliejournal.ChatbotConversations definition
 
-//CREATE TABLE "Conversations" (
+//CREATE TABLE "ChatbotConversations" (
 //  "Id" varchar(100) NOT NULL,
 //  "UserId" varchar(100) NOT NULL,
 //  "Created" datetime NOT NULL,

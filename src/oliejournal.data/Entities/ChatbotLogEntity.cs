@@ -16,6 +16,8 @@ public class ChatbotLogEntity
     public string? ResponseId { get; set; }
 }
 
+//-- oliejournal.ChatbotLogs definition
+
 //CREATE TABLE "ChatbotLogs" (
 //  "Id" int NOT NULL AUTO_INCREMENT,
 //  "ConversationId" varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
@@ -26,6 +28,5 @@ public class ChatbotLogEntity
 //  "OutputTokens" int NOT NULL,
 //  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
 //  "ResponseId" varchar(100) DEFAULT NULL,
-//  PRIMARY KEY("Id"),
-//  KEY "JournalChatbots_Conversations_FK" ("ConversationId")
+//  PRIMARY KEY("Id")
 //);

@@ -5,19 +5,19 @@ namespace oliejournal.data;
 
 public interface IMyRepository
 {
+    #region ChatbotConversations
+
+    Task ChatbotConversationCreate(ChatbotConversationEntity entity, CancellationToken ct);
+    Task ChatbotConversationDelete(string id, CancellationToken ct);
+    Task<List<ChatbotConversationEntity>> ChatbotConversationGetActiveList(string userId, CancellationToken ct);
+    Task ChatbotConversationUpdate(ChatbotConversationEntity entity, CancellationToken ct);
+
+    #endregion
+
     #region ChatbotLogs
 
     Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct);
     Task<ChatbotLogSummaryModel> ChatbotLogSummary(DateTime start, CancellationToken ct);
-
-    #endregion
-
-    #region Conversation
-
-    Task ConversationCreate(ConversationEntity entity, CancellationToken ct);
-    Task ConversationDelete(string id, CancellationToken ct);
-    Task<List<ConversationEntity>> ConversationGetActiveList(string userId, CancellationToken ct);
-    Task ConversationUpdate(ConversationEntity entity, CancellationToken ct);
 
     #endregion
 

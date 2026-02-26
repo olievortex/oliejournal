@@ -34,14 +34,14 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
 
     public async Task DeleteConversations(string userId, CancellationToken ct)
     {
-        var conversations = await repo.ConversationGetActiveList(userId, ct);
+        var conversations = await repo.ChatbotConversationGetActiveList(userId, ct);
 
         foreach (var conversation in conversations)
         {
             if ((DateTime.UtcNow - conversation.Timestamp).TotalDays > 3)
             {
                 await os.OpenAiDeleteConversation(conversation.Id, config.OpenAiApiKey, ct);
-                await repo.ConversationDelete(conversation.Id, ct);
+                await repo.ChatbotConversationDelete(conversation.Id, ct);
             }
         }
     }
@@ -51,14 +51,14 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         await repo.JournalTranscriptDelete(id, ct);
     }
 
-    public async Task<ConversationEntity> GetConversation(string userId, CancellationToken ct)
+    public async Task<ChatbotConversationEntity> GetConversation(string userId, CancellationToken ct)
     {
-        var conversation = (await repo.ConversationGetActiveList(userId, ct)).FirstOrDefault();
+        var conversation = (await repo.ChatbotConversationGetActiveList(userId, ct)).FirstOrDefault();
         if (conversation is not null) return conversation;
 
         var id = await os.OpenAiCreateConversation(userId, config.ChatbotInstructions, config.OpenAiApiKey, ct);
 
-        var entity = new ConversationEntity
+        var entity = new ChatbotConversationEntity
         {
             Id = id,
 
@@ -67,7 +67,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
             Timestamp = DateTime.UtcNow,
         };
 
-        await repo.ConversationCreate(entity, ct);
+        await repo.ChatbotConversationCreate(entity, ct);
 
         return entity;
     }

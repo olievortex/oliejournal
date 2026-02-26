@@ -8,6 +8,40 @@ namespace oliejournal.data;
 [ExcludeFromCodeCoverage]
 public class MyRepository(MyContext context) : IMyRepository
 {
+    #region ChatbotConversation
+
+    public async Task ChatbotConversationCreate(ChatbotConversationEntity entity, CancellationToken ct)
+    {
+        await context.ChatbotConversations.AddAsync(entity, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    public async Task ChatbotConversationDelete(string id, CancellationToken ct)
+    {
+        var entity = await context.ChatbotConversations.FindAsync([id], ct);
+        if (entity is not null)
+        {
+            context.ChatbotConversations.Remove(entity);
+            await context.SaveChangesAsync(ct);
+        }
+    }
+
+    public async Task<List<ChatbotConversationEntity>> ChatbotConversationGetActiveList(string userId, CancellationToken ct)
+    {
+        return await context.ChatbotConversations
+            .Where(w => w.UserId == userId)
+            .OrderBy(o => o.Timestamp)
+            .ToListAsync(ct);
+    }
+
+    public async Task ChatbotConversationUpdate(ChatbotConversationEntity entity, CancellationToken ct)
+    {
+        context.ChatbotConversations.Update(entity);
+        await context.SaveChangesAsync(ct);
+    }
+
+    #endregion
+
     #region ChatbotLogs
 
     public async Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct)
@@ -29,40 +63,6 @@ public class MyRepository(MyContext context) : IMyRepository
             .SingleOrDefaultAsync(ct);
 
         return result ?? new ChatbotLogSummaryModel();
-    }
-
-    #endregion
-
-    #region Conversation
-
-    public async Task ConversationCreate(ConversationEntity entity, CancellationToken ct)
-    {
-        await context.Conversations.AddAsync(entity, ct);
-        await context.SaveChangesAsync(ct);
-    }
-
-    public async Task ConversationDelete(string id, CancellationToken ct)
-    {
-        var entity = await context.Conversations.FindAsync([id], ct);
-        if (entity is not null)
-        {
-            context.Conversations.Remove(entity);
-            await context.SaveChangesAsync(ct);
-        }
-    }
-
-    public async Task<List<ConversationEntity>> ConversationGetActiveList(string userId, CancellationToken ct)
-    {
-        return await context.Conversations
-            .Where(w => w.UserId == userId)
-            .OrderBy(o => o.Timestamp)
-            .ToListAsync(ct);
-    }
-
-    public async Task ConversationUpdate(ConversationEntity entity, CancellationToken ct)
-    {
-        context.Conversations.Update(entity);
-        await context.SaveChangesAsync(ct);
     }
 
     #endregion

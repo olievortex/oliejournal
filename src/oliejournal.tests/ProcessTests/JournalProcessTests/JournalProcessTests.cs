@@ -136,7 +136,7 @@ public class JournalProcessTests
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
-            .ReturnsAsync(new ConversationEntity { Id = conversationId });
+            .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
             .ReturnsAsync(new OlieChatbotResult { Exception = new ApplicationException() });
 
@@ -159,7 +159,7 @@ public class JournalProcessTests
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
-            .ReturnsAsync(new ConversationEntity { Id = conversationId });
+            .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
             .ReturnsAsync(new OlieChatbotResult());
 
@@ -183,7 +183,7 @@ public class JournalProcessTests
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
-            .ReturnsAsync(new ConversationEntity { Id = conversationId });
+            .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
             .ReturnsAsync(new OlieChatbotResult { Message = response });
 

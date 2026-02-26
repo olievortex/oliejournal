@@ -132,20 +132,20 @@ public class JournalEntryChatbotUnitTests
         // Arrange
         const string userId = "a";
         const string id = "42";
-        var entity = new ConversationEntity
+        var entity = new ChatbotConversationEntity
         {
             Id = id,
             Timestamp = DateTime.UtcNow.AddMonths(-1)
         };
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetActiveList(userId, CancellationToken.None))
             .ReturnsAsync([entity]);
 
         // Act
         await unit.DeleteConversations(userId, CancellationToken.None);
 
         // Assert
-        repo.Verify(v => v.ConversationDelete(id, CancellationToken.None), Times.Once);
+        repo.Verify(v => v.ChatbotConversationDelete(id, CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -154,20 +154,20 @@ public class JournalEntryChatbotUnitTests
         // Arrange
         const string userId = "a";
         const string id = "42";
-        var entity = new ConversationEntity
+        var entity = new ChatbotConversationEntity
         {
             Id = id,
             Timestamp = DateTime.UtcNow
         };
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetActiveList(userId, CancellationToken.None))
             .ReturnsAsync([entity]);
 
         // Act
         await unit.DeleteConversations(userId, CancellationToken.None);
 
         // Assert
-        repo.Verify(v => v.ConversationDelete(id, CancellationToken.None), Times.Never);
+        repo.Verify(v => v.ChatbotConversationDelete(id, CancellationToken.None), Times.Never);
     }
 
     #endregion
@@ -179,9 +179,9 @@ public class JournalEntryChatbotUnitTests
     {
         // Arrange
         const string userId = "a";
-        var conversation = new ConversationEntity();
+        var conversation = new ChatbotConversationEntity();
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetActiveList(userId, CancellationToken.None))
             .ReturnsAsync([conversation]);
 
         // Act
@@ -199,7 +199,7 @@ public class JournalEntryChatbotUnitTests
         var (unit, repo, os, config) = CreateUnit();
         config.SetupGet(g => g.ChatbotInstructions).Returns("a");
         config.SetupGet(g => g.OpenAiApiKey).Returns("b");
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetActiveList(userId, CancellationToken.None))
             .ReturnsAsync([]);
         os.Setup(s => s.OpenAiCreateConversation(userId, "a", "b", CancellationToken.None))
             .ReturnsAsync("c");
