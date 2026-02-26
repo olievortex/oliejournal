@@ -8,6 +8,31 @@ namespace oliejournal.data;
 [ExcludeFromCodeCoverage]
 public class MyRepository(MyContext context) : IMyRepository
 {
+    #region ChatbotLogs
+
+    public async Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct)
+    {
+        await context.ChatbotLogs.AddAsync(entity, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    public async Task<ChatbotLogSummaryModel> ChatbotLogSummary(DateTime start, CancellationToken ct)
+    {
+        var result = await context.ChatbotLogs
+            .Where(w => w.Created >= start)
+            .GroupBy(g => 1)
+            .Select(s => new ChatbotLogSummaryModel
+            {
+                InputTokens = s.Sum(s => s.InputTokens),
+                OutputTokens = s.Sum(s => s.OutputTokens)
+            })
+            .SingleOrDefaultAsync(ct);
+
+        return result ?? new ChatbotLogSummaryModel();
+    }
+
+    #endregion
+
     #region Conversation
 
     public async Task ConversationCreate(ConversationEntity entity, CancellationToken ct)
@@ -16,10 +41,20 @@ public class MyRepository(MyContext context) : IMyRepository
         await context.SaveChangesAsync(ct);
     }
 
+    public async Task ConversationDelete(string id, CancellationToken ct)
+    {
+        var entity = await context.Conversations.FindAsync([id], ct);
+        if (entity is not null)
+        {
+            context.Conversations.Remove(entity);
+            await context.SaveChangesAsync(ct);
+        }
+    }
+
     public async Task<List<ConversationEntity>> ConversationGetActiveList(string userId, CancellationToken ct)
     {
         return await context.Conversations
-            .Where(w => w.UserId == userId && w.Deleted == null)
+            .Where(w => w.UserId == userId)
             .OrderBy(o => o.Timestamp)
             .ToListAsync(ct);
     }
@@ -28,50 +63,6 @@ public class MyRepository(MyContext context) : IMyRepository
     {
         context.Conversations.Update(entity);
         await context.SaveChangesAsync(ct);
-    }
-
-    #endregion
-
-    #region JournalChatbot
-
-    public async Task JournalChatbotCreate(JournalChatbotEntity entity, CancellationToken ct)
-    {
-        await context.JournalChatbots.AddAsync(entity, ct);
-        await context.SaveChangesAsync(ct);
-    }
-
-    public async Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalEntryId(int journalEntryId, CancellationToken ct)
-    {
-        return await context
-            .JournalTranscripts
-            .Join(context.JournalChatbots, l => l.Id, r => r.JournalTranscriptFk, (t, c) => new { t, c })
-            .Where(w => w.t.JournalEntryFk == journalEntryId && w.c.Message != null)
-            .Select(s => s.c)
-            .FirstOrDefaultAsync(ct);
-    }
-
-    public async Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct)
-    {
-        return await context.JournalChatbots
-            .Where(w => w.JournalTranscriptFk == journalTranscriptFk && w.Message != null)
-            .SingleOrDefaultAsync(ct);
-    }
-
-    public async Task<List<JournalChatbotEntity>> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct)
-    {
-        return await context.JournalChatbots
-            .Where(w => w.JournalTranscriptFk == journalTranscriptFk)
-            .ToListAsync(ct);
-    }
-
-    public async Task JournalChatbotDelete(int id, CancellationToken ct)
-    {
-        var entity = await context.JournalChatbots.FindAsync([id], ct);
-        if (entity is not null)
-        {
-            context.JournalChatbots.Remove(entity);
-            await context.SaveChangesAsync(ct);
-        }
     }
 
     #endregion
@@ -174,25 +165,6 @@ public class MyRepository(MyContext context) : IMyRepository
         return await context.JournalTranscripts
             .Where(w => w.Created >= start)
             .SumAsync(c => c.Cost, ct);
-    }
-
-    #endregion
-
-    #region OpenAi
-
-    public async Task<OpenAiCostSummaryModel> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct)
-    {
-        var result = await context.JournalChatbots
-            .Where(w => w.Created >= start)
-            .GroupBy(g => 1)
-            .Select(s => new OpenAiCostSummaryModel
-            {
-                InputTokens = s.Sum(s => s.InputTokens),
-                OutputTokens = s.Sum(s => s.OutputTokens)
-            })
-            .SingleOrDefaultAsync(ct);
-
-        return result ?? new OpenAiCostSummaryModel();
     }
 
     #endregion

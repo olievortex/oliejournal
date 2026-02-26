@@ -13,16 +13,15 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         return await os.OpenAiEngageChatbotNoEx(userId, message, conversationId, config.OpenAiModel, config.OpenAiApiKey, ct);
     }
 
-    public async Task CreateJournalChatbot(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct)
+    public async Task CreateChatbotLog(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct)
     {
-        var entity = new JournalChatbotEntity
+        var entity = new ChatbotLogEntity
         {
-            ConversationFk = result.ConversationId,
-            ServiceFk = result.ServiceId,
+            ConversationId = result.ConversationId,
+            ServiceId = result.ServiceId,
             JournalTranscriptFk = journalTranscriptId,
 
             ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
-            Message = result.Message?.Left(8096),
             InputTokens = result.InputTokens,
             OutputTokens = result.OutputTokens,
             Exception = result.Exception?.ToString().Left(8096),
@@ -30,10 +29,10 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
             ResponseId = result.ResponseId,
         };
 
-        await repo.JournalChatbotCreate(entity, ct);
+        await repo.ChatbotLogCreate(entity, ct);
     }
 
-    public async Task DeleteOpenAIConversations(string userId, CancellationToken ct)
+    public async Task DeleteConversations(string userId, CancellationToken ct)
     {
         var conversations = await repo.ConversationGetActiveList(userId, ct);
 
@@ -42,16 +41,9 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
             if ((DateTime.UtcNow - conversation.Timestamp).TotalDays > 3)
             {
                 await os.OpenAiDeleteConversation(conversation.Id, config.OpenAiApiKey, ct);
-
-                conversation.Deleted = DateTime.UtcNow;
-                await repo.ConversationUpdate(conversation, ct);
+                await repo.ConversationDelete(conversation.Id, ct);
             }
         }
-    }
-
-    public async Task DeleteJournalChatbot(int id, CancellationToken ct)
-    {
-        await repo.JournalChatbotDelete(id, ct);
     }
 
     public async Task DeleteJournalTranscript(int id, CancellationToken ct)
@@ -80,11 +72,6 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         return entity;
     }
 
-    public async Task<List<JournalChatbotEntity>> GetJournalChatbots(int journalTranscriptId, CancellationToken ct)
-    {
-        return await repo.JournalChatbotGetByJournalTranscriptFk(journalTranscriptId, ct);
-    }
-
     public async Task<JournalTranscriptEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct)
     {
         return await repo.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, ct) ??
@@ -102,15 +89,17 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         const double outputRate = 0.8 / 1_000_000; // GPT-4.1 nano
 
         var lookback = DateTime.UtcNow.AddMonths(-1);
-        var billing = await repo.OpenApiGetChatbotSummary(lookback, ct);
+        var billing = await repo.ChatbotLogSummary(lookback, ct);
 
         var cost = billing.InputTokens * inputRate + billing.OutputTokens * outputRate;
 
         if (cost > limit) throw new ApplicationException("OpenAi chat budget exceeded");
     }
 
-    public async Task<bool> IsAlreadyChatbotted(int journalTranscriptId, CancellationToken ct)
+    public async Task UpdateEntry(string message, JournalEntryEntity entry, CancellationToken ct)
     {
-        return await repo.JournalChatbotGetActiveByJournalTranscriptFk(journalTranscriptId, ct) is not null;
+        entry.Response = message.Left(8096);
+
+        await repo.JournalEntryUpdate(entry, ct);
     }
 }

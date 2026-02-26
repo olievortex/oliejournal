@@ -1,6 +1,6 @@
 ﻿namespace oliejournal.data.Models;
 
-public class OpenAiCostSummaryModel
+public class ChatbotLogSummaryModel
 {
     public int InputTokens { get; init; }
     public int OutputTokens { get; init; }

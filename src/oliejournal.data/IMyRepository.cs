@@ -5,21 +5,19 @@ namespace oliejournal.data;
 
 public interface IMyRepository
 {
-    #region Conversation
+    #region ChatbotLogs
 
-    Task ConversationCreate(ConversationEntity entity, CancellationToken ct);
-    Task<List<ConversationEntity>> ConversationGetActiveList(string userId, CancellationToken ct);
-    Task ConversationUpdate(ConversationEntity entity, CancellationToken ct);
+    Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct);
+    Task<ChatbotLogSummaryModel> ChatbotLogSummary(DateTime start, CancellationToken ct);
 
     #endregion
 
-    #region JournalChatbot
+    #region Conversation
 
-    Task JournalChatbotCreate(JournalChatbotEntity entity, CancellationToken ct);
-    Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalEntryId(int journalEntryId, CancellationToken ct);
-    Task<JournalChatbotEntity?> JournalChatbotGetActiveByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
-    Task<List<JournalChatbotEntity>> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
-    Task JournalChatbotDelete(int id, CancellationToken ct);
+    Task ConversationCreate(ConversationEntity entity, CancellationToken ct);
+    Task ConversationDelete(string id, CancellationToken ct);
+    Task<List<ConversationEntity>> ConversationGetActiveList(string userId, CancellationToken ct);
+    Task ConversationUpdate(ConversationEntity entity, CancellationToken ct);
 
     #endregion
 
@@ -52,12 +50,6 @@ public interface IMyRepository
     #region Google
 
     Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct);
-
-    #endregion
-
-    #region OpenAi
-
-    Task<OpenAiCostSummaryModel> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct);
 
     #endregion
 }

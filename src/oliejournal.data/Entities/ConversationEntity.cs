@@ -12,7 +12,6 @@ public class ConversationEntity
     public string UserId { get; set; } = string.Empty;
     public DateTime Created { get; set; }
     public DateTime Timestamp { get; set; }
-    public DateTime? Deleted { get; set; }
 }
 
 //-- oliejournal.Conversations definition
@@ -22,6 +21,5 @@ public class ConversationEntity
 //  "UserId" varchar(100) NOT NULL,
 //  "Created" datetime NOT NULL,
 //  "Timestamp" datetime NOT NULL,
-//  "Deleted" datetime DEFAULT NULL,
 //  PRIMARY KEY("Id")
 //);

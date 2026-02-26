@@ -18,33 +18,34 @@ public class JournalProcess(
     {
         var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
         if (entry.ResponsePath != null) return;
-        var chatbot = await voiceover.GetChatbotEntryOrThrow(journalEntryId, ct);
-        if (chatbot.Message is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
+        if (entry.Response is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
 
-        var stopwatch = Stopwatch.StartNew();
-        var file = await voiceover.VoiceOver(chatbot.Message, ct);
+        var file = await voiceover.VoiceOver(entry.Response, ct);
         var blobPath = await voiceover.SaveLocalFile(file, ct);
         var wavInfo = await voiceover.GetWavInfo(file);
 
-        await voiceover.UpdateEntry(blobPath, file.Length, stopwatch, wavInfo, entry, ct);
+        await voiceover.UpdateEntry(blobPath, file.Length, wavInfo, entry, ct);
     }
 
     public async Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct)
     {
         var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
         var transcript = await chatbot.GetJournalTranscriptOrThrow(journalEntryId, ct);
-        if (await chatbot.IsAlreadyChatbotted(transcript.Id, ct)) goto SendMessage;
+        if (entry.Response is not null) goto SendMessage;
         if (string.IsNullOrWhiteSpace(transcript.Transcript)) goto SendMessage;
 
         await chatbot.EnsureOpenAiLimit(OpenAiLimit, ct);
-        await chatbot.DeleteOpenAIConversations(entry.UserId, ct);
+        await chatbot.DeleteConversations(entry.UserId, ct);
         var conversation = await chatbot.GetConversation(entry.UserId, ct);
 
         var stopwatch = Stopwatch.StartNew();
         var message = await chatbot.Chatbot(entry.UserId, transcript.Transcript, conversation.Id, ct);
-        await chatbot.CreateJournalChatbot(transcript.Id, message, stopwatch, ct);
+        await chatbot.CreateChatbotLog(transcript.Id, message, stopwatch, ct);
 
         if (message.Exception is not null) throw message.Exception;
+        if (message.Message is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
+
+        await chatbot.UpdateEntry(message.Message, entry, ct);
 
     SendMessage:
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
@@ -98,17 +99,12 @@ public class JournalProcess(
         // Find all transcripts
         foreach (var transcript in await chatbot.GetJournalTranscripts(journalEntryId, ct))
         {
-            foreach (var chatbotEntity in await chatbot.GetJournalChatbots(transcript.Id, ct))
-            {
-                await chatbot.DeleteJournalChatbot(chatbotEntity.Id, ct);
-            }
-
             // Delete JournalTranscript
             await chatbot.DeleteJournalTranscript(transcript.Id, ct);
         }
 
         // Delete any ongoing OpenAI conversations
-        await chatbot.DeleteOpenAIConversations(userId, ct);
+        await chatbot.DeleteConversations(userId, ct);
 
         // Delete original voice
         await ingestion.DeleteVoice(entry, client, ct);
