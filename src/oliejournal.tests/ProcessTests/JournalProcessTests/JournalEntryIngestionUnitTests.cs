@@ -298,6 +298,48 @@ public class JournalEntryIngestionUnitTests
 
     #endregion
 
+    #region GetJournalEntry
+
+    [Test]
+    public async Task GetJournalEntry_ReturnsEntity_WhenExists()
+    {
+        // Arrange
+        const int journalEntryId = 5;
+        const string userId = "user-1";
+        var (unit, _, _, repo) = CreateUnit();
+
+        var ent = new JournalEntryEntity();
+        repo.Setup(r => r.JournalEntryGetByUserId(journalEntryId, userId, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
+
+        // Act
+        var result = await unit.GetJournalEntry(journalEntryId, userId, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ent));
+    }
+
+    #endregion
+
+    #region GetJournalEntryList
+
+    [Test]
+    public async Task GetJournalEntryList_ReturnsList_WhenExists()
+    {
+        // Arrange
+        const string userId = "destiny";
+        var (unit, _, _, repo) = CreateUnit();
+        var ent = new List<JournalEntryEntity> { new(), new() };
+        repo.Setup(r => r.JournalEntryGetListByUserId(userId, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
+
+        // Act
+        var result = await unit.GetJournalEntryList(userId, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(2));
+    }
+
+    #endregion
+
     #region WriteAudioFileToBlob
 
     [Test]

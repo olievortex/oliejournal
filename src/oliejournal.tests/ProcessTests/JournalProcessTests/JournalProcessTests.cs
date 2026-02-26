@@ -178,6 +178,91 @@ public class JournalProcessTests
 
     #endregion
 
+    #region GetEntryList
+
+    [Test]
+    public async Task GetEntryList_ReturnsList_RecordsFound()
+    {
+        // Arrange
+        const string userId = "abc";
+        const int id = 42;
+        const string responseTest = "bcd";
+        const string responsePath = "cde";
+        const string transcript = "def";
+        const float lat = 45.123f;
+        const float lon = -93.456f;
+        var entities = new List<JournalEntryEntity> {
+            new() {
+                Id = id,
+                UserId = userId,
+                Response = responseTest,
+                VoiceoverPath = responsePath,
+                Transcript = transcript,
+                Latitude = lat,
+                Longitude = lon,
+                Created = DateTime.UtcNow }
+        };
+        var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryList(userId, CancellationToken.None))
+            .ReturnsAsync(entities);
+
+        // Act
+        var result = await unit.GetEntryList(userId, CancellationToken.None);
+
+        // Assert
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result[0].UserId, Is.EqualTo(userId));
+            Assert.That(result[0].Id, Is.EqualTo(id));
+            Assert.That(result[0].ResponseText, Is.EqualTo(responseTest));
+            Assert.That(result[0].ResponsePath, Is.EqualTo(responsePath));
+            Assert.That(result[0].Transcript, Is.EqualTo(transcript));
+            Assert.That(result[0].Created, Is.Not.EqualTo(DateTime.MinValue));
+            Assert.That(result[0].Latitude, Is.EqualTo(lat).Within(0.0001));
+            Assert.That(result[0].Longitude, Is.EqualTo(lon).Within(0.0001));
+        }
+    }
+
+    #endregion
+
+    #region GetEntry
+
+    [Test]
+    public async Task GetEntry_ReturnsNull_RecordNotFound()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        const string userId = "abc";
+        var (unit, _, _, _, _) = CreateUnit();
+
+        // Act
+        var result = await unit.GetEntry(journalEntryId, userId, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetEntry_ReturnsRecord_RecordFound()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        const string userId = "abc";
+        var entity = new JournalEntryEntity();
+        var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntry(journalEntryId, userId, CancellationToken.None))
+            .ReturnsAsync(entity);
+
+        // Act
+        var result = await unit.GetEntry(journalEntryId, userId, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Id, Is.EqualTo(entity.Id));
+    }
+
+    #endregion
+
     #region Ingest
 
     [Test]

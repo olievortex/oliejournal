@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using oliejournal.lib.Enums;
+using oliejournal.lib.Models;
 using System.Diagnostics;
 
 namespace oliejournal.lib.Processes.JournalProcess;
@@ -48,6 +49,18 @@ public class JournalProcess(
 
     SendMessage:
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
+    }
+
+    public async Task<List<JournalEntryListModel>> GetEntryList(string userId, CancellationToken ct)
+    {
+        return [.. (await ingestion.GetJournalEntryList(userId, ct)).Select(JournalEntryListModel.FromEntity)];
+    }
+
+    public async Task<JournalEntryListModel?> GetEntry(int journalEntryId, string userId, CancellationToken ct)
+    {
+        var result = await ingestion.GetJournalEntry(journalEntryId, userId, ct);
+
+        return result is null ? null : JournalEntryListModel.FromEntity(result);
     }
 
     public async Task<int> Ingest(string userId, Stream audio, float? latitude, float? longitude, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)

@@ -46,11 +46,9 @@ public static class OlieCommon
 
         #region DeleteOldContentProcess Dependencies
 
+        services.AddScoped<IDeleteOldContentProcess, DeleteOldContentProcess>();
         services.AddScoped<IMySqlMaintenance, MySqlMaintenance>();
 
         #endregion
-
-        services.AddScoped<IJournalApiBusiness, JournalApiBusiness>();
-        services.AddScoped<IDeleteOldContentProcess, DeleteOldContentProcess>();
     }
 }

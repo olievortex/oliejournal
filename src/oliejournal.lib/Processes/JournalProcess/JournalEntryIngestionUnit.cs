@@ -95,6 +95,11 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         return await repo.JournalEntryGetByUserId(journalEntryId, userId, ct);
     }
 
+    public async Task<List<JournalEntryEntity>> GetJournalEntryList(string userId, CancellationToken ct)
+    {
+        return await repo.JournalEntryGetListByUserId(userId, ct);
+    }
+
     public async Task DeleteJournalEntry(int journalEntryId, CancellationToken ct)
     {
         await repo.JournalEntryDelete(journalEntryId, ct);

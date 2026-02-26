@@ -17,6 +17,7 @@ public interface IJournalEntryIngestionUnit
     Task<JournalEntryEntity?> GetDuplicateEntry(string userId, string hash, CancellationToken ct);
     Task<JournalEntryEntity> GetJournalEntryOrThrow(int journalEntryId, CancellationToken ct);
     Task<JournalEntryEntity?> GetJournalEntry(int journalEntryId, string userId, CancellationToken ct);
+    Task<List<JournalEntryEntity>> GetJournalEntryList(string userId, CancellationToken ct);
     Task DeleteJournalEntry(int journalEntryId, CancellationToken ct);
     Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct);
     Task<string> WriteAudioFileToTemp(byte[] file, CancellationToken ct);
