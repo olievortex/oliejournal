@@ -17,7 +17,7 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
         if (entry.VoiceoverPath == null) return;
 
         var localPath = $"{config.GoldPath}/{entry.VoiceoverPath}";
-        os.FileDelete(localPath);
+        os.FileDeleteNoEx(localPath);
     }
 
     public async Task<string> SaveLocalFile(byte[] bytes, CancellationToken ct)

@@ -378,4 +378,40 @@ public class JournalProcessTests
     }
 
     #endregion
+
+    #region DeleteEntry
+
+    [Test]
+    public async Task DeleteEntry_ReturnsFalse_AlreadyDeleted()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        const string userId = "abc";
+        var (unit, _, _, _, _) = CreateUnit();
+
+        // Act
+        var result = await unit.DeleteEntry(journalEntryId, userId, null!, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public async Task DeleteEntry_ReturnsTrue_Exists()
+    {
+        // Arrange
+        const int journalEntryId = 42;
+        const string userId = "abc";
+        var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntry(journalEntryId, userId, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { Id = journalEntryId });
+
+        // Act
+        var result = await unit.DeleteEntry(journalEntryId, userId, null!, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.True);
+    }
+
+    #endregion
 }
