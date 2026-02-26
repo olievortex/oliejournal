@@ -26,15 +26,10 @@ public interface IMyRepository
     Task JournalEntryCreate(JournalEntryEntity entity, CancellationToken ct);
     Task<JournalEntryEntity?> JournalEntryGet(int id, CancellationToken ct);
     Task<JournalEntryEntity?> JournalEntryGetByHash(string userId, string hash, CancellationToken ct);
+    Task<JournalEntryEntity?> JournalEntryGetByUserId(int journalEntryId, string userId, CancellationToken ct);
+    Task<List<JournalEntryEntity>> JournalEntryGetListByUserId(string userId, CancellationToken ct);
     Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct);
     Task JournalEntryDelete(int id, CancellationToken ct);
-
-    #endregion
-
-    #region JournalEntryList
-
-    Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct);
-    Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct);
 
     #endregion
 

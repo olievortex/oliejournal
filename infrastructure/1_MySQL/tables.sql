@@ -54,28 +54,3 @@ CREATE TABLE "TranscriptLogs" (
   "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY ("Id")
 );
-
--- oliejournal.v_JournalEntryList source
-
-CREATE VIEW "oliejournal"."v_JournalEntryList" AS
-select
-    "je"."Id" AS "Id",
-    "je"."UserId" AS "UserId",
-    "je"."Created" AS "Created",
-    "jt"."Transcript" AS "Transcript",
-    "je"."Response" AS "ResponseText",
-    "je"."ResponsePath" AS "ResponsePath",
-    "je"."Latitude" AS "Latitude",
-    "je"."Longitude" AS "Longitude"
-from
-    ("oliejournal"."JournalEntries" "je"
-left join (
-    select
-        "oliejournal"."JournalTranscripts"."Id" AS "Id",
-        "oliejournal"."JournalTranscripts"."JournalEntryFk" AS "JournalEntryFk",
-        "oliejournal"."JournalTranscripts"."Transcript" AS "Transcript"
-    from
-        "oliejournal"."JournalTranscripts"
-    where
-        ("oliejournal"."JournalTranscripts"."Transcript" is not null)) "jt" on
-    (("je"."Id" = "jt"."JournalEntryFk")));

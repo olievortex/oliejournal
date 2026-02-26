@@ -86,6 +86,22 @@ public class MyRepository(MyContext context) : IMyRepository
             .FirstOrDefaultAsync(s => s.UserId == userId && s.AudioHash == hash, ct);
     }
 
+    public async Task<JournalEntryEntity?> JournalEntryGetByUserId(int journalEntryId, string userId, CancellationToken ct)
+    {
+        return await context.JournalEntries
+            .Where(w => w.UserId == userId && w.Id == journalEntryId)
+            .OrderByDescending(d => d.Created)
+            .SingleOrDefaultAsync(ct);
+    }
+
+    public async Task<List<JournalEntryEntity>> JournalEntryGetListByUserId(string userId, CancellationToken ct)
+    {
+        return await context.JournalEntries
+            .Where(w => w.UserId == userId)
+            .OrderByDescending(d => d.Created)
+            .ToListAsync(ct);
+    }
+
     public async Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct)
     {
         context.JournalEntries.Update(entity);
@@ -100,26 +116,6 @@ public class MyRepository(MyContext context) : IMyRepository
             context.JournalEntries.Remove(entity);
             await context.SaveChangesAsync(ct);
         }
-    }
-
-    #endregion
-
-    #region JournalEntryList
-
-    public async Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct)
-    {
-        return await context.JournalEntryList
-            .Where(w => w.UserId == userId && w.Id == journalEntryId)
-            .OrderByDescending(d => d.Created)
-            .SingleOrDefaultAsync(ct);
-    }
-
-    public async Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct)
-    {
-        return await context.JournalEntryList
-            .Where(w => w.UserId == userId)
-            .OrderByDescending(d => d.Created)
-            .ToListAsync(ct);
     }
 
     #endregion
