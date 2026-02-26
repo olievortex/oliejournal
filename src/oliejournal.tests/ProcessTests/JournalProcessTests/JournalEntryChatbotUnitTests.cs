@@ -40,57 +40,54 @@ public class JournalEntryChatbotUnitTests
 
     #endregion
 
-    #region CreateJournalChatbot
+    #region ChatbotLogCreate
 
     [Test]
-    public async Task CreateJournalCatbot_CreatesRecord_WhenValid()
+    public async Task ChatbotLogCreate_CreatesRecord_WhenValid()
     {
         // Arrange
-        JournalChatbotEntity? entity = null;
+        const string exceptionMessage = "Bang!";
+        ChatbotLogEntity? entity = null;
         const int journalTranscriptId = 123;
         var stopwatch = Stopwatch.StartNew();
         var chatbotResult = new OlieChatbotResult
         {
             ConversationId = "a",
             ServiceId = 234,
-            Message = new string('a', 9000),
             InputTokens = 345,
             OutputTokens = 456,
-            Exception = new ApplicationException(new string('b', 9000)),
+            Exception = new ApplicationException(exceptionMessage),
             ResponseId = "b"
         };
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.JournalChatbotCreate(It.IsAny<JournalChatbotEntity>(), CancellationToken.None))
-            .Callback<JournalChatbotEntity, CancellationToken>((e, _) => { e.Id = 567; entity = e; });
+        repo.Setup(s => s.ChatbotLogCreate(It.IsAny<ChatbotLogEntity>(), CancellationToken.None))
+            .Callback<ChatbotLogEntity, CancellationToken>((e, _) => { e.Id = 567; entity = e; });
 
         // Act
-        await unit.CreateJournalChatbot(journalTranscriptId, chatbotResult, stopwatch, CancellationToken.None);
+        await unit.CreateChatbotLog(journalTranscriptId, chatbotResult, stopwatch, CancellationToken.None);
 
         // Assert
         Assert.That(entity, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(entity.Id, Is.EqualTo(567));
-            Assert.That(entity.ConversationFk, Is.EqualTo("a"));
+            Assert.That(entity.ConversationId, Is.EqualTo("a"));
             Assert.That(entity.JournalTranscriptFk, Is.EqualTo(journalTranscriptId));
             Assert.That(entity.ProcessingTime, Is.InRange(0, 5));
-            Assert.That(entity.Message, Has.Length.EqualTo(8096));
-            Assert.That(entity.Message, Contains.Substring("aaaa"));
             Assert.That(entity.InputTokens, Is.EqualTo(345));
             Assert.That(entity.OutputTokens, Is.EqualTo(456));
-            Assert.That(entity.Exception, Has.Length.EqualTo(8096));
-            Assert.That(entity.Exception, Contains.Substring("bbbb"));
+            Assert.That(entity.Exception, Contains.Substring(exceptionMessage));
             Assert.That(entity.Created, Is.Not.EqualTo(DateTime.MinValue));
             Assert.That(entity.ResponseId, Is.EqualTo("b"));
-            Assert.That(entity.ServiceFk, Is.EqualTo(234));
+            Assert.That(entity.ServiceId, Is.EqualTo(234));
         }
     }
 
     [Test]
-    public async Task CreateJournalCatbot_CreatesRecord_WhenNull()
+    public async Task ChatbotLogCreate_CreatesRecord_WhenNull()
     {
         // Arrange
-        JournalChatbotEntity? entity = null;
+        ChatbotLogEntity? entity = null;
         const int journalTranscriptId = 123;
         var stopwatch = Stopwatch.StartNew();
         var chatbotResult = new OlieChatbotResult
@@ -102,72 +99,107 @@ public class JournalEntryChatbotUnitTests
             ResponseId = "b"
         };
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.JournalChatbotCreate(It.IsAny<JournalChatbotEntity>(), CancellationToken.None))
-            .Callback<JournalChatbotEntity, CancellationToken>((e, _) => { e.Id = 567; entity = e; });
+        repo.Setup(s => s.ChatbotLogCreate(It.IsAny<ChatbotLogEntity>(), CancellationToken.None))
+            .Callback<ChatbotLogEntity, CancellationToken>((e, _) => { e.Id = 567; entity = e; });
 
         // Act
-        await unit.CreateJournalChatbot(journalTranscriptId, chatbotResult, stopwatch, CancellationToken.None);
+        await unit.CreateChatbotLog(journalTranscriptId, chatbotResult, stopwatch, CancellationToken.None);
 
         // Assert
         Assert.That(entity, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(entity.Id, Is.EqualTo(567));
-            Assert.That(entity.ConversationFk, Is.EqualTo("a"));
+            Assert.That(entity.ConversationId, Is.EqualTo("a"));
             Assert.That(entity.JournalTranscriptFk, Is.EqualTo(journalTranscriptId));
             Assert.That(entity.ProcessingTime, Is.InRange(0, 5));
-            Assert.That(entity.Message, Is.Null);
             Assert.That(entity.InputTokens, Is.EqualTo(345));
             Assert.That(entity.OutputTokens, Is.EqualTo(456));
             Assert.That(entity.Exception, Is.Null);
             Assert.That(entity.Created, Is.Not.EqualTo(DateTime.MinValue));
             Assert.That(entity.ResponseId, Is.EqualTo("b"));
-            Assert.That(entity.ServiceFk, Is.EqualTo(234));
+            Assert.That(entity.ServiceId, Is.EqualTo(234));
         }
     }
 
     #endregion
 
-    #region DeleteConversations
+    #region DeleteAllConversations
 
     [Test]
-    public async Task DeleteConversations_DeletesConversation_VeryOld()
+    public async Task DeleteAllConversations_DeletesConversation_VeryOld()
     {
         // Arrange
         const string userId = "a";
-        var entity = new ConversationEntity
+        const string id = "42";
+        var entity1 = new ChatbotConversationEntity
         {
+            Id = id,
             Timestamp = DateTime.UtcNow.AddMonths(-1)
         };
-        var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
-            .ReturnsAsync([entity]);
-
-        // Act
-        await unit.DeleteConversations(userId, CancellationToken.None);
-
-        // Assert
-        Assert.That(entity.Deleted, Is.Not.Null);
-    }
-
-    [Test]
-    public async Task DeleteConversations_KeepsConversation_VeryFresh()
-    {
-        // Arrange
-        const string userId = "a";
-        var entity = new ConversationEntity
+        var entity2 = new ChatbotConversationEntity
         {
+            Id = id,
             Timestamp = DateTime.UtcNow
         };
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetListByUser(userId, CancellationToken.None))
+            .ReturnsAsync([entity1, entity2]);
+
+        // Act
+        await unit.DeleteAllConversations(userId, CancellationToken.None);
+
+        // Assert
+        repo.Verify(v => v.ChatbotConversationDelete(id, CancellationToken.None), Times.Exactly(2));
+    }
+
+    #endregion
+
+
+    #region DeleteOldConversations
+
+    [Test]
+    public async Task DeleteOldConversations_DeletesConversation_VeryOld()
+    {
+        // Arrange
+        const string userId = "a";
+        const string id = "42";
+        var entity = new ChatbotConversationEntity
+        {
+            Id = id,
+            Timestamp = DateTime.UtcNow.AddMonths(-1)
+        };
+        var (unit, repo, _, _) = CreateUnit();
+        repo.Setup(s => s.ChatbotConversationGetListByUser(userId, CancellationToken.None))
             .ReturnsAsync([entity]);
 
         // Act
-        await unit.DeleteConversations(userId, CancellationToken.None);
+        await unit.DeleteOldConversations(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(entity.Deleted, Is.Null);
+        repo.Verify(v => v.ChatbotConversationDelete(id, CancellationToken.None), Times.Once);
+    }
+
+    [Test]
+    public async Task DeleteOldConversations_KeepsConversation_VeryFresh()
+    {
+        // Arrange
+        const string userId = "a";
+        const string id = "42";
+        var entity = new ChatbotConversationEntity
+        {
+            Id = id,
+            Timestamp = DateTime.UtcNow
+        };
+        var (unit, repo, _, _) = CreateUnit();
+        repo.Setup(s => s.ChatbotConversationGetListByUser(userId, CancellationToken.None))
+            .ReturnsAsync([entity]);
+
+        // Act
+        await unit.DeleteOldConversations(userId, CancellationToken.None);
+
+        // Assert
+        repo.Verify(v => v.ChatbotConversationDelete(id, CancellationToken.None), Times.Never);
     }
 
     #endregion
@@ -179,9 +211,9 @@ public class JournalEntryChatbotUnitTests
     {
         // Arrange
         const string userId = "a";
-        var conversation = new ConversationEntity();
+        var conversation = new ChatbotConversationEntity();
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetListByUser(userId, CancellationToken.None))
             .ReturnsAsync([conversation]);
 
         // Act
@@ -199,7 +231,7 @@ public class JournalEntryChatbotUnitTests
         var (unit, repo, os, config) = CreateUnit();
         config.SetupGet(g => g.ChatbotInstructions).Returns("a");
         config.SetupGet(g => g.OpenAiApiKey).Returns("b");
-        repo.Setup(s => s.ConversationGetActiveList(userId, CancellationToken.None))
+        repo.Setup(s => s.ChatbotConversationGetListByUser(userId, CancellationToken.None))
             .ReturnsAsync([]);
         os.Setup(s => s.OpenAiCreateConversation(userId, "a", "b", CancellationToken.None))
             .ReturnsAsync("c");
@@ -219,38 +251,6 @@ public class JournalEntryChatbotUnitTests
 
     #endregion
 
-    #region GetJournalTranscriptOrThrow
-
-    [Test]
-    public async Task GetJournalTranscriptOrThrow_Throws_NoTranscript()
-    {
-        // Arrange
-        const int journalEntryId = 12;
-        var (unit, _, _, _) = CreateUnit();
-
-        // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(async () => await unit.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None));
-    }
-
-    [Test]
-    public async Task GetJournalTranscriptOrThrow_ReturnsTranscript_TranscriptExists()
-    {
-        // Arrange
-        const int journalEntryId = 12;
-        var entity = new JournalTranscriptEntity();
-        var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.JournalTranscriptGetByJournalEntryFk(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(entity);
-
-        // Act
-        var result = await unit.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(entity));
-    }
-
-    #endregion
-
     #region EnsureOpenAiLimit
 
     [Test]
@@ -259,8 +259,8 @@ public class JournalEntryChatbotUnitTests
         // Arrange
         const int limit = 12;
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.OpenApiGetChatbotSummary(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new data.Models.OpenAiCostSummaryModel { InputTokens = 100, OutputTokens = 200 });
+        repo.Setup(s => s.ChatbotLogSummary(It.IsAny<DateTime>(), CancellationToken.None))
+            .ReturnsAsync(new data.Models.ChatbotLogSummaryModel { InputTokens = 100, OutputTokens = 200 });
 
         // Act
         await unit.EnsureOpenAiLimit(limit, CancellationToken.None);
@@ -275,8 +275,8 @@ public class JournalEntryChatbotUnitTests
         // Arrange
         const int limit = 12;
         var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.OpenApiGetChatbotSummary(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new data.Models.OpenAiCostSummaryModel { InputTokens = 10_000_000, OutputTokens = 20_000_000 });
+        repo.Setup(s => s.ChatbotLogSummary(It.IsAny<DateTime>(), CancellationToken.None))
+            .ReturnsAsync(new data.Models.ChatbotLogSummaryModel { InputTokens = 10_000_000, OutputTokens = 20_000_000 });
 
         // Act, Assert
         Assert.ThrowsAsync<ApplicationException>(async () => await unit.EnsureOpenAiLimit(limit, CancellationToken.None));
@@ -284,20 +284,26 @@ public class JournalEntryChatbotUnitTests
 
     #endregion
 
-    #region IsAlreadyChatbotted
+    #region UpdateEntry
 
     [Test]
-    public async Task IsAlreadyChatbotted_ReturnsFalse_NoResult()
+    public async Task UpdateEntity_CallsRepo_ValidData()
     {
         // Arrange
-        const int journalEntryId = 42;
-        var (unit, _, _, _) = CreateUnit();
+        var (unit, repo, _, _) = CreateUnit();
+        var message = new string('a', 9000);
+        var entity = new JournalEntryEntity();
 
         // Act
-        var result = await unit.IsAlreadyChatbotted(journalEntryId, CancellationToken.None);
+        await unit.UpdateEntry(message, entity, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entity.Response, Is.EqualTo(message));
+            Assert.That(entity.ResponseCreated, Is.Not.Null);
+        }
+        repo.Verify(s => s.JournalEntryUpdate(It.IsAny<JournalEntryEntity>(), CancellationToken.None), Times.Once);
     }
 
     #endregion

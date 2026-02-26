@@ -14,21 +14,18 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
         os.FileDelete(localFile);
     }
 
-    public async Task CreateJournalTranscript(int journalEntryId, OlieTranscribeResult result, Stopwatch stopwatch, CancellationToken ct)
+    public async Task CreateTranscriptLog(int journalEntryId, OlieTranscribeResult result, Stopwatch stopwatch, CancellationToken ct)
     {
-        var entity = new JournalTranscriptEntity
+        var entity = new TranscriptLogEntity
         {
-            JournalEntryFk = journalEntryId,
-            ServiceFk = result.ServiceId,
-
+            ServiceId = result.ServiceId,
             ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
-            Transcript = result.Transcript?.Left(8096),
             Cost = result.Cost,
-            Exception = result.Exception?.ToString().Left(8096),
+            Exception = result.Exception?.ToString(),
             Created = DateTime.UtcNow,
         };
 
-        await repo.JournalTranscriptCreate(entity, ct);
+        await repo.TranscriptLogCreate(entity, ct);
     }
 
     public async Task<string> GetAudioFile(string blobPath, BlobContainerClient client, CancellationToken ct)
@@ -46,7 +43,7 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
         const double rate = 0.016 / 60; // V1 API w/ data logging
 
         var lookback = DateTime.UtcNow.AddMonths(-1);
-        var billing = await repo.GoogleGetSpeech2TextSummary(lookback, ct);
+        var billing = await repo.TranscriptLogSummary(lookback, ct);
 
         if (billing < free) return;
 
@@ -55,20 +52,17 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
         if (cost > limit) throw new ApplicationException("Google speech-to-text budget exceeded");
     }
 
-    public async Task<JournalEntryEntity> GetJournalEntryOrThrow(int journalEntryId, CancellationToken ct)
-    {
-        return await repo.JournalEntryGet(journalEntryId, ct) ??
-            throw new ApplicationException($"JournalEntry with {journalEntryId} doesn't exist");
-    }
-
-    public async Task<bool> IsAlreadyTranscribed(int journalEntryId, CancellationToken ct)
-    {
-        return await repo.JournalTranscriptGetByJournalEntryFk(journalEntryId, ct) is not null;
-    }
-
     public async Task<OlieTranscribeResult> Transcribe(string localFile, CancellationToken ct)
     {
         var info = owr.GetOlieWavInfo(localFile);
         return await os.GoogleTranscribeWavNoEx(localFile, info, ct);
+    }
+
+    public async Task UpdateEntry(string transcript, JournalEntryEntity entry, CancellationToken ct)
+    {
+        entry.Transcript = transcript;
+        entry.TranscriptCreated = DateTime.UtcNow;
+
+        await repo.JournalEntryUpdate(entry, ct);
     }
 }

@@ -15,11 +15,14 @@ public class JournalEntryEntity
     public string AudioHash { get; set; } = string.Empty;
     public float? Latitude { get; set; }
     public float? Longitude { get; set; }
-    public string? ResponsePath { get; set; }
-    public int? ResponseLength { get; set; }
-    public int? ResponseDuration { get; set; }
-    public int? ResponseProcessingTime { get; set; }
+    public string? Response { get; set; }
     public DateTime? ResponseCreated { get; set; }
+    public string? VoiceoverPath { get; set; }
+    public DateTime? VoiceoverCreated { get; set; }
+    public int? VoiceoverLength { get; set; }
+    public int? VoiceoverDuration { get; set; }
+    public string? Transcript { get; set; }
+    public DateTime? TranscriptCreated { get; set; }
 }
 
 //-- oliejournal.JournalEntries definition
@@ -37,10 +40,13 @@ public class JournalEntryEntity
 //  "AudioHash" varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
 //  "Latitude" float DEFAULT NULL,
 //  "Longitude" float DEFAULT NULL,
-//  "ResponsePath" varchar(320) DEFAULT NULL,
-//  "ResponseLength" int DEFAULT NULL,
-//  "ResponseDuration" int DEFAULT NULL,
-//  "ResponseProcessingTime" int DEFAULT NULL,
+//  "Response" text,
 //  "ResponseCreated" datetime DEFAULT NULL,
+//  "VoiceoverPath" varchar(320) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+//  "VoiceoverCreated" datetime DEFAULT NULL,
+//  "VoiceoverLength" int DEFAULT NULL,
+//  "VoiceoverDuration" int DEFAULT NULL,
+//  "Transcript" text,
+//  "TranscriptCreated" datetime DEFAULT NULL,
 //  PRIMARY KEY("Id")
 //);

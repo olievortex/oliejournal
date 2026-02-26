@@ -13,7 +13,7 @@ public class JournalEntryListModel
     public float? Latitude { get; init; }
     public float? Longitude { get; init; }
 
-    public static JournalEntryListModel FromEntity(JournalEntryListEntity entity)
+    public static JournalEntryListModel FromEntity(JournalEntryEntity entity)
     {
         return new JournalEntryListModel
         {
@@ -21,8 +21,8 @@ public class JournalEntryListModel
             UserId = entity.UserId,
             Created = entity.Created.AsUtc(),
             Transcript = entity.Transcript,
-            ResponsePath = entity.ResponsePath,
-            ResponseText = entity.ResponseText,
+            ResponsePath = entity.VoiceoverPath,
+            ResponseText = entity.Response,
             Latitude = entity.Latitude,
             Longitude = entity.Longitude,
         };

@@ -7,10 +7,10 @@ namespace oliejournal.lib.Processes.JournalProcess;
 public interface IJournalEntryChatbotUnit
 {
     Task<OlieChatbotResult> Chatbot(string userId, string message, string conversationId, CancellationToken ct);
-    Task CreateJournalChatbot(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct);
-    Task DeleteConversations(string userId, CancellationToken ct);
-    Task<ConversationEntity> GetConversation(string userId, CancellationToken ct);
-    Task<JournalTranscriptEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct);
+    Task CreateChatbotLog(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct);
+    Task DeleteAllConversations(string userId, CancellationToken ct);
+    Task DeleteOldConversations(string userId, CancellationToken ct);
+    Task<ChatbotConversationEntity> GetConversation(string userId, CancellationToken ct);
     Task EnsureOpenAiLimit(int limit, CancellationToken ct);
-    Task<bool> IsAlreadyChatbotted(int journalTranscriptId, CancellationToken ct);
+    Task UpdateEntry(string message, JournalEntryEntity entry, CancellationToken ct);
 }

@@ -8,8 +8,8 @@ public interface IOlieService
 {
     #region Blob
 
+    Task BlobDeleteFile(BlobContainerClient client, string fileName, CancellationToken ct);
     Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct);
-
     Task BlobUploadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct);
 
     #endregion
@@ -31,7 +31,6 @@ public interface IOlieService
     void FileCompressGzip(string sourceFile, string destinationFile);
     void FileCreateDirectory(string path);
     void FileDelete(string path);
-    void FileDeleteNoEx(string path);
     bool FileExists(string path);
     Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct);
 

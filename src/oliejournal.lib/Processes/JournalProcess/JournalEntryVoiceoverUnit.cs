@@ -2,7 +2,6 @@
 using oliejournal.data.Entities;
 using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
-using System.Diagnostics;
 
 namespace oliejournal.lib.Processes.JournalProcess;
 
@@ -13,10 +12,12 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
         return owr.GetOlieWavInfo(bytes);
     }
 
-    public async Task<JournalChatbotEntity> GetChatbotEntryOrThrow(int journalEntryId, CancellationToken ct)
+    public void DeleteLocalFile(JournalEntryEntity entry)
     {
-        return await repo.JournalChatbotGetByJournalEntryId(journalEntryId, ct) ??
-            throw new ApplicationException($"JournalChatbot for journalEntryId {journalEntryId} doesn't exist");
+        if (entry.VoiceoverPath == null) return;
+
+        var localPath = $"{config.GoldPath}/{entry.VoiceoverPath}";
+        os.FileDelete(localPath);
     }
 
     public async Task<string> SaveLocalFile(byte[] bytes, CancellationToken ct)
@@ -35,13 +36,12 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
         return blobMp4Path;
     }
 
-    public async Task UpdateEntry(string blobPath, int length, Stopwatch stopwatch, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)
+    public async Task UpdateEntry(string blobPath, int length, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)
     {
-        entry.ResponseCreated = DateTime.UtcNow;
-        entry.ResponseDuration = (int)wavInfo.Duration.TotalSeconds;
-        entry.ResponsePath = blobPath;
-        entry.ResponseProcessingTime = (int)stopwatch.Elapsed.TotalSeconds;
-        entry.ResponseLength = length;
+        entry.VoiceoverCreated = DateTime.UtcNow;
+        entry.VoiceoverDuration = (int)wavInfo.Duration.TotalSeconds;
+        entry.VoiceoverPath = blobPath;
+        entry.VoiceoverLength = length;
 
         await repo.JournalEntryUpdate(entry, ct);
     }

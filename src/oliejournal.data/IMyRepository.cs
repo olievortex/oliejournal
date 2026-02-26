@@ -5,19 +5,19 @@ namespace oliejournal.data;
 
 public interface IMyRepository
 {
-    #region Conversation
+    #region ChatbotConversations
 
-    Task ConversationCreate(ConversationEntity entity, CancellationToken ct);
-    Task<List<ConversationEntity>> ConversationGetActiveList(string userId, CancellationToken ct);
-    Task ConversationUpdate(ConversationEntity entity, CancellationToken ct);
+    Task ChatbotConversationCreate(ChatbotConversationEntity entity, CancellationToken ct);
+    Task ChatbotConversationDelete(string id, CancellationToken ct);
+    Task<List<ChatbotConversationEntity>> ChatbotConversationGetListByUser(string userId, CancellationToken ct);
+    Task ChatbotConversationUpdate(ChatbotConversationEntity entity, CancellationToken ct);
 
     #endregion
 
-    #region JournalChatbot
+    #region ChatbotLogs
 
-    Task JournalChatbotCreate(JournalChatbotEntity entity, CancellationToken ct);
-    Task<JournalChatbotEntity?> JournalChatbotGetByJournalEntryId(int journalEntryId, CancellationToken ct);
-    Task<JournalChatbotEntity?> JournalChatbotGetByJournalTranscriptFk(int journalTranscriptFk, CancellationToken ct);
+    Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct);
+    Task<ChatbotLogSummaryModel> ChatbotLogSummary(DateTime start, CancellationToken ct);
 
     #endregion
 
@@ -26,33 +26,17 @@ public interface IMyRepository
     Task JournalEntryCreate(JournalEntryEntity entity, CancellationToken ct);
     Task<JournalEntryEntity?> JournalEntryGet(int id, CancellationToken ct);
     Task<JournalEntryEntity?> JournalEntryGetByHash(string userId, string hash, CancellationToken ct);
+    Task<JournalEntryEntity?> JournalEntryGetByUserId(int journalEntryId, string userId, CancellationToken ct);
+    Task<List<JournalEntryEntity>> JournalEntryGetListByUserId(string userId, CancellationToken ct);
     Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct);
+    Task JournalEntryDelete(int id, CancellationToken ct);
 
     #endregion
 
-    #region JournalEntryList
+    #region TranscriptLogs
 
-    Task<JournalEntryListEntity?> JournalEntryListGetByUserId(int journalEntryId, string userId, CancellationToken ct);
-    Task<List<JournalEntryListEntity>> JournalEntryListGetByUserId(string userId, CancellationToken ct);
-
-    #endregion
-
-    #region JournalTranscript
-
-    Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct);
-    Task<JournalTranscriptEntity?> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct);
-
-    #endregion
-
-    #region Google
-
-    Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct);
-
-    #endregion
-
-    #region OpenAi
-
-    Task<OpenAiCostSummaryModel> OpenApiGetChatbotSummary(DateTime start, CancellationToken ct);
+    Task TranscriptLogCreate(TranscriptLogEntity entity, CancellationToken ct);
+    Task<int> TranscriptLogSummary(DateTime start, CancellationToken ct);
 
     #endregion
 }

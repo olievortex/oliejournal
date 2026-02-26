@@ -4,7 +4,6 @@ using oliejournal.data.Entities;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using oliejournal.lib.Services.Models;
-using System.Diagnostics;
 
 namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
@@ -43,35 +42,37 @@ public class JournalEntryVoiceoverUnitTests
 
     #endregion
 
-    #region GetChatbotEntryOrThrow
+    #region DeleteLocalFile
 
     [Test]
-    public async Task GetChatbotEntryOrThrow_ReturnsValue_WhenFound()
+    public void DeleteLocalFile_DeletesFile_WhenResponsePathNotNull()
     {
         // Arrange
-        const int journalEntryId = 42;
-        var entity = new JournalChatbotEntity();
-        var (unit, _, _, repo, _) = CreateUnit();
-        repo.Setup(s => s.JournalChatbotGetByJournalEntryId(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(entity);
+        const string responsePath = "Pastromi";
+        var entry = new JournalEntryEntity { VoiceoverPath = responsePath };
+        var (unit, _, os, _, config) = CreateUnit();
+        config.SetupGet(g => g.GoldPath).Returns("Gold");
+        var expectedLocalPath = $"Gold/{responsePath}";
 
         // Act
-        var result = await unit.GetChatbotEntryOrThrow(journalEntryId, CancellationToken.None);
+        unit.DeleteLocalFile(entry);
 
         // Assert
-        Assert.That(result, Is.EqualTo(entity));
+        os.Verify(s => s.FileDeleteNoEx(expectedLocalPath), Times.Once);
     }
 
     [Test]
-    public async Task GetChatbotEntryOrThrow_ThrowsException_NotFound()
+    public void DeleteLocalFile_DoesNotDeleteFile_WhenResponsePathNull()
     {
         // Arrange
-        const int journalEntryId = 42;
-        var (unit, _, _, _, _) = CreateUnit();
+        var entry = new JournalEntryEntity { VoiceoverPath = null };
+        var (unit, _, os, _, _) = CreateUnit();
 
-        // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(async () => await unit.GetChatbotEntryOrThrow(journalEntryId, CancellationToken.None));
+        // Act
+        unit.DeleteLocalFile(entry);
 
+        // Assert
+        os.Verify(s => s.FileDelete(It.IsAny<string>()), Times.Never);
     }
 
     #endregion
@@ -102,22 +103,20 @@ public class JournalEntryVoiceoverUnitTests
         // Arrange
         var entry = new JournalEntryEntity();
         var wavInfo = new OlieWavInfo { Duration = TimeSpan.FromSeconds(1024) };
-        var stopwatch = Stopwatch.StartNew();
         const int length = 42;
         const string blobName = "Pastromi";
         var (unit, _, _, _, _) = CreateUnit();
 
         // Act
-        await unit.UpdateEntry(blobName, length, stopwatch, wavInfo, entry, CancellationToken.None);
+        await unit.UpdateEntry(blobName, length, wavInfo, entry, CancellationToken.None);
 
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(entry.ResponseCreated, Is.Not.Null);
-            Assert.That(entry.ResponseDuration, Is.EqualTo(1024));
-            Assert.That(entry.ResponsePath, Is.EqualTo(blobName));
-            Assert.That(entry.ResponseProcessingTime, Is.Not.Null);
-            Assert.That(entry.ResponseLength, Is.EqualTo(length));
+            Assert.That(entry.VoiceoverCreated, Is.Not.Null);
+            Assert.That(entry.VoiceoverDuration, Is.EqualTo(1024));
+            Assert.That(entry.VoiceoverPath, Is.EqualTo(blobName));
+            Assert.That(entry.VoiceoverLength, Is.EqualTo(length));
         }
     }
 

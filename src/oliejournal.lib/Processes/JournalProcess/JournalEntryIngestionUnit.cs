@@ -54,6 +54,11 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         await os.ServiceBusSendJson(sender, message, ct);
     }
 
+    public async Task DeleteVoice(JournalEntryEntity entry, BlobContainerClient client, CancellationToken ct)
+    {
+        await os.BlobDeleteFile(client, entry.AudioPath, ct);
+    }
+
     public OlieWavInfo EnsureAudioValidates(byte[] file)
     {
         if (file.Length == 0) throw new ApplicationException("WAV file empty");
@@ -77,6 +82,27 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
     public async Task<JournalEntryEntity?> GetDuplicateEntry(string userId, string hash, CancellationToken ct)
     {
         return await repo.JournalEntryGetByHash(userId, hash, ct);
+    }
+
+    public async Task<JournalEntryEntity> GetJournalEntryOrThrow(int journalEntryId, CancellationToken ct)
+    {
+        return await repo.JournalEntryGet(journalEntryId, ct) ??
+            throw new ApplicationException($"JournalEntry with {journalEntryId} doesn't exist");
+    }
+
+    public async Task<JournalEntryEntity?> GetJournalEntry(int journalEntryId, string userId, CancellationToken ct)
+    {
+        return await repo.JournalEntryGetByUserId(journalEntryId, userId, ct);
+    }
+
+    public async Task<List<JournalEntryEntity>> GetJournalEntryList(string userId, CancellationToken ct)
+    {
+        return await repo.JournalEntryGetListByUserId(userId, ct);
+    }
+
+    public async Task DeleteJournalEntry(int journalEntryId, CancellationToken ct)
+    {
+        await repo.JournalEntryDelete(journalEntryId, ct);
     }
 
     public async Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct)

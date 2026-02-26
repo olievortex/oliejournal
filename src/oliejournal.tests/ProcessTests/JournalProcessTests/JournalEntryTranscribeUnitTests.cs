@@ -40,57 +40,52 @@ public class JournalEntryTranscribeUnitTests
 
     #endregion
 
-    #region CreateJournalTranscript
+    #region CreateTranscriptLog
 
     [Test]
-    public async Task CreateJournalTranscript_TrimsLongFields_And_CallsRepo()
+    public async Task CreateTranscriptLog_TrimsLongFields_And_CallsRepo()
     {
         // Arrange
-        JournalTranscriptEntity? captured = null;
+        const string exceptionMessage = "boom!";
+        TranscriptLogEntity? captured = null;
         var (unit, _, os, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptCreate(It.IsAny<JournalTranscriptEntity>(), It.IsAny<CancellationToken>()))
-             .Callback<JournalTranscriptEntity, CancellationToken>((ent, ct) => { ent.Id = 123; captured = ent; })
+        repo.Setup(r => r.TranscriptLogCreate(It.IsAny<TranscriptLogEntity>(), It.IsAny<CancellationToken>()))
+             .Callback<TranscriptLogEntity, CancellationToken>((ent, ct) => { ent.Id = 123; captured = ent; })
              .Returns(Task.CompletedTask);
-
-        var longTranscript = new string('a', 9000);
-        var longException = new Exception("boom");
 
         var result = new OlieTranscribeResult
         {
-            Transcript = longTranscript,
             Cost = 42,
-            Exception = longException,
+            Exception = new ApplicationException(exceptionMessage),
             ServiceId = 7
         };
 
         var sw = Stopwatch.StartNew();
 
         // Act
-        await unit.CreateJournalTranscript(123, result, sw, CancellationToken.None);
+        await unit.CreateTranscriptLog(123, result, sw, CancellationToken.None);
 
         // Assert
         Assert.That(captured, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(captured.Id, Is.EqualTo(123));
-            Assert.That(captured.JournalEntryFk, Is.EqualTo(123));
-            Assert.That(captured.ServiceFk, Is.EqualTo(7));
+            Assert.That(captured.ServiceId, Is.EqualTo(7));
             Assert.That(captured.Cost, Is.EqualTo(42));
             Assert.That(captured.ProcessingTime, Is.InRange(0, int.MaxValue));
-            Assert.That(captured.Transcript!, Has.Length.EqualTo(8096));
-            Assert.That(captured.Exception, Is.Not.Null);
+            Assert.That(captured.Exception, Contains.Substring(exceptionMessage));
             Assert.That(captured.Created, Is.Not.EqualTo(DateTime.MinValue));
         }
     }
 
     [Test]
-    public async Task CreateJournalTranscript_NoException_Nulls()
+    public async Task CreateTranscriptLog_NoException_Nulls()
     {
         // Arrange
-        JournalTranscriptEntity? captured = null;
+        TranscriptLogEntity? captured = null;
         var (unit, _, os, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptCreate(It.IsAny<JournalTranscriptEntity>(), It.IsAny<CancellationToken>()))
-             .Callback<JournalTranscriptEntity, CancellationToken>((ent, ct) => captured = ent)
+        repo.Setup(r => r.TranscriptLogCreate(It.IsAny<TranscriptLogEntity>(), It.IsAny<CancellationToken>()))
+             .Callback<TranscriptLogEntity, CancellationToken>((ent, ct) => captured = ent)
              .Returns(Task.CompletedTask);
 
         var result = new OlieTranscribeResult
@@ -102,17 +97,15 @@ public class JournalEntryTranscribeUnitTests
         var sw = Stopwatch.StartNew();
 
         // Act
-        await unit.CreateJournalTranscript(123, result, sw, CancellationToken.None);
+        await unit.CreateTranscriptLog(123, result, sw, CancellationToken.None);
 
         // Assert
         Assert.That(captured, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(captured.JournalEntryFk, Is.EqualTo(123));
-            Assert.That(captured.ServiceFk, Is.EqualTo(7));
+            Assert.That(captured.ServiceId, Is.EqualTo(7));
             Assert.That(captured.Cost, Is.EqualTo(42));
             Assert.That(captured.ProcessingTime, Is.InRange(0, int.MaxValue));
-            Assert.That(captured.Transcript, Is.Null);
             Assert.That(captured.Exception, Is.Null);
             Assert.That(captured.Created, Is.Not.EqualTo(DateTime.MinValue));
         }
@@ -169,7 +162,7 @@ public class JournalEntryTranscribeUnitTests
     {
         // Arrange
         var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.GoogleGetSpeech2TextSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.TranscriptLogSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(1000); // under free 3600
 
         // Act
@@ -186,76 +179,11 @@ public class JournalEntryTranscribeUnitTests
         var (unit, _, _, repo) = CreateUnit();
 
         // choose billing so (billing - 3600) * (0.016/60) > limit=1
-        repo.Setup(r => r.GoogleGetSpeech2TextSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.TranscriptLogSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(7360);
 
         // Act, Assert
         Assert.ThrowsAsync<ApplicationException>(() => unit.EnsureGoogleLimit(1, CancellationToken.None));
-    }
-
-    #endregion
-
-    #region GetJournalEntryOrThrow
-
-    [Test]
-    public async Task GetJournalEntryOrThrow_WhenExists_ReturnsEntity()
-    {
-        // Arrange
-        var (unit, _, _, repo) = CreateUnit();
-
-        var ent = new JournalEntryEntity { Id = 5, AudioPath = "p" };
-        repo.Setup(r => r.JournalEntryGet(5, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
-
-        // Act
-        var result = await unit.GetJournalEntryOrThrow(5, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(ent));
-    }
-
-    [Test]
-    public async Task GetJournalEntryOrThrow_WhenNotExists_Throws()
-    {
-        // Arrange
-        var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.JournalEntryGet(6, It.IsAny<CancellationToken>())).ReturnsAsync((JournalEntryEntity?)null);
-
-        // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(() => unit.GetJournalEntryOrThrow(6, CancellationToken.None));
-    }
-
-    #endregion
-
-    #region IsAlreadyTranscribed
-
-    [Test]
-    public async Task IsAlreadyTranscribed_ReturnsTrueWhenTranscriptExists()
-    {
-        // Arrange
-        var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptGetByJournalEntryFk(10, It.IsAny<CancellationToken>()))
-             .ReturnsAsync(new JournalTranscriptEntity());
-
-        // Act
-        var result = await unit.IsAlreadyTranscribed(10, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.True);
-    }
-
-    [Test]
-    public async Task IsAlreadyTranscribed_ReturnsFalseWhenNoTranscript()
-    {
-        // Arrange
-        var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptGetByJournalEntryFk(11, It.IsAny<CancellationToken>()))
-             .ReturnsAsync((JournalTranscriptEntity?)null);
-
-        // Act
-        var result = await unit.IsAlreadyTranscribed(11, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.False);
     }
 
     #endregion
@@ -283,6 +211,29 @@ public class JournalEntryTranscribeUnitTests
         Assert.That(result, Is.EqualTo(expected));
         owr.Verify(x => x.GetOlieWavInfo(localFile), Times.Once);
         os.Verify(x => x.GoogleTranscribeWavNoEx(localFile, info, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    #endregion
+
+    #region UpdateEntry
+
+    [Test]
+    public async Task UpdateEntry_CallsRepo_VaidEntry()
+    {
+        // Arrange
+        const string transcript = "Dill pickle";
+        var (unit, _, _, repo) = CreateUnit();
+        var entry = new JournalEntryEntity { Id = 123 };
+
+        // Act
+        await unit.UpdateEntry(transcript, entry, CancellationToken.None);
+
+        // Assert
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entry.Transcript, Is.EqualTo(transcript));
+            Assert.That(entry.TranscriptCreated, Is.Not.Null);
+        }
     }
 
     #endregion

@@ -109,6 +109,43 @@ public class JournalEntryIngestionUnitTests
 
     #endregion
 
+    #region DeleteJournalEntry
+
+    [Test]
+    public async Task DeleteJournalEntry_DeletesEntity_WhenValid()
+    {
+        // Arrange
+        const int journalEntryId = 88;
+        var (unit, _, _, repo) = CreateUnit();
+
+        // Act
+        await unit.DeleteJournalEntry(journalEntryId, CancellationToken.None);
+
+        // Assert
+        repo.Verify(r => r.JournalEntryDelete(journalEntryId, CancellationToken.None), Times.Once);
+    }
+
+    #endregion
+
+    #region DeleteVoice
+
+    [Test]
+    public async Task DeleteVoice_DeletesEntity_WhenExists()
+    {
+        // Arrange
+        const string path = "some/path/audio.wav";
+        var (unit, _, os, _) = CreateUnit();
+        var entity = new JournalEntryEntity { AudioPath = path };
+
+        // Act
+        await unit.DeleteVoice(entity, null!, CancellationToken.None);
+
+        // Assert
+        os.Verify(s => s.BlobDeleteFile(null!, path, CancellationToken.None), Times.Once);
+    }
+
+    #endregion
+
     #region EnsureAudioValidates
 
     [Test]
@@ -263,6 +300,79 @@ public class JournalEntryIngestionUnitTests
 
         // Assert
         Assert.That(result, Is.EqualTo(duplicate));
+    }
+
+    #endregion
+
+    #region GetJournalEntryOrThrow
+
+    [Test]
+    public async Task GetJournalEntryOrThrow_WhenExists_ReturnsEntity()
+    {
+        // Arrange
+        var (unit, _, _, repo) = CreateUnit();
+
+        var ent = new JournalEntryEntity { Id = 5, AudioPath = "p" };
+        repo.Setup(r => r.JournalEntryGet(5, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
+
+        // Act
+        var result = await unit.GetJournalEntryOrThrow(5, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ent));
+    }
+
+    [Test]
+    public async Task GetJournalEntryOrThrow_WhenNotExists_Throws()
+    {
+        // Arrange
+        var (unit, _, _, repo) = CreateUnit();
+        repo.Setup(r => r.JournalEntryGet(6, It.IsAny<CancellationToken>())).ReturnsAsync((JournalEntryEntity?)null);
+
+        // Act, Assert
+        Assert.ThrowsAsync<ApplicationException>(() => unit.GetJournalEntryOrThrow(6, CancellationToken.None));
+    }
+
+    #endregion
+
+    #region GetJournalEntry
+
+    [Test]
+    public async Task GetJournalEntry_ReturnsEntity_WhenExists()
+    {
+        // Arrange
+        const int journalEntryId = 5;
+        const string userId = "user-1";
+        var (unit, _, _, repo) = CreateUnit();
+
+        var ent = new JournalEntryEntity();
+        repo.Setup(r => r.JournalEntryGetByUserId(journalEntryId, userId, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
+
+        // Act
+        var result = await unit.GetJournalEntry(journalEntryId, userId, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ent));
+    }
+
+    #endregion
+
+    #region GetJournalEntryList
+
+    [Test]
+    public async Task GetJournalEntryList_ReturnsList_WhenExists()
+    {
+        // Arrange
+        const string userId = "destiny";
+        var (unit, _, _, repo) = CreateUnit();
+        var ent = new List<JournalEntryEntity> { new(), new() };
+        repo.Setup(r => r.JournalEntryGetListByUserId(userId, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
+
+        // Act
+        var result = await unit.GetJournalEntryList(userId, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(2));
     }
 
     #endregion

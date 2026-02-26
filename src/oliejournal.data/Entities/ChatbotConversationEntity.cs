@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace oliejournal.data.Entities;
 
-public class ConversationEntity
+public class ChatbotConversationEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -12,16 +12,14 @@ public class ConversationEntity
     public string UserId { get; set; } = string.Empty;
     public DateTime Created { get; set; }
     public DateTime Timestamp { get; set; }
-    public DateTime? Deleted { get; set; }
 }
 
-//-- oliejournal.Conversations definition
+//-- oliejournal.ChatbotConversations definition
 
-//CREATE TABLE "Conversations" (
+//CREATE TABLE "ChatbotConversations" (
 //  "Id" varchar(100) NOT NULL,
 //  "UserId" varchar(100) NOT NULL,
 //  "Created" datetime NOT NULL,
 //  "Timestamp" datetime NOT NULL,
-//  "Deleted" datetime DEFAULT NULL,
 //  PRIMARY KEY("Id")
 //);
