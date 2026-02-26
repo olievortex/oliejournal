@@ -16,7 +16,7 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
 
     public async Task CreateJournalTranscript(int journalEntryId, OlieTranscribeResult result, Stopwatch stopwatch, CancellationToken ct)
     {
-        var entity = new JournalTranscriptEntity
+        var entity = new TranscriptLogEntity
         {
             JournalEntryFk = journalEntryId,
             ServiceFk = result.ServiceId,
@@ -28,7 +28,7 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
             Created = DateTime.UtcNow,
         };
 
-        await repo.JournalTranscriptCreate(entity, ct);
+        await repo.TranscriptLogCreate(entity, ct);
     }
 
     public async Task DeleteJournalEntry(int journalEntryId, CancellationToken ct)
@@ -51,7 +51,7 @@ public class JournalEntryTranscribeUnit(IOlieWavReader owr, IOlieService os, IMy
         const double rate = 0.016 / 60; // V1 API w/ data logging
 
         var lookback = DateTime.UtcNow.AddMonths(-1);
-        var billing = await repo.GoogleGetSpeech2TextSummary(lookback, ct);
+        var billing = await repo.TranscriptLogSummary(lookback, ct);
 
         if (billing < free) return;
 

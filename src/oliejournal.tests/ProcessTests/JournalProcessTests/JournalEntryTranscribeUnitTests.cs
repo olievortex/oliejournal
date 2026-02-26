@@ -46,10 +46,10 @@ public class JournalEntryTranscribeUnitTests
     public async Task CreateJournalTranscript_TrimsLongFields_And_CallsRepo()
     {
         // Arrange
-        JournalTranscriptEntity? captured = null;
+        TranscriptLogEntity? captured = null;
         var (unit, _, os, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptCreate(It.IsAny<JournalTranscriptEntity>(), It.IsAny<CancellationToken>()))
-             .Callback<JournalTranscriptEntity, CancellationToken>((ent, ct) => { ent.Id = 123; captured = ent; })
+        repo.Setup(r => r.TranscriptLogCreate(It.IsAny<TranscriptLogEntity>(), It.IsAny<CancellationToken>()))
+             .Callback<TranscriptLogEntity, CancellationToken>((ent, ct) => { ent.Id = 123; captured = ent; })
              .Returns(Task.CompletedTask);
 
         var longTranscript = new string('a', 9000);
@@ -87,10 +87,10 @@ public class JournalEntryTranscribeUnitTests
     public async Task CreateJournalTranscript_NoException_Nulls()
     {
         // Arrange
-        JournalTranscriptEntity? captured = null;
+        TranscriptLogEntity? captured = null;
         var (unit, _, os, repo) = CreateUnit();
-        repo.Setup(r => r.JournalTranscriptCreate(It.IsAny<JournalTranscriptEntity>(), It.IsAny<CancellationToken>()))
-             .Callback<JournalTranscriptEntity, CancellationToken>((ent, ct) => captured = ent)
+        repo.Setup(r => r.TranscriptLogCreate(It.IsAny<TranscriptLogEntity>(), It.IsAny<CancellationToken>()))
+             .Callback<TranscriptLogEntity, CancellationToken>((ent, ct) => captured = ent)
              .Returns(Task.CompletedTask);
 
         var result = new OlieTranscribeResult
@@ -169,7 +169,7 @@ public class JournalEntryTranscribeUnitTests
     {
         // Arrange
         var (unit, _, _, repo) = CreateUnit();
-        repo.Setup(r => r.GoogleGetSpeech2TextSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.TranscriptLogSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(1000); // under free 3600
 
         // Act
@@ -186,7 +186,7 @@ public class JournalEntryTranscribeUnitTests
         var (unit, _, _, repo) = CreateUnit();
 
         // choose billing so (billing - 3600) * (0.016/60) > limit=1
-        repo.Setup(r => r.GoogleGetSpeech2TextSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.TranscriptLogSummary(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(7360);
 
         // Act, Assert
@@ -234,7 +234,7 @@ public class JournalEntryTranscribeUnitTests
         // Arrange
         var (unit, _, _, repo) = CreateUnit();
         repo.Setup(r => r.JournalTranscriptGetActiveByJournalEntryFk(10, It.IsAny<CancellationToken>()))
-             .ReturnsAsync(new JournalTranscriptEntity());
+             .ReturnsAsync(new TranscriptLogEntity());
 
         // Act
         var result = await unit.IsAlreadyTranscribed(10, CancellationToken.None);
@@ -249,7 +249,7 @@ public class JournalEntryTranscribeUnitTests
         // Arrange
         var (unit, _, _, repo) = CreateUnit();
         repo.Setup(r => r.JournalTranscriptGetActiveByJournalEntryFk(11, It.IsAny<CancellationToken>()))
-             .ReturnsAsync((JournalTranscriptEntity?)null);
+             .ReturnsAsync((TranscriptLogEntity?)null);
 
         // Act
         var result = await unit.IsAlreadyTranscribed(11, CancellationToken.None);

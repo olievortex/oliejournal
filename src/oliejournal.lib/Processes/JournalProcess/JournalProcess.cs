@@ -17,7 +17,7 @@ public class JournalProcess(
     public async Task Voiceover(int journalEntryId, CancellationToken ct)
     {
         var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
-        if (entry.ResponsePath != null) return;
+        if (entry.VoiceoverPath != null) return;
         if (entry.Response is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
 
         var file = await voiceover.VoiceOver(entry.Response, ct);

@@ -11,8 +11,8 @@ public interface IJournalEntryChatbotUnit
     Task DeleteConversations(string userId, CancellationToken ct);
     Task DeleteJournalTranscript(int id, CancellationToken ct);
     Task<ChatbotConversationEntity> GetConversation(string userId, CancellationToken ct);
-    Task<JournalTranscriptEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct);
-    Task<List<JournalTranscriptEntity>> GetJournalTranscripts(int journalEntryId, CancellationToken ct);
+    Task<TranscriptLogEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct);
+    Task<List<TranscriptLogEntity>> GetJournalTranscripts(int journalEntryId, CancellationToken ct);
     Task EnsureOpenAiLimit(int limit, CancellationToken ct);
     Task UpdateEntry(string message, JournalEntryEntity entry, CancellationToken ct);
 }

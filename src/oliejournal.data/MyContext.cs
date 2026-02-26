@@ -11,5 +11,5 @@ public class MyContext(DbContextOptions<MyContext> options) : DbContext(options)
     public virtual DbSet<ChatbotLogEntity> ChatbotLogs { get; set; }
     public virtual DbSet<JournalEntryEntity> JournalEntries { get; set; }
     public virtual DbSet<JournalEntryListEntity> JournalEntryList { get; set; }
-    public virtual DbSet<JournalTranscriptEntity> JournalTranscripts { get; set; }
+    public virtual DbSet<TranscriptLogEntity> TranscriptLogs { get; set; }
 }

@@ -14,9 +14,9 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
 
     public void DeleteLocalFile(JournalEntryEntity entry)
     {
-        if (entry.ResponsePath == null) return;
+        if (entry.VoiceoverPath == null) return;
 
-        var localPath = $"{config.GoldPath}/{entry.ResponsePath}";
+        var localPath = $"{config.GoldPath}/{entry.VoiceoverPath}";
         os.FileDelete(localPath);
     }
 
@@ -39,9 +39,9 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
     public async Task UpdateEntry(string blobPath, int length, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)
     {
         entry.ResponseCreated = DateTime.UtcNow;
-        entry.ResponseDuration = (int)wavInfo.Duration.TotalSeconds;
-        entry.ResponsePath = blobPath;
-        entry.ResponseLength = length;
+        entry.VoiceoverDuration = (int)wavInfo.Duration.TotalSeconds;
+        entry.VoiceoverPath = blobPath;
+        entry.VoiceoverLength = length;
 
         await repo.JournalEntryUpdate(entry, ct);
     }

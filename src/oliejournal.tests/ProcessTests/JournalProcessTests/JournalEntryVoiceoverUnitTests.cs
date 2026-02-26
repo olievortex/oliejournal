@@ -49,7 +49,7 @@ public class JournalEntryVoiceoverUnitTests
     {
         // Arrange
         const string responsePath = "Pastromi";
-        var entry = new JournalEntryEntity { ResponsePath = responsePath };
+        var entry = new JournalEntryEntity { VoiceoverPath = responsePath };
         var (unit, _, os, _, config) = CreateUnit();
         config.SetupGet(g => g.GoldPath).Returns("Gold");
         var expectedLocalPath = $"Gold/{responsePath}";
@@ -65,7 +65,7 @@ public class JournalEntryVoiceoverUnitTests
     public void DeleteLocalFile_DoesNotDeleteFile_WhenResponsePathNull()
     {
         // Arrange
-        var entry = new JournalEntryEntity { ResponsePath = null };
+        var entry = new JournalEntryEntity { VoiceoverPath = null };
         var (unit, _, os, _, _) = CreateUnit();
 
         // Act
@@ -114,9 +114,9 @@ public class JournalEntryVoiceoverUnitTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(entry.ResponseCreated, Is.Not.Null);
-            Assert.That(entry.ResponseDuration, Is.EqualTo(1024));
-            Assert.That(entry.ResponsePath, Is.EqualTo(blobName));
-            Assert.That(entry.ResponseLength, Is.EqualTo(length));
+            Assert.That(entry.VoiceoverDuration, Is.EqualTo(1024));
+            Assert.That(entry.VoiceoverPath, Is.EqualTo(blobName));
+            Assert.That(entry.VoiceoverLength, Is.EqualTo(length));
         }
     }
 

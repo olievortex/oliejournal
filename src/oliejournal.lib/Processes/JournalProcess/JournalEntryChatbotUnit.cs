@@ -72,13 +72,13 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         return entity;
     }
 
-    public async Task<JournalTranscriptEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct)
+    public async Task<TranscriptLogEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct)
     {
         return await repo.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, ct) ??
             throw new ApplicationException($"JournalTranscript for {journalEntryId} doesn't exist");
     }
 
-    public async Task<List<JournalTranscriptEntity>> GetJournalTranscripts(int journalEntryId, CancellationToken ct)
+    public async Task<List<TranscriptLogEntity>> GetJournalTranscripts(int journalEntryId, CancellationToken ct)
     {
         return await repo.JournalTranscriptGetByJournalEntryFk(journalEntryId, ct);
     }

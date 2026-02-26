@@ -38,18 +38,10 @@ public interface IMyRepository
 
     #endregion
 
-    #region JournalTranscript
+    #region TranscriptLogs
 
-    Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct);
-    Task<JournalTranscriptEntity?> JournalTranscriptGetActiveByJournalEntryFk(int journalEntryFk, CancellationToken ct);
-    Task<List<JournalTranscriptEntity>> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct);
-    Task JournalTranscriptDelete(int id, CancellationToken ct);
-
-    #endregion
-
-    #region Google
-
-    Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct);
+    Task TranscriptLogCreate(TranscriptLogEntity entity, CancellationToken ct);
+    Task<int> TranscriptLogSummary(DateTime start, CancellationToken ct);
 
     #endregion
 }

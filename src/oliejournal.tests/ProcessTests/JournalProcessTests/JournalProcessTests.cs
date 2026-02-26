@@ -27,7 +27,7 @@ public class JournalProcessTests
         const int journalEntryId = 42;
         var (unit, _, transcribe, _, voiceover) = CreateUnit();
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalEntryEntity { ResponsePath = "Dillon" });
+            .ReturnsAsync(new JournalEntryEntity { VoiceoverPath = "Dillon" });
 
         // Act
         await unit.Voiceover(journalEntryId, CancellationToken.None);
@@ -93,7 +93,7 @@ public class JournalProcessTests
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Response = response });
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId });
+            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId });
 
         // Act
         await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
@@ -112,7 +112,7 @@ public class JournalProcessTests
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId });
+            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId });
 
         // Act
         await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
@@ -134,7 +134,7 @@ public class JournalProcessTests
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { UserId = userId });
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId, Transcript = message });
+            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
             .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
@@ -157,7 +157,7 @@ public class JournalProcessTests
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { UserId = userId });
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId, Transcript = message });
+            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
             .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
@@ -181,7 +181,7 @@ public class JournalProcessTests
         transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { UserId = userId });
         chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalTranscriptEntity { Id = transcriptId, Transcript = message });
+            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
             .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))

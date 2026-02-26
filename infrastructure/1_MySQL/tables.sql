@@ -8,6 +8,19 @@ CREATE TABLE "ChatbotConversations" (
   PRIMARY KEY ("Id")
 );
 
+CREATE TABLE "ChatbotLogs" (
+  "Id" int NOT NULL AUTO_INCREMENT,
+  "ConversationId" varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  "ServiceId" int NOT NULL,
+  "Created" datetime NOT NULL,
+  "ProcessingTime" int NOT NULL,
+  "InputTokens" int NOT NULL,
+  "OutputTokens" int NOT NULL,
+  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  "ResponseId" varchar(100) DEFAULT NULL,
+  PRIMARY KEY ("Id")
+);
+
 CREATE TABLE "JournalEntries" (
   "Id" int NOT NULL AUTO_INCREMENT,
   "UserId" varchar(100) NOT NULL,
@@ -23,36 +36,22 @@ CREATE TABLE "JournalEntries" (
   "Longitude" float DEFAULT NULL,
   "Response" text,
   "ResponseCreated" datetime DEFAULT NULL,
-  "ResponsePath" varchar(320) DEFAULT NULL,
-  "ResponseLength" int DEFAULT NULL,
-  "ResponseDuration" int DEFAULT NULL,
+  "VoiceoverPath" varchar(320) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  "VoiceoverCreated" datetime DEFAULT NULL,
+  "VoiceoverLength" int DEFAULT NULL,
+  "VoiceoverDuration" int DEFAULT NULL,
+  "Transcript" text,
+  "TranscriptCreated" datetime DEFAULT NULL,
   PRIMARY KEY ("Id")
 );
 
-CREATE TABLE "JournalTranscripts" (
+CREATE TABLE "TranscriptLogs" (
   "Id" int NOT NULL AUTO_INCREMENT,
-  "JournalEntryFk" int NOT NULL,
-  "Created" datetime NOT NULL,
-  "Transcript" varchar(8096) DEFAULT NULL,
-  "ProcessingTime" int NOT NULL,
-  "Cost" int NOT NULL,
-  "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  "ServiceFk" int NOT NULL,
-  PRIMARY KEY ("Id"),
-  KEY "JournalTranscripts_JournalEntries_FK" ("JournalEntryFk"),
-  CONSTRAINT "JournalTranscripts_JournalEntries_FK" FOREIGN KEY ("JournalEntryFk") REFERENCES "JournalEntries" ("Id")
-);
-
-CREATE TABLE "ChatbotLogs" (
-  "Id" int NOT NULL AUTO_INCREMENT,
-  "ConversationId" varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   "ServiceId" int NOT NULL,
   "Created" datetime NOT NULL,
   "ProcessingTime" int NOT NULL,
-  "InputTokens" int NOT NULL,
-  "OutputTokens" int NOT NULL,
+  "Cost" int NOT NULL,
   "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  "ResponseId" varchar(100) DEFAULT NULL,
   PRIMARY KEY ("Id")
 );
 

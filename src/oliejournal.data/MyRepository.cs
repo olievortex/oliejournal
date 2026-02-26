@@ -124,45 +124,17 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #endregion
 
-    #region JournalTranscript
+    #region TranscriptLogs
 
-    public async Task JournalTranscriptCreate(JournalTranscriptEntity entity, CancellationToken ct)
+    public async Task TranscriptLogCreate(TranscriptLogEntity entity, CancellationToken ct)
     {
-        await context.JournalTranscripts.AddAsync(entity, ct);
+        await context.TranscriptLogs.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task<JournalTranscriptEntity?> JournalTranscriptGetActiveByJournalEntryFk(int journalEntryFk, CancellationToken ct)
+    public async Task<int> TranscriptLogSummary(DateTime start, CancellationToken ct)
     {
-        return await context.JournalTranscripts
-            .Where(w => w.JournalEntryFk == journalEntryFk && w.Transcript != null)
-            .SingleOrDefaultAsync(ct);
-    }
-
-    public async Task<List<JournalTranscriptEntity>> JournalTranscriptGetByJournalEntryFk(int journalEntryFk, CancellationToken ct)
-    {
-        return await context.JournalTranscripts
-            .Where(w => w.JournalEntryFk == journalEntryFk)
-            .ToListAsync(ct);
-    }
-
-    public async Task JournalTranscriptDelete(int id, CancellationToken ct)
-    {
-        var entity = await context.JournalTranscripts.FindAsync([id], ct);
-        if (entity is not null)
-        {
-            context.JournalTranscripts.Remove(entity);
-            await context.SaveChangesAsync(ct);
-        }
-    }
-
-    #endregion
-
-    #region Google
-
-    public async Task<int> GoogleGetSpeech2TextSummary(DateTime start, CancellationToken ct)
-    {
-        return await context.JournalTranscripts
+        return await context.TranscriptLogs
             .Where(w => w.Created >= start)
             .SumAsync(c => c.Cost, ct);
     }
