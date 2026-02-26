@@ -46,6 +46,7 @@ public class JournalEntryChatbotUnitTests
     public async Task ChatbotLogCreate_CreatesRecord_WhenValid()
     {
         // Arrange
+        const string exceptionMessage = "Bang!";
         ChatbotLogEntity? entity = null;
         const int journalTranscriptId = 123;
         var stopwatch = Stopwatch.StartNew();
@@ -55,7 +56,7 @@ public class JournalEntryChatbotUnitTests
             ServiceId = 234,
             InputTokens = 345,
             OutputTokens = 456,
-            Exception = new ApplicationException(new string('b', 9000)),
+            Exception = new ApplicationException(exceptionMessage),
             ResponseId = "b"
         };
         var (unit, repo, _, _) = CreateUnit();
@@ -75,8 +76,7 @@ public class JournalEntryChatbotUnitTests
             Assert.That(entity.ProcessingTime, Is.InRange(0, 5));
             Assert.That(entity.InputTokens, Is.EqualTo(345));
             Assert.That(entity.OutputTokens, Is.EqualTo(456));
-            Assert.That(entity.Exception, Has.Length.EqualTo(8096));
-            Assert.That(entity.Exception, Contains.Substring("bbbb"));
+            Assert.That(entity.Exception, Contains.Substring(exceptionMessage));
             Assert.That(entity.Created, Is.Not.EqualTo(DateTime.MinValue));
             Assert.That(entity.ResponseId, Is.EqualTo("b"));
             Assert.That(entity.ServiceId, Is.EqualTo(234));
@@ -219,38 +219,6 @@ public class JournalEntryChatbotUnitTests
 
     #endregion
 
-    #region GetJournalTranscriptOrThrow
-
-    [Test]
-    public async Task GetJournalTranscriptOrThrow_Throws_NoTranscript()
-    {
-        // Arrange
-        const int journalEntryId = 12;
-        var (unit, _, _, _) = CreateUnit();
-
-        // Act, Assert
-        Assert.ThrowsAsync<ApplicationException>(async () => await unit.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None));
-    }
-
-    [Test]
-    public async Task GetJournalTranscriptOrThrow_ReturnsTranscript_TranscriptExists()
-    {
-        // Arrange
-        const int journalEntryId = 12;
-        var entity = new TranscriptLogEntity();
-        var (unit, repo, _, _) = CreateUnit();
-        repo.Setup(s => s.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(entity);
-
-        // Act
-        var result = await unit.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(entity));
-    }
-
-    #endregion
-
     #region EnsureOpenAiLimit
 
     [Test]
@@ -298,7 +266,11 @@ public class JournalEntryChatbotUnitTests
         await unit.UpdateEntry(message, entity, CancellationToken.None);
 
         // Assert
-        Assert.That(entity.Response, Has.Length.EqualTo(8096));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entity.Response, Is.EqualTo(message));
+            Assert.That(entity.ResponseCreated, Is.Not.Null);
+        }
         repo.Verify(s => s.JournalEntryUpdate(It.IsAny<JournalEntryEntity>(), CancellationToken.None), Times.Once);
     }
 

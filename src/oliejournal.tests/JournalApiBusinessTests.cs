@@ -28,19 +28,19 @@ public class JournalApiBusinessTests
         const string transcript = "def";
         const float lat = 45.123f;
         const float lon = -93.456f;
-        var entities = new List<JournalEntryListEntity> {
+        var entities = new List<JournalEntryEntity> {
             new() {
                 Id = id,
                 UserId = userId,
-                ResponseText = responseTest,
-                ResponsePath = responsePath,
+                Response = responseTest,
+                VoiceoverPath = responsePath,
                 Transcript = transcript,
                 Latitude = lat,
                 Longitude = lon,
                 Created = DateTime.UtcNow }
         };
         var (unit, repo) = CreateUnit();
-        repo.Setup(s => s.JournalEntryListGetByUserId(userId, CancellationToken.None))
+        repo.Setup(s => s.JournalEntryGetListByUserId(userId, CancellationToken.None))
             .ReturnsAsync(entities);
 
         // Act
@@ -85,9 +85,9 @@ public class JournalApiBusinessTests
         // Arrange
         const int journalEntryId = 42;
         const string userId = "abc";
-        var entity = new JournalEntryListEntity();
+        var entity = new JournalEntryEntity();
         var (unit, repo) = CreateUnit();
-        repo.Setup(s => s.JournalEntryListGetByUserId(journalEntryId, userId, CancellationToken.None))
+        repo.Setup(s => s.JournalEntryGetByUserId(journalEntryId, userId, CancellationToken.None))
             .ReturnsAsync(entity);
 
         // Act

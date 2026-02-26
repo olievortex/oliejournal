@@ -113,7 +113,7 @@ public class JournalEntryVoiceoverUnitTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(entry.ResponseCreated, Is.Not.Null);
+            Assert.That(entry.VoiceoverCreated, Is.Not.Null);
             Assert.That(entry.VoiceoverDuration, Is.EqualTo(1024));
             Assert.That(entry.VoiceoverPath, Is.EqualTo(blobName));
             Assert.That(entry.VoiceoverLength, Is.EqualTo(length));

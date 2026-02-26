@@ -38,7 +38,7 @@ public class JournalEntryVoiceoverUnit(IMyRepository repo, IOlieService os, IOli
 
     public async Task UpdateEntry(string blobPath, int length, OlieWavInfo wavInfo, JournalEntryEntity entry, CancellationToken ct)
     {
-        entry.ResponseCreated = DateTime.UtcNow;
+        entry.VoiceoverCreated = DateTime.UtcNow;
         entry.VoiceoverDuration = (int)wavInfo.Duration.TotalSeconds;
         entry.VoiceoverPath = blobPath;
         entry.VoiceoverLength = length;

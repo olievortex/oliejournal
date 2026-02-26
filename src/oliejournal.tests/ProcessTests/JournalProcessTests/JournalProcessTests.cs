@@ -25,8 +25,8 @@ public class JournalProcessTests
     {
         // Arrange
         const int journalEntryId = 42;
-        var (unit, _, transcribe, _, voiceover) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+        var (unit, ingest, _, _, voiceover) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { VoiceoverPath = "Dillon" });
 
         // Act
@@ -41,8 +41,8 @@ public class JournalProcessTests
     {
         // Arrange
         const int journalEntryId = 42;
-        var (unit, _, transcribe, _, voiceover) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+        var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
 
         // Act, Assert
@@ -60,8 +60,8 @@ public class JournalProcessTests
         var file = "pastromi"u8.ToArray();
         var wavInfo = new OlieWavInfo();
         var stopwatch = Stopwatch.StartNew();
-        var (unit, _, transcribe, _, voiceover) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+        var (unit, ingest, _, _, voiceover) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(entry);
         voiceover.Setup(s => s.VoiceOver(message, CancellationToken.None))
             .ReturnsAsync(file);
@@ -87,38 +87,29 @@ public class JournalProcessTests
     {
         // Arrange
         const int journalEntryId = 42;
-        const int transcriptId = 12;
         const string response = "dillon!";
-        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+        var (unit, ingest, _, chatbot, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Response = response });
-        chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId });
 
         // Act
         await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
 
         // Assert
-        ingestion.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
+        chatbot.Verify(v => v.UpdateEntry(It.IsAny<string>(), It.IsAny<JournalEntryEntity>(), CancellationToken.None), Times.Never());
     }
 
     [Test]
-    public async Task Chatbot_SkipsToEnd_EmptyTranscript()
+    public async Task Chatbot_ThrowsException_EmptyTranscript()
     {
         // Arrange
         const int journalEntryId = 42;
-        const int transcriptId = 12;
-        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+        var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
-        chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId });
 
-        // Act
-        await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
-
-        // Assert
-        ingestion.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
+        // Act, Assert
+        Assert.ThrowsAsync<ApplicationException>(async () => await unit.Chatbot(journalEntryId, null!, CancellationToken.None));
     }
 
     [Test]
@@ -126,15 +117,12 @@ public class JournalProcessTests
     {
         // Arrange
         const int journalEntryId = 42;
-        const int transcriptId = 12;
         const string userId = "abc";
         const string conversationId = "bcd";
         const string message = "dillon";
-        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalEntryEntity { UserId = userId });
-        chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId, Transcript = message });
+        var (unit, ingest, _, chatbot, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { UserId = userId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
             .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
@@ -149,15 +137,12 @@ public class JournalProcessTests
     {
         // Arrange
         const int journalEntryId = 42;
-        const int transcriptId = 12;
         const string userId = "abc";
         const string conversationId = "bcd";
         const string message = "dillon";
-        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalEntryEntity { UserId = userId });
-        chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId, Transcript = message });
+        var (unit, ingest, _, chatbot, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { UserId = userId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
             .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
@@ -172,16 +157,13 @@ public class JournalProcessTests
     {
         // Arrange
         const int journalEntryId = 42;
-        const int transcriptId = 12;
         const string userId = "abc";
         const string conversationId = "bcd";
         const string message = "dillon";
         const string response = "pastromi";
-        var (unit, ingestion, transcribe, chatbot, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new JournalEntryEntity { UserId = userId });
-        chatbot.Setup(s => s.GetJournalTranscriptOrThrow(journalEntryId, CancellationToken.None))
-            .ReturnsAsync(new TranscriptLogEntity { Id = transcriptId, Transcript = message });
+        var (unit, ingest, _, chatbot, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(journalEntryId, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { UserId = userId, Transcript = message });
         chatbot.Setup(s => s.GetConversation(userId, CancellationToken.None))
             .ReturnsAsync(new ChatbotConversationEntity { Id = conversationId });
         chatbot.Setup(s => s.Chatbot(userId, message, conversationId, CancellationToken.None))
@@ -191,7 +173,7 @@ public class JournalProcessTests
         await unit.Chatbot(journalEntryId, null!, CancellationToken.None);
 
         // Assert
-        ingestion.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
+        ingest.Verify(v => v.CreateJournalMessage(journalEntryId, lib.Enums.AudioProcessStepEnum.VoiceOver, null!, CancellationToken.None), Times.Once());
     }
 
     #endregion
@@ -240,8 +222,8 @@ public class JournalProcessTests
     public async Task Transcribe_Throws_BadJournalEntryId()
     {
         // Arrange
-        var (unit, _, transcribe, _, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
+        var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ThrowsAsync(new ApplicationException());
 
         // Act, Assert
@@ -252,9 +234,10 @@ public class JournalProcessTests
     public async Task Transcribe_SkipsToEnd_AlreadyProcessed()
     {
         // Arrange
-        var (unit, ingestion, transcribe, _, _) = CreateUnit();
-        transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
-            .ReturnsAsync(true);
+        const string transcript = "dillon";
+        var (unit, ingest, transcribe, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity { Transcript = transcript });
 
         // Act
         await unit.Transcribe(123, null!, null!, CancellationToken.None);
@@ -267,13 +250,25 @@ public class JournalProcessTests
     public async Task Transcribe_Throws_ApiFailure()
     {
         // Arrange
-        var (unit, _, transcribe, _, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
+        var (unit, ingest, transcribe, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
-        transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
-            .ReturnsAsync(false);
         transcribe.Setup(s => s.Transcribe(It.IsAny<string>(), CancellationToken.None))
             .ReturnsAsync(new OlieTranscribeResult { Exception = new ApplicationException() });
+
+        // Act, Assert
+        Assert.ThrowsAsync<ApplicationException>(async () => await unit.Transcribe(123, null!, null!, CancellationToken.None));
+    }
+
+    [Test]
+    public async Task Transcribe_Throws_NullApiResponse()
+    {
+        // Arrange
+        var (unit, ingest, transcribe, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
+            .ReturnsAsync(new JournalEntryEntity());
+        transcribe.Setup(s => s.Transcribe(It.IsAny<string>(), CancellationToken.None))
+            .ReturnsAsync(new OlieTranscribeResult());
 
         // Act, Assert
         Assert.ThrowsAsync<ApplicationException>(async () => await unit.Transcribe(123, null!, null!, CancellationToken.None));
@@ -283,13 +278,12 @@ public class JournalProcessTests
     public async Task Transcribe_CompletesAllSteps_FullyProcessed()
     {
         // Arrange
-        var (unit, _, transcribe, _, _) = CreateUnit();
-        transcribe.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
+        const string transcript = "peggy";
+        var (unit, ingest, transcribe, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryOrThrow(123, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity());
-        transcribe.Setup(s => s.IsAlreadyTranscribed(123, CancellationToken.None))
-            .ReturnsAsync(false);
         transcribe.Setup(s => s.Transcribe(It.IsAny<string>(), CancellationToken.None))
-            .ReturnsAsync(new OlieTranscribeResult());
+            .ReturnsAsync(new OlieTranscribeResult { Transcript = transcript });
 
         // Act
         await unit.Transcribe(123, null!, null!, CancellationToken.None);

@@ -90,7 +90,6 @@ public class MyRepository(MyContext context) : IMyRepository
     {
         return await context.JournalEntries
             .Where(w => w.UserId == userId && w.Id == journalEntryId)
-            .OrderByDescending(d => d.Created)
             .SingleOrDefaultAsync(ct);
     }
 

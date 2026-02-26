@@ -267,6 +267,37 @@ public class JournalEntryIngestionUnitTests
 
     #endregion
 
+    #region GetJournalEntryOrThrow
+
+    [Test]
+    public async Task GetJournalEntryOrThrow_WhenExists_ReturnsEntity()
+    {
+        // Arrange
+        var (unit, _, _, repo) = CreateUnit();
+
+        var ent = new JournalEntryEntity { Id = 5, AudioPath = "p" };
+        repo.Setup(r => r.JournalEntryGet(5, It.IsAny<CancellationToken>())).ReturnsAsync(ent);
+
+        // Act
+        var result = await unit.GetJournalEntryOrThrow(5, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ent));
+    }
+
+    [Test]
+    public async Task GetJournalEntryOrThrow_WhenNotExists_Throws()
+    {
+        // Arrange
+        var (unit, _, _, repo) = CreateUnit();
+        repo.Setup(r => r.JournalEntryGet(6, It.IsAny<CancellationToken>())).ReturnsAsync((JournalEntryEntity?)null);
+
+        // Act, Assert
+        Assert.ThrowsAsync<ApplicationException>(() => unit.GetJournalEntryOrThrow(6, CancellationToken.None));
+    }
+
+    #endregion
+
     #region WriteAudioFileToBlob
 
     [Test]

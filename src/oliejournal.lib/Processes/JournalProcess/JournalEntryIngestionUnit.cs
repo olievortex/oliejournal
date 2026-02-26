@@ -84,6 +84,22 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         return await repo.JournalEntryGetByHash(userId, hash, ct);
     }
 
+    public async Task<JournalEntryEntity> GetJournalEntryOrThrow(int journalEntryId, CancellationToken ct)
+    {
+        return await repo.JournalEntryGet(journalEntryId, ct) ??
+            throw new ApplicationException($"JournalEntry with {journalEntryId} doesn't exist");
+    }
+
+    public async Task<JournalEntryEntity?> GetJournalEntry(int journalEntryId, string userId, CancellationToken ct)
+    {
+        return await repo.JournalEntryGetByUserId(journalEntryId, userId, ct);
+    }
+
+    public async Task DeleteJournalEntry(int journalEntryId, CancellationToken ct)
+    {
+        await repo.JournalEntryDelete(journalEntryId, ct);
+    }
+
     public async Task<string> WriteAudioFileToBlob(string localPath, BlobContainerClient client, CancellationToken ct)
     {
         var blobPath = $"bronze/audio_entry/{DateTime.UtcNow:yyyy/MM}/{Path.GetFileName(localPath)}";

@@ -24,7 +24,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
             ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
             InputTokens = result.InputTokens,
             OutputTokens = result.OutputTokens,
-            Exception = result.Exception?.ToString().Left(8096),
+            Exception = result.Exception?.ToString(),
             Created = DateTime.UtcNow,
             ResponseId = result.ResponseId,
         };
@@ -44,11 +44,6 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
                 await repo.ChatbotConversationDelete(conversation.Id, ct);
             }
         }
-    }
-
-    public async Task DeleteJournalTranscript(int id, CancellationToken ct)
-    {
-        await repo.JournalTranscriptDelete(id, ct);
     }
 
     public async Task<ChatbotConversationEntity> GetConversation(string userId, CancellationToken ct)
@@ -72,17 +67,6 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         return entity;
     }
 
-    public async Task<TranscriptLogEntity> GetJournalTranscriptOrThrow(int journalEntryId, CancellationToken ct)
-    {
-        return await repo.JournalTranscriptGetActiveByJournalEntryFk(journalEntryId, ct) ??
-            throw new ApplicationException($"JournalTranscript for {journalEntryId} doesn't exist");
-    }
-
-    public async Task<List<TranscriptLogEntity>> GetJournalTranscripts(int journalEntryId, CancellationToken ct)
-    {
-        return await repo.JournalTranscriptGetByJournalEntryFk(journalEntryId, ct);
-    }
-
     public async Task EnsureOpenAiLimit(int limit, CancellationToken ct)
     {
         const double inputRate = 0.2 / 1_000_000; // GPT-4.1 nano
@@ -98,7 +82,8 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
 
     public async Task UpdateEntry(string message, JournalEntryEntity entry, CancellationToken ct)
     {
-        entry.Response = message.Left(8096);
+        entry.Response = message;
+        entry.ResponseCreated = DateTime.UtcNow;
 
         await repo.JournalEntryUpdate(entry, ct);
     }

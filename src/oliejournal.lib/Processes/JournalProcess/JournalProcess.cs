@@ -16,7 +16,7 @@ public class JournalProcess(
 
     public async Task Voiceover(int journalEntryId, CancellationToken ct)
     {
-        var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
+        var entry = await ingestion.GetJournalEntryOrThrow(journalEntryId, ct);
         if (entry.VoiceoverPath != null) return;
         if (entry.Response is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
 
@@ -29,18 +29,17 @@ public class JournalProcess(
 
     public async Task Chatbot(int journalEntryId, ServiceBusSender sender, CancellationToken ct)
     {
-        var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
-        var transcript = await chatbot.GetJournalTranscriptOrThrow(journalEntryId, ct);
+        var entry = await ingestion.GetJournalEntryOrThrow(journalEntryId, ct);
         if (entry.Response is not null) goto SendMessage;
-        if (string.IsNullOrWhiteSpace(transcript.Transcript)) goto SendMessage;
+        if (string.IsNullOrWhiteSpace(entry.Transcript)) throw new ApplicationException($"Transcript is empty for {journalEntryId}");
 
         await chatbot.EnsureOpenAiLimit(OpenAiLimit, ct);
         await chatbot.DeleteConversations(entry.UserId, ct);
         var conversation = await chatbot.GetConversation(entry.UserId, ct);
 
         var stopwatch = Stopwatch.StartNew();
-        var message = await chatbot.Chatbot(entry.UserId, transcript.Transcript, conversation.Id, ct);
-        await chatbot.CreateChatbotLog(transcript.Id, message, stopwatch, ct);
+        var message = await chatbot.Chatbot(entry.UserId, entry.Transcript, conversation.Id, ct);
+        await chatbot.CreateChatbotLog(entry.Id, message, stopwatch, ct);
 
         if (message.Exception is not null) throw message.Exception;
         if (message.Message is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
@@ -72,17 +71,20 @@ public class JournalProcess(
 
     public async Task Transcribe(int journalEntryId, BlobContainerClient client, ServiceBusSender sender, CancellationToken ct)
     {
-        var entity = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
-        if (await transcribe.IsAlreadyTranscribed(journalEntryId, ct)) goto SendMessage;
+        var entity = await ingestion.GetJournalEntryOrThrow(journalEntryId, ct);
+        if (!string.IsNullOrWhiteSpace(entity.Transcript)) goto SendMessage;
 
         await transcribe.EnsureGoogleLimit(GoogleApiLimit, ct);
         var localFile = await transcribe.GetAudioFile(entity.AudioPath, client, ct);
 
         var stopwatch = Stopwatch.StartNew();
         var transcript = await transcribe.Transcribe(localFile, ct);
-        await transcribe.CreateJournalTranscript(journalEntryId, transcript, stopwatch, ct);
+        await transcribe.CreateTranscriptLog(journalEntryId, transcript, stopwatch, ct);
 
         if (transcript.Exception is not null) throw transcript.Exception;
+        if (transcript.Transcript is null) throw new ApplicationException($"Transcript null for {journalEntryId}");
+
+        await transcribe.UpdateEntry(transcript.Transcript, entity, ct);
 
         transcribe.Cleanup(localFile);
 
@@ -93,15 +95,8 @@ public class JournalProcess(
     public async Task<bool> DeleteEntry(int journalEntryId, string userId, BlobContainerClient client, CancellationToken ct)
     {
         // Verify ownership
-        var entry = await transcribe.GetJournalEntryOrThrow(journalEntryId, ct);
-        if (entry is null || entry.UserId != userId) return false;
-
-        // Find all transcripts
-        foreach (var transcript in await chatbot.GetJournalTranscripts(journalEntryId, ct))
-        {
-            // Delete JournalTranscript
-            await chatbot.DeleteJournalTranscript(transcript.Id, ct);
-        }
+        var entry = await ingestion.GetJournalEntry(journalEntryId, userId, ct);
+        if (entry is null) return false;
 
         // Delete any ongoing OpenAI conversations
         await chatbot.DeleteConversations(userId, ct);
@@ -113,7 +108,7 @@ public class JournalProcess(
         voiceover.DeleteLocalFile(entry);
 
         // Finally delete JournalEntry
-        await transcribe.DeleteJournalEntry(journalEntryId, ct);
+        await ingestion.DeleteJournalEntry(journalEntryId, ct);
 
         return true;
     }

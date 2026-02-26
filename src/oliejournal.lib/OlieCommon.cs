@@ -9,11 +9,6 @@ namespace oliejournal.lib;
 
 public static class OlieCommon
 {
-    public static string Left(this string str, int length)
-    {
-        return str.Length <= length ? str : str[..length];
-    }
-
     public static float? SafeFloat(this string? str)
     {
         if (string.IsNullOrWhiteSpace(str)) return null;
