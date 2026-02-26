@@ -1,4 +1,5 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Google.Cloud.Speech.V1;
@@ -23,8 +24,15 @@ public class OlieService : IOlieService
 
     public async Task BlobDeleteFile(BlobContainerClient client, string fileName, CancellationToken ct)
     {
-        var blobClient = client.GetBlobClient(fileName);
-        await blobClient.DeleteIfExistsAsync(cancellationToken: ct);
+        try
+        {
+            var blobClient = client.GetBlobClient(fileName);
+            await blobClient.DeleteIfExistsAsync(cancellationToken: ct);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            // Do Nothing
+        }
     }
 
     public async Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
@@ -86,18 +94,6 @@ public class OlieService : IOlieService
     public void FileDelete(string path)
     {
         File.Delete(path);
-    }
-
-    public void FileDeleteNoEx(string path)
-    {
-        try
-        {
-            File.Delete(path);
-        }
-        catch
-        {
-            // Do Nothing
-        }
     }
 
     public bool FileExists(string path)
@@ -317,9 +313,16 @@ public class OlieService : IOlieService
 
     public async Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct)
     {
-        var client = new OpenAI.Conversations.ConversationClient(apiKey);
-        var options = new RequestOptions() { CancellationToken = ct, };
-        await client.DeleteConversationAsync(conversationId, options);
+        try
+        {
+            var client = new OpenAI.Conversations.ConversationClient(apiKey);
+            var options = new RequestOptions() { CancellationToken = ct, };
+            await client.DeleteConversationAsync(conversationId, options);
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            // Do Nothing
+        }
     }
 
 #pragma warning restore OPENAI001

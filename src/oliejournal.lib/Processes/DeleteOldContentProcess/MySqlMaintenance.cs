@@ -11,7 +11,7 @@ public class MySqlMaintenance(IOlieService os, IOlieConfig config) : IMySqlMaint
     {
         if (file.Effective < DateTime.UtcNow.AddDays(-BackupAgeDays))
         {
-            os.FileDeleteNoEx(file.BackupFilePath);
+            os.FileDelete(file.BackupFilePath);
         }
     }
 

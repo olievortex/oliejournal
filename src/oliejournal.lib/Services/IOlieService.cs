@@ -31,7 +31,6 @@ public interface IOlieService
     void FileCompressGzip(string sourceFile, string destinationFile);
     void FileCreateDirectory(string path);
     void FileDelete(string path);
-    void FileDeleteNoEx(string path);
     bool FileExists(string path);
     Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct);
 

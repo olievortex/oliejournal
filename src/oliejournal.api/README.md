@@ -4,6 +4,8 @@ The following evironment variables are required to run locally. Replace the dumm
   "APPLICATIONINSIGHTS_CONNECTION_STRING": "xxxx",
   "OlieAudioProcessQueue": "oliejournal_audio_process",
   "OlieBlobContainerUri": "https://xxxx.blob.core.windows.net/oliejournal",
+  "OlieGoldPath": "C:/workspace/oliejournal",
   "OlieMySqlConnection": "server=[2600:3c00::2000:xxxx];port=20237;uid=oliejournal_user;pwd=xxxx;database=oliejournal;SslMode=Required;",
+  "OlieOpenAiApiKey": "xxxx",
   "OlieServiceBus": "xxxx.servicebus.windows.net"
 }
