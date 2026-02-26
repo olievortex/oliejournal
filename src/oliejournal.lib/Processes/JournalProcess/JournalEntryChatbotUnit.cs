@@ -32,9 +32,20 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         await repo.ChatbotLogCreate(entity, ct);
     }
 
-    public async Task DeleteConversations(string userId, CancellationToken ct)
+    public async Task DeleteAllConversations(string userId, CancellationToken ct)
     {
-        var conversations = await repo.ChatbotConversationGetActiveList(userId, ct);
+        var conversations = await repo.ChatbotConversationGetListByUser(userId, ct);
+
+        foreach (var conversation in conversations)
+        {
+            await os.OpenAiDeleteConversation(conversation.Id, config.OpenAiApiKey, ct);
+            await repo.ChatbotConversationDelete(conversation.Id, ct);
+        }
+    }
+
+    public async Task DeleteOldConversations(string userId, CancellationToken ct)
+    {
+        var conversations = await repo.ChatbotConversationGetListByUser(userId, ct);
 
         foreach (var conversation in conversations)
         {
@@ -48,7 +59,7 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
 
     public async Task<ChatbotConversationEntity> GetConversation(string userId, CancellationToken ct)
     {
-        var conversation = (await repo.ChatbotConversationGetActiveList(userId, ct)).FirstOrDefault();
+        var conversation = (await repo.ChatbotConversationGetListByUser(userId, ct)).FirstOrDefault();
         if (conversation is not null) return conversation;
 
         var id = await os.OpenAiCreateConversation(userId, config.ChatbotInstructions, config.OpenAiApiKey, ct);

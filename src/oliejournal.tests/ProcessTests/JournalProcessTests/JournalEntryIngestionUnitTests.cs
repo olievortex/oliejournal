@@ -109,6 +109,43 @@ public class JournalEntryIngestionUnitTests
 
     #endregion
 
+    #region DeleteJournalEntry
+
+    [Test]
+    public async Task DeleteJournalEntry_DeletesEntity_WhenValid()
+    {
+        // Arrange
+        const int journalEntryId = 88;
+        var (unit, _, _, repo) = CreateUnit();
+
+        // Act
+        await unit.DeleteJournalEntry(journalEntryId, CancellationToken.None);
+
+        // Assert
+        repo.Verify(r => r.JournalEntryDelete(journalEntryId, CancellationToken.None), Times.Once);
+    }
+
+    #endregion
+
+    #region DeleteVoice
+
+    [Test]
+    public async Task DeleteVoice_DeletesEntity_WhenExists()
+    {
+        // Arrange
+        const string path = "some/path/audio.wav";
+        var (unit, _, os, _) = CreateUnit();
+        var entity = new JournalEntryEntity { AudioPath = path };
+
+        // Act
+        await unit.DeleteVoice(entity, null!, CancellationToken.None);
+
+        // Assert
+        os.Verify(s => s.BlobDeleteFile(null!, path, CancellationToken.None), Times.Once);
+    }
+
+    #endregion
+
     #region EnsureAudioValidates
 
     [Test]

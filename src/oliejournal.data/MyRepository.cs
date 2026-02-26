@@ -26,7 +26,7 @@ public class MyRepository(MyContext context) : IMyRepository
         }
     }
 
-    public async Task<List<ChatbotConversationEntity>> ChatbotConversationGetActiveList(string userId, CancellationToken ct)
+    public async Task<List<ChatbotConversationEntity>> ChatbotConversationGetListByUser(string userId, CancellationToken ct)
     {
         return await context.ChatbotConversations
             .Where(w => w.UserId == userId)

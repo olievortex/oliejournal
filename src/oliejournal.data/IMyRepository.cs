@@ -9,7 +9,7 @@ public interface IMyRepository
 
     Task ChatbotConversationCreate(ChatbotConversationEntity entity, CancellationToken ct);
     Task ChatbotConversationDelete(string id, CancellationToken ct);
-    Task<List<ChatbotConversationEntity>> ChatbotConversationGetActiveList(string userId, CancellationToken ct);
+    Task<List<ChatbotConversationEntity>> ChatbotConversationGetListByUser(string userId, CancellationToken ct);
     Task ChatbotConversationUpdate(ChatbotConversationEntity entity, CancellationToken ct);
 
     #endregion

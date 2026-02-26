@@ -35,7 +35,7 @@ public class JournalProcess(
         if (string.IsNullOrWhiteSpace(entry.Transcript)) throw new ApplicationException($"Transcript is empty for {journalEntryId}");
 
         await chatbot.EnsureOpenAiLimit(OpenAiLimit, ct);
-        await chatbot.DeleteConversations(entry.UserId, ct);
+        await chatbot.DeleteOldConversations(entry.UserId, ct);
         var conversation = await chatbot.GetConversation(entry.UserId, ct);
 
         var stopwatch = Stopwatch.StartNew();
@@ -112,7 +112,7 @@ public class JournalProcess(
         if (entry is null) return false;
 
         // Delete any ongoing OpenAI conversations
-        await chatbot.DeleteConversations(userId, ct);
+        await chatbot.DeleteAllConversations(userId, ct);
 
         // Delete original voice
         await ingestion.DeleteVoice(entry, client, ct);
