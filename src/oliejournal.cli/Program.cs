@@ -112,9 +112,9 @@ public class Program
         });
         services.Configure<TelemetryConfiguration>(config => config.TelemetryChannel = _channel);
         services.AddSingleton(_ => (IConfiguration)configuration);
-        services.AddSingleton(_ => host);
         services.AddSingleton<IOlieConfig, OlieConfig>();
         services.AddScoped<IOlieService, OlieService>();
+        services.AddSingleton(_ => host);
 
         // Commands
         services.AddScoped<CommandAudioProcessQueue>();
