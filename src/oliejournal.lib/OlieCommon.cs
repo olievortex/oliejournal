@@ -23,13 +23,23 @@ public static class OlieCommon
     }
 
     [ExcludeFromCodeCoverage]
-    public static void AddOlieLibScopes(this IServiceCollection services)
+    public static void AddOlieLibScopes(this IServiceCollection services, IOlieConfig config)
     {
+        if (config.DillonMode)
+        {
+            services.AddScoped<IOlieService, OlieServiceDillon>();
+            services.AddScoped<IMyRepository, MyRepositoryDillon>();
+            Console.WriteLine("DillonMode is ON: Using OlieServiceDillon");
+        }
+        else
+        {
+            services.AddScoped<IOlieService, OlieService>();
+            services.AddScoped<IMyRepository, MyRepository>();
+        }
+
         #region Services
 
         services.AddSingleton<IOlieConfig, OlieConfig>();
-        services.AddScoped<IMyRepository, MyRepository>();
-        services.AddScoped<IOlieService, OlieService>();
         services.AddScoped<IOlieWavReader, OlieWavReader>();
 
         #endregion

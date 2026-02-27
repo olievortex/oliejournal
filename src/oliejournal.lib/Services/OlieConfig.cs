@@ -10,6 +10,7 @@ public class OlieConfig(IConfiguration config) : IOlieConfig
     public string AudioProcessQueue => GetString("OlieAudioProcessQueue");
     public string BlobContainerUri => GetString("OlieBlobContainerUri");
     public string ChatbotInstructions => GetString("OlieChatbotInstructions");
+    public bool DillonMode => GetOptionalBool("OlieDillonMode");
     public string FfmpegPath => GetString("OlieFfmpegPath");
     public string GoldPath => GetString("OlieGoldPath");
     public string GoogleVoiceName => GetString("OlieGoogleVoiceName");
@@ -23,5 +24,11 @@ public class OlieConfig(IConfiguration config) : IOlieConfig
     private string GetString(string key)
     {
         return config[key] ?? throw new ApplicationException($"{key} setting missing from configuration");
+    }
+
+    private bool GetOptionalBool(string key)
+    {
+        if (bool.TryParse(config[key], out bool value)) return value;
+        return false;
     }
 }

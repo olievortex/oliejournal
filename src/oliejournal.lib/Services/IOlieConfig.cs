@@ -5,6 +5,7 @@ public interface IOlieConfig
     string AudioProcessQueue { get; }
     string BlobContainerUri { get; }
     string ChatbotInstructions { get; }
+    bool DillonMode { get; }
     string FfmpegPath { get; }
     string GoldPath { get; }
     string GoogleVoiceName { get; }

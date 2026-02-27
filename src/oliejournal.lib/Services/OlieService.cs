@@ -22,7 +22,7 @@ public class OlieService : IOlieService
 {
     #region Blob
 
-    public async Task BlobDeleteFile(BlobContainerClient client, string fileName, CancellationToken ct)
+    public virtual async Task BlobDeleteFile(BlobContainerClient client, string fileName, CancellationToken ct)
     {
         try
         {
@@ -35,13 +35,13 @@ public class OlieService : IOlieService
         }
     }
 
-    public async Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
+    public virtual async Task BlobDownloadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
     {
         var blobClient = client.GetBlobClient(fileName);
         await blobClient.DownloadToAsync(localFileName, ct);
     }
 
-    public async Task BlobUploadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
+    public virtual async Task BlobUploadFile(BlobContainerClient client, string fileName, string localFileName, CancellationToken ct)
     {
         var blobClient = client.GetBlobClient(fileName);
         var contentType = "application/octet-stream";
@@ -64,7 +64,7 @@ public class OlieService : IOlieService
 
     #region Directory
 
-    public List<string> DirectoryList(string path)
+    public virtual List<string> DirectoryList(string path)
     {
         if (!Directory.Exists(path)) return [];
         var files = Directory.GetFiles(path).ToList();
@@ -75,7 +75,7 @@ public class OlieService : IOlieService
 
     #region File
 
-    public void FileCompressGzip(string sourceFile, string destinationFile)
+    public virtual void FileCompressGzip(string sourceFile, string destinationFile)
     {
         using var originalFileStream = File.Open(sourceFile, FileMode.Open);
         using var compressedFileStream = File.Create(destinationFile);
@@ -83,7 +83,7 @@ public class OlieService : IOlieService
         originalFileStream.CopyTo(compressionStream);
     }
 
-    public void FileCreateDirectory(string path)
+    public virtual void FileCreateDirectory(string path)
     {
         var directory = Path.GetDirectoryName(path);
         if (string.IsNullOrWhiteSpace(directory)) return;
@@ -91,17 +91,17 @@ public class OlieService : IOlieService
         Directory.CreateDirectory(directory);
     }
 
-    public void FileDelete(string path)
+    public virtual void FileDelete(string path)
     {
         File.Delete(path);
     }
 
-    public bool FileExists(string path)
+    public virtual bool FileExists(string path)
     {
         return File.Exists(path);
     }
 
-    public async Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct)
+    public virtual async Task FileWriteAllBytes(string path, byte[] data, CancellationToken ct)
     {
         await File.WriteAllBytesAsync(path, data, ct);
     }
@@ -110,7 +110,7 @@ public class OlieService : IOlieService
 
     #region Ffmpeg
 
-    public async Task FfmpegWavToMp3(string audioIn, string mp3Out, string ffmpegPath, CancellationToken ct)
+    public virtual async Task FfmpegWavToMp3(string audioIn, string mp3Out, string ffmpegPath, CancellationToken ct)
     {
         var sbStdOut = new StringBuilder();
         var sbErrOut = new StringBuilder();
@@ -144,7 +144,7 @@ public class OlieService : IOlieService
 
     #region Google
 
-    public async Task<byte[]> GoogleSpeak(string voiceName, string script, CancellationToken ct)
+    public virtual async Task<byte[]> GoogleSpeak(string voiceName, string script, CancellationToken ct)
     {
         // Instantiates a client
         var client = TextToSpeechClient.Create();
@@ -178,7 +178,7 @@ public class OlieService : IOlieService
         return response.AudioContent.ToByteArray();
     }
 
-    public async Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct)
+    public virtual async Task<OlieTranscribeResult> GoogleTranscribeWavNoEx(string localFile, OlieWavInfo info, CancellationToken ct)
     {
         const int serviceId = 1;
 
@@ -234,7 +234,7 @@ public class OlieService : IOlieService
 
 #pragma warning disable OPENAI001
 
-    public async Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct)
+    public virtual async Task<string> OpenAiCreateConversation(string userId, string instructions, string apiKey, CancellationToken ct)
     {
         var client = new OpenAI.Conversations.ConversationClient(apiKey);
         var options = new RequestOptions() { CancellationToken = ct, };
@@ -267,7 +267,7 @@ public class OlieService : IOlieService
         return conversationId;
     }
 
-    public async Task<OlieChatbotResult> OpenAiEngageChatbotNoEx(string userId, string message, string conversationId, string model, string apiKey, CancellationToken ct)
+    public virtual async Task<OlieChatbotResult> OpenAiEngageChatbotNoEx(string userId, string message, string conversationId, string model, string apiKey, CancellationToken ct)
     {
         const int serviceId = 1;
 
@@ -311,7 +311,7 @@ public class OlieService : IOlieService
         }
     }
 
-    public async Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct)
+    public virtual async Task OpenAiDeleteConversation(string conversationId, string apiKey, CancellationToken ct)
     {
         try
         {
@@ -331,7 +331,7 @@ public class OlieService : IOlieService
 
     #region ServiceBus
 
-    public async Task ServiceBusSendJson(ServiceBusSender sender, object data, CancellationToken ct)
+    public virtual async Task ServiceBusSendJson(ServiceBusSender sender, object data, CancellationToken ct)
     {
         var json = JsonConvert.SerializeObject(data);
         var message = new ServiceBusMessage(json)
@@ -342,12 +342,12 @@ public class OlieService : IOlieService
         await sender.SendMessageAsync(message, ct);
     }
 
-    public async Task ServiceBusCompleteMessage<T>(ServiceBusReceiver receiver, OlieServiceBusReceivedMessage<T> message, CancellationToken ct)
+    public virtual async Task ServiceBusCompleteMessage<T>(ServiceBusReceiver receiver, OlieServiceBusReceivedMessage<T> message, CancellationToken ct)
     {
         await receiver.CompleteMessageAsync(message.ServiceBusReceivedMessage, ct);
     }
 
-    public async Task<OlieServiceBusReceivedMessage<T>?> ServiceBusReceiveJson<T>(ServiceBusReceiver receiver, TimeSpan timeout, CancellationToken ct)
+    public virtual async Task<OlieServiceBusReceivedMessage<T>?> ServiceBusReceiveJson<T>(ServiceBusReceiver receiver, TimeSpan timeout, CancellationToken ct)
     {
         try
         {

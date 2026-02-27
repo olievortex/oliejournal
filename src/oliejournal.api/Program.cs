@@ -23,7 +23,7 @@ public static class Program
         var config = builder.AddOlieConfiguration();
         builder.AddOlieAuthentication();
         builder.Services.AddAuthorization();
-        builder.Services.AddOlieLibScopes();
+        builder.Services.AddOlieLibScopes(config);
         builder.AddOlieEntityFramework(config);
         builder.AddOlieTelemetry();
 
@@ -87,7 +87,6 @@ public static class Program
         }
 
         builder.Services.AddDbContext<MyContext>(mySqlOptions);
-        builder.Services.AddScoped<IMyRepository, MyRepository>();
     }
 
     private static void AddOlieAuthentication(this WebApplicationBuilder builder)

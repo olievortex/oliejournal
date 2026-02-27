@@ -17,7 +17,6 @@ public class Program
 {
     private static readonly InMemoryChannel _channel = new();
     private static ServiceProvider _serviceProvider = new ServiceCollection().BuildServiceProvider();
-    private static IHost _host = Host.CreateDefaultBuilder().Build();
 
     private static async Task<int> Main(string[] args)
     {
@@ -143,7 +142,7 @@ public class Program
                 #endregion
 
                 services.AddSingleton(_ => config);
-                services.AddOlieLibScopes();
+                services.AddOlieLibScopes(olieConfig);
             })
             .Build();
 
