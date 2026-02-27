@@ -7,7 +7,7 @@ namespace oliejournal.lib.Processes.JournalProcess;
 public interface IJournalEntryChatbotUnit
 {
     Task<OlieChatbotResult> Chatbot(string userId, string message, string conversationId, CancellationToken ct);
-    Task CreateChatbotLog(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct);
+    Task CreateChatbotLog(OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct);
     Task DeleteAllConversations(string userId, CancellationToken ct);
     Task DeleteOldConversations(string userId, CancellationToken ct);
     Task<ChatbotConversationEntity> GetConversation(string userId, CancellationToken ct);

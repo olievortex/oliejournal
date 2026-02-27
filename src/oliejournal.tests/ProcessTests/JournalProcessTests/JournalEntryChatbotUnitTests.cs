@@ -48,7 +48,6 @@ public class JournalEntryChatbotUnitTests
         // Arrange
         const string exceptionMessage = "Bang!";
         ChatbotLogEntity? entity = null;
-        const int journalTranscriptId = 123;
         var stopwatch = Stopwatch.StartNew();
         var chatbotResult = new OlieChatbotResult
         {
@@ -64,7 +63,7 @@ public class JournalEntryChatbotUnitTests
             .Callback<ChatbotLogEntity, CancellationToken>((e, _) => { e.Id = 567; entity = e; });
 
         // Act
-        await unit.CreateChatbotLog(journalTranscriptId, chatbotResult, stopwatch, CancellationToken.None);
+        await unit.CreateChatbotLog(chatbotResult, stopwatch, CancellationToken.None);
 
         // Assert
         Assert.That(entity, Is.Not.Null);
@@ -72,7 +71,6 @@ public class JournalEntryChatbotUnitTests
         {
             Assert.That(entity.Id, Is.EqualTo(567));
             Assert.That(entity.ConversationId, Is.EqualTo("a"));
-            Assert.That(entity.JournalTranscriptFk, Is.EqualTo(journalTranscriptId));
             Assert.That(entity.ProcessingTime, Is.InRange(0, 5));
             Assert.That(entity.InputTokens, Is.EqualTo(345));
             Assert.That(entity.OutputTokens, Is.EqualTo(456));
@@ -88,7 +86,6 @@ public class JournalEntryChatbotUnitTests
     {
         // Arrange
         ChatbotLogEntity? entity = null;
-        const int journalTranscriptId = 123;
         var stopwatch = Stopwatch.StartNew();
         var chatbotResult = new OlieChatbotResult
         {
@@ -103,7 +100,7 @@ public class JournalEntryChatbotUnitTests
             .Callback<ChatbotLogEntity, CancellationToken>((e, _) => { e.Id = 567; entity = e; });
 
         // Act
-        await unit.CreateChatbotLog(journalTranscriptId, chatbotResult, stopwatch, CancellationToken.None);
+        await unit.CreateChatbotLog(chatbotResult, stopwatch, CancellationToken.None);
 
         // Assert
         Assert.That(entity, Is.Not.Null);
@@ -111,7 +108,6 @@ public class JournalEntryChatbotUnitTests
         {
             Assert.That(entity.Id, Is.EqualTo(567));
             Assert.That(entity.ConversationId, Is.EqualTo("a"));
-            Assert.That(entity.JournalTranscriptFk, Is.EqualTo(journalTranscriptId));
             Assert.That(entity.ProcessingTime, Is.InRange(0, 5));
             Assert.That(entity.InputTokens, Is.EqualTo(345));
             Assert.That(entity.OutputTokens, Is.EqualTo(456));

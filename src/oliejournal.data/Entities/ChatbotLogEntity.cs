@@ -4,8 +4,6 @@ public class ChatbotLogEntity
 {
     public int Id { get; set; }
 
-    public int JournalTranscriptFk { get; set; }
-
     public string ConversationId { get; set; } = string.Empty;
     public int ServiceId { get; set; }
     public DateTime Created { get; set; }

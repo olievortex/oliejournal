@@ -40,7 +40,7 @@ public class JournalProcess(
 
         var stopwatch = Stopwatch.StartNew();
         var message = await chatbot.Chatbot(entry.UserId, entry.Transcript, conversation.Id, ct);
-        await chatbot.CreateChatbotLog(entry.Id, message, stopwatch, ct);
+        await chatbot.CreateChatbotLog(message, stopwatch, ct);
 
         if (message.Exception is not null) throw message.Exception;
         if (message.Message is null) throw new ApplicationException($"Chatbot response null for {journalEntryId}");
