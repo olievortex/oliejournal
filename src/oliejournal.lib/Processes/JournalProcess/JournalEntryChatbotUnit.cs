@@ -13,13 +13,12 @@ public class JournalEntryChatbotUnit(IMyRepository repo, IOlieService os, IOlieC
         return await os.OpenAiEngageChatbotNoEx(userId, message, conversationId, config.OpenAiModel, config.OpenAiApiKey, ct);
     }
 
-    public async Task CreateChatbotLog(int journalTranscriptId, OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct)
+    public async Task CreateChatbotLog(OlieChatbotResult result, Stopwatch stopwatch, CancellationToken ct)
     {
         var entity = new ChatbotLogEntity
         {
             ConversationId = result.ConversationId,
             ServiceId = result.ServiceId,
-            JournalTranscriptFk = journalTranscriptId,
 
             ProcessingTime = (int)stopwatch.Elapsed.TotalSeconds,
             InputTokens = result.InputTokens,

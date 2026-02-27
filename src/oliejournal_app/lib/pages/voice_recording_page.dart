@@ -27,6 +27,13 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
   String? _recordingPath;
   String _recordingFinished = 'Last recording saved! Start a new recording.';
 
+  void _setStateIfMounted(VoidCallback fn) {
+    if (!mounted) {
+      return;
+    }
+    setState(fn);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,7 +104,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
           path: outputPath,
         );
 
-        setState(() {
+        _setStateIfMounted(() {
           _isRecording = true;
           _secondsRemaining = 55;
           _recordingPath = outputPath;
@@ -114,6 +121,11 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
       setState(() {
         _secondsRemaining--;
       });
@@ -130,7 +142,11 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
       final String? path = await _audioRecorder.stop();
 
-      setState(() {
+      if (!mounted) {
+        return;
+      }
+
+      _setStateIfMounted(() {
         _isRecording = false;
         _secondsRemaining = 55;
         _recordingPath = path;
@@ -146,6 +162,10 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
   }
 
   void _showErrorDialog(String message) {
+    if (!mounted) {
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -162,6 +182,10 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
   }
 
   Future<void> _showSuccessDialog(String message) async {
+    if (!mounted) {
+      return;
+    }
+
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -179,11 +203,15 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
   /// after recording finishes, prompt the user about uploading.
   Future<void> _askUpload(String path) async {
+    if (!mounted) {
+      return;
+    }
+
     final shouldUpload = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Upload Recording?'),
-        content: const Text('Would you like to upload this audio file now?'),
+        content: const Text('Are you satisfied with this recording and ready to upload it to your journal?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -197,7 +225,11 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       ),
     );
 
-    setState(() {
+    if (!mounted) {
+      return;
+    }
+
+    _setStateIfMounted(() {
       _recordingFinished = 'Recording was not saved! Start a new recording.';
     });
 
@@ -213,9 +245,9 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       return;
     }
 
-    setState(() {
+    _setStateIfMounted(() {
       _isUploading = true;
-      _recordingFinished = 'Don\'t leave this page. Getting your location.';
+      _recordingFinished = 'Don\'t leave this page. Obtaining your location.';
     });
 
     Position? position;
@@ -226,8 +258,8 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
       debugPrint('Location error: $e');
     }
 
-    setState(() {
-      _recordingFinished = 'Don\'t leave this page. Uploading your recording.';
+    _setStateIfMounted(() {
+      _recordingFinished = 'Don\'t leave this page. Uploading now!';
     });
 
     try {
@@ -241,7 +273,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
           if (!mounted) {
             return;
           }
-          setState(() {
+          _setStateIfMounted(() {
             _recordingFinished =
                 'Weak reception detected. Waiting for cell reception '
                 'and retrying upload (${retryInfo.nextAttempt}/${retryInfo.maxAttempts}) '
@@ -249,17 +281,19 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
           });
         },
       );
-      _showSuccessDialog('Audio uploaded successfully.');
+      _showSuccessDialog('Upload successful! Your submission is being processed, and a transcript along with chatbot feedback will be available shortly.');
 
-      setState(() {
+      _setStateIfMounted(() {
         _isUploading = false;
         _recordingFinished = 'Recording uploaded!';
       });
     } catch (e) {
-      setState(() {
+      final message = 'Unfortunately, your recording could not be saved. Please record a new entry to try again.\n\n$e';
+      _setStateIfMounted(() {
         _isUploading = false;
+        _recordingFinished = message;
       });
-      _showErrorDialog('Upload failed: $e');
+      _showErrorDialog(message);
     }
   }
 
@@ -316,7 +350,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                     children: [
                       // Instructions plus timer display
                       Text(
-                        'Tap "Start Recording" and begin dictating your field notes. You have one minute per entry.',
+                        "Tap 'Start Recording' to begin. You have up to 1 minute. When you finish, tap 'Stop Recording' and choose 'Yes' to upload.",
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w500,

@@ -44,6 +44,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     // when playback completes we should clear the playing entry so the UI
     // can update accordingly.
     _audioPlayer.onPlayerComplete.listen((_) {
+      if (!mounted) return;
       setState(() {
         _playingEntryId = null;
       });
@@ -63,12 +64,14 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
   void _maybeStartTimerForEntry(JournalEntryModel entry, OlieModel model) {
     if (entry.responsePath == null && !_reloadTimers.containsKey(entry.id)) {
       _reloadTimers[entry.id] = Timer(const Duration(seconds: 20), () async {
+        if (!mounted) return;
+
         // now that we have a dedicated endpoint we only refresh this entry.
         final updated = await model.fetchEntryStatus(entry.id);
-        setState(() {
-          // Our timer is a one-shot, so delete it.
-          _reloadTimers.remove(entry.id)?.cancel();
-        });
+        if (!mounted) return;
+
+        // Our timer is a one-shot, so delete it.
+        _reloadTimers.remove(entry.id)?.cancel();
 
         // Try it again
         _maybeStartTimerForEntry(updated ?? entry, model);

@@ -116,7 +116,7 @@ public class MySqlMaintenanceTests
         unit.DeleteOldBackup(file);
 
         // Assert
-        os.Verify(v => v.FileDeleteNoEx(It.IsAny<string>()), Times.Once);
+        os.Verify(v => v.FileDelete(It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class MySqlMaintenanceTests
         unit.DeleteOldBackup(file);
 
         // Assert
-        os.Verify(v => v.FileDeleteNoEx(It.IsAny<string>()), Times.Never);
+        os.Verify(v => v.FileDelete(It.IsAny<string>()), Times.Never);
     }
 
     #endregion

@@ -10,13 +10,13 @@ public class MyRepository(MyContext context) : IMyRepository
 {
     #region ChatbotConversation
 
-    public async Task ChatbotConversationCreate(ChatbotConversationEntity entity, CancellationToken ct)
+    public virtual async Task ChatbotConversationCreate(ChatbotConversationEntity entity, CancellationToken ct)
     {
         await context.ChatbotConversations.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task ChatbotConversationDelete(string id, CancellationToken ct)
+    public virtual async Task ChatbotConversationDelete(string id, CancellationToken ct)
     {
         var entity = await context.ChatbotConversations.FindAsync([id], ct);
         if (entity is not null)
@@ -34,7 +34,7 @@ public class MyRepository(MyContext context) : IMyRepository
             .ToListAsync(ct);
     }
 
-    public async Task ChatbotConversationUpdate(ChatbotConversationEntity entity, CancellationToken ct)
+    public virtual async Task ChatbotConversationUpdate(ChatbotConversationEntity entity, CancellationToken ct)
     {
         context.ChatbotConversations.Update(entity);
         await context.SaveChangesAsync(ct);
@@ -44,7 +44,7 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #region ChatbotLogs
 
-    public async Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct)
+    public virtual async Task ChatbotLogCreate(ChatbotLogEntity entity, CancellationToken ct)
     {
         await context.ChatbotLogs.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);
@@ -69,7 +69,7 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #region JournalEntry
 
-    public async Task JournalEntryCreate(JournalEntryEntity entity, CancellationToken ct)
+    public virtual async Task JournalEntryCreate(JournalEntryEntity entity, CancellationToken ct)
     {
         await context.JournalEntries.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);
@@ -101,13 +101,13 @@ public class MyRepository(MyContext context) : IMyRepository
             .ToListAsync(ct);
     }
 
-    public async Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct)
+    public virtual async Task JournalEntryUpdate(JournalEntryEntity entity, CancellationToken ct)
     {
         context.JournalEntries.Update(entity);
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task JournalEntryDelete(int id, CancellationToken ct)
+    public virtual async Task JournalEntryDelete(int id, CancellationToken ct)
     {
         var entity = await context.JournalEntries.FindAsync([id], ct);
         if (entity is not null)
@@ -121,7 +121,7 @@ public class MyRepository(MyContext context) : IMyRepository
 
     #region TranscriptLogs
 
-    public async Task TranscriptLogCreate(TranscriptLogEntity entity, CancellationToken ct)
+    public virtual async Task TranscriptLogCreate(TranscriptLogEntity entity, CancellationToken ct)
     {
         await context.TranscriptLogs.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);

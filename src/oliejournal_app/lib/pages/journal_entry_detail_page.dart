@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:oliejournal_app/backend.dart';
 import 'package:oliejournal_app/models/journal_entry_model.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
@@ -29,6 +30,7 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
   final MapController _mapController = MapController();
   final format = DateFormat.yMd().add_jm();
   bool _playing = false;
+  bool _isDeleting = false;
 
   Timer? _reloadTimer;
 
@@ -36,6 +38,7 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
   void initState() {
     super.initState();
     _audioPlayer.onPlayerComplete.listen((_) {
+      if (!mounted) return;
       setState(() {
         _playing = false;
       });
@@ -76,14 +79,68 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
   void _maybeStartTimer(JournalEntryModel entry, OlieModel model) {
     if (entry.responsePath == null && _reloadTimer == null) {
       _reloadTimer = Timer(const Duration(seconds: 20), () async {
+        if (!mounted) return;
+
         final updated = await model.fetchEntryStatus(entry.id);
-        setState(() {
-          _reloadTimer?.cancel();
-          _reloadTimer = null;
-        });
+        if (!mounted) return;
+
+        _reloadTimer?.cancel();
+        _reloadTimer = null;
 
         _maybeStartTimer(updated ?? entry, model);
       });
+    }
+  }
+
+  Future<void> _confirmAndDelete(JournalEntryModel entry, OlieModel model) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete entry?'),
+          content: const Text(
+            'Are you sure you want to delete this journal entry? This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _isDeleting = true;
+    });
+
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await Backend.deleteJournalEntry(entry.id, model.token);
+      await model.fetchEntries();
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (_) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Could not delete entry')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDeleting = false;
+        });
+      }
     }
   }
 
@@ -114,6 +171,21 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
             icon: const Icon(Icons.refresh),
             tooltip: 'Reload entry',
             onPressed: () => model.fetchEntryStatus(entry.id),
+          ),
+          IconButton(
+            icon: _isDeleting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.delete_outline),
+            tooltip: 'Delete entry',
+            onPressed: _isDeleting
+                ? null
+                : () async {
+                    await _confirmAndDelete(entry, model);
+                  },
           ),
         ],
       ),

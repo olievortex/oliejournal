@@ -9,7 +9,7 @@ using oliejournal.lib.Services;
 
 namespace oliejournal.cli.Commands;
 
-public class CommandAudioProcessQueue(ILogger<CommandDeleteOldContent> logger, IServiceScopeFactory scopeFactory, IOlieConfig config, IOlieService os)
+public class CommandAudioProcessQueue(ILogger<CommandDeleteOldContent> logger, IOlieConfig config, IOlieService os, OlieHost host)
 {
     private const string LoggerName = $"oliejournal.cli {nameof(CommandAudioProcessQueue)}";
 
@@ -32,7 +32,7 @@ public class CommandAudioProcessQueue(ILogger<CommandDeleteOldContent> logger, I
                 var message = await os.ServiceBusReceiveJson<AudioProcessQueueItemModel>(receiver, timeout, ct);
                 if (message is null) continue;
 
-                using var scope = scopeFactory.CreateScope();
+                using var scope = host.ServiceScopeFactory.CreateScope();
                 var process = scope.ServiceProvider.GetRequiredService<IJournalProcess>();
                 var id = message.Body.Id;
 

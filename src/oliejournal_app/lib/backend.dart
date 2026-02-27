@@ -76,9 +76,6 @@ class Backend {
     final result = (jsonDecode(response.body) as List)
         .map((i) => JournalEntryModel.fromJson(i))
         .toList();
-    if (result.isEmpty) {
-      throw Exception('Null result when getting journal entries');
-    }
 
     return result;
   }
@@ -103,6 +100,23 @@ class Backend {
     return result;
   }
 
+  static Future<void> deleteJournalEntry(
+    int id,
+    String? token,
+  ) async {
+    final uri = Uri.parse(
+      'https://oliejournal.olievortex.com/api/journal/entries/$id',
+    );
+    final response = await http.delete(
+      uri,
+      headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Status ${response.statusCode} when deleting entry $id');
+    }
+  }
+  
   /// Upload an audio recording file to the server.
   ///
   /// The API expects a multipart POST to `/api/journal/audioEntry` with
@@ -114,7 +128,7 @@ class Backend {
     double? latitude,
     double? longitude,
     void Function(AudioUploadRetryInfo retryInfo)? onRetryScheduled,
-    int maxAttempts = 5,
+    int maxAttempts = 4,
   }) async {
     if (token == null) {
       throw Exception('No authentication token available');
