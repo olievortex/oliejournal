@@ -76,9 +76,6 @@ class Backend {
     final result = (jsonDecode(response.body) as List)
         .map((i) => JournalEntryModel.fromJson(i))
         .toList();
-    if (result.isEmpty) {
-      throw Exception('Null result when getting journal entries');
-    }
 
     return result;
   }
