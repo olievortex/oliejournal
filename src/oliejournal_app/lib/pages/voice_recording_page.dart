@@ -330,7 +330,12 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
 
   @override
   Widget build(BuildContext context) {
-    // wrap main content in an Expanded so footer stays at bottom
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final sectionGap = isLandscape ? 20.0 : 48.0;
+    final instructionToCardGap = isLandscape ? 16.0 : 24.0;
+    final timerCardPadding = isLandscape ? 20.0 : 32.0;
+
     return Scaffold(
       appBar: AppBar(title: const HomeHeader(), elevation: 0),
       body: Padding(
@@ -342,13 +347,12 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
         child: Column(
           children: [
             Expanded(
-              child: Center(
+              child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Instructions plus timer display
                       Text(
                         "Tap 'Start Recording' to begin. You have up to 1 minute. When you finish, tap 'Stop Recording' and choose 'Yes' to upload.",
                         textAlign: TextAlign.center,
@@ -357,9 +361,9 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: instructionToCardGap),
                       Container(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(timerCardPadding),
                         decoration: BoxDecoration(
                           color: Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(16),
@@ -385,9 +389,7 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 48),
-
-                      // Recording Status
+                      SizedBox(height: sectionGap),
                       if (_isRecording)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -430,7 +432,9 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                           ],
                         )
                       else if (_recordingPath != null)
-                        Text(_recordingFinished,
+                        Text(
+                          _recordingFinished,
+                          textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.green,
                             fontWeight: FontWeight.w600,
@@ -443,15 +447,12 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                             context,
                           ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                         ),
-                      const SizedBox(height: 48),
-
-                      // Buttons – use Wrap to avoid horizontal overflow on narrow screens
+                      SizedBox(height: sectionGap),
                       Wrap(
                         alignment: WrapAlignment.center,
                         spacing: 16,
                         runSpacing: 16,
                         children: [
-                          // Start Recording Button
                           ElevatedButton.icon(
                             onPressed: _isRecording || _isUploading ? null : _startRecording,
                             icon: const Icon(Icons.mic),
@@ -465,8 +466,6 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
                               disabledBackgroundColor: Colors.grey.shade400,
                             ),
                           ),
-
-                          // Stop Recording Button
                           ElevatedButton.icon(
                             onPressed: _isRecording ? _stopRecording : null,
                             icon: const Icon(Icons.stop),

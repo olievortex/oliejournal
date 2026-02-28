@@ -140,27 +140,42 @@ class _TutorialPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          data.icon,
-          size: 96,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        const SizedBox(height: 32),
-        Text(
-          data.title,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          data.description,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ],
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final iconSize = isLandscape ? 72.0 : 96.0;
+    final titleSpacing = isLandscape ? 20.0 : 32.0;
+    final descriptionSpacing = isLandscape ? 12.0 : 16.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  data.icon,
+                  size: iconSize,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                SizedBox(height: titleSpacing),
+                Text(
+                  data.title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                SizedBox(height: descriptionSpacing),
+                Text(
+                  data.description,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

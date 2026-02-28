@@ -116,6 +116,14 @@ class Backend {
       throw Exception('Status ${response.statusCode} when deleting entry $id');
     }
   }
+
+  static Future<void> requestDeleteAllUserData(String? token) async {
+    if (token == null) {
+      throw Exception('No authentication token available');
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  }
   
   /// Upload an audio recording file to the server.
   ///

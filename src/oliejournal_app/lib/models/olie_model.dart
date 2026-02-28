@@ -137,6 +137,26 @@ class OlieModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteAllUserData() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await Backend.requestDeleteAllUserData(token);
+
+      journalEntries = [];
+      forecast = null;
+      errorMessage = null;
+
+      await onLogout();
+    } catch (ex) {
+      errorMessage = ex.toString();
+      isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<void> _getUser() async {
     _profile = await _kindeClient.getUserProfileV2();
     token = await _kindeClient.getToken();

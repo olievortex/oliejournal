@@ -1,0 +1,106 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         OLIE JOURNAL ARCHITECTURE                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            CLIENT LAYER                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────┐  ┌──────────────────────────────────────┐  │
+│  │   Flutter Mobile App        │  │   Web Frontend (Razor Pages)         │  │
+│  │  (oliejournal_app)          │  │   (oliejournal.web)                  │  │
+│  ├─────────────────────────────┤  ├──────────────────────────────────────┤  │
+│  │ • Voice Recording Page      │  │ • Public Landing Page                │  │
+│  │ • Tutorial Page             │  │ • Privacy/Info Pages                 │  │
+│  │ • Authentication (Kinde)    │  │ • Bootstrap UI                       │  │
+│  │ • Home Page                 │  │                                      │  │
+│  │ • Geolocation Integration   │  │                                      │  │
+│  │ • Provider State Management │  │                                      │  │
+│  └──────────────┬──────────────┘  └────────────────┬─────────────────────┘  │
+│                 │                                  │                        │
+│                 └──────────────────┬───────────────┘                        │
+│                                    │                                        │
+└────────────────────────────────────┼────────────────────────────────────────┘
+                                     │ HTTP/HTTPS
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          API GATEWAY LAYER                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                  ┌─────────────────────────────────────┐                    │
+│                  │   ASP.NET Core API                  │                    │
+│                  │   (oliejournal.api)                 │                    │
+│                  ├─────────────────────────────────────┤                    │
+│                  │ Endpoints:                          │                    │
+│                  │ • GET /api/journal/entries          │                    │
+│                  │ • GET /api/secure/weatherforecast   │                    │
+│                  │ • Authentication (via Kinde)        │                    │
+│                  │ • Authorization                     │                    │
+│                  │ • Telemetry (Application Insights)  │                    │
+│                  └────────────────┬────────────────────┘                    │
+│                                   │                                         │
+└───────────────────────────────────┼─────────────────────────────────────────┘
+                                    │
+        ┌───────────────────────────┼───────────────────────────────┐
+        │                           │                               │
+        ▼                           ▼                               ▼
+┌─────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│  SERVICE LAYER      │  │  PROCESSING LAYER    │  │  EXTERNAL SERVICES   │
+├─────────────────────┤  ├──────────────────────┤  ├──────────────────────┤
+│                     │  │                      │  │                      │
+│ OlieService         │  │ JournalProcess       │  │ Google Cloud APIs    │
+│ • File I/O          │  │ • Ingestion Unit     │  │ • Speech-to-Text     │
+│ • Ffmpeg (MP3)      │  │ • Transcribe Unit    │  │ • Text-to-Speech     │
+│ • Google APIs       │  │ • Chatbot Unit       │  │                      │
+│ • OpenAI APIs       │  │ • Voiceover Unit     │  │ OpenAI               │
+│ • ServiceBus Ops    │  │                      │  │ • Chat Completions   │
+│ • Blob Storage Ops  │  │ CommandAudioProcess  │  │ • Conversation API   │
+│ • Stream Handling   │  │ Queue                │  │                      │
+│                     │  │                      │  │ Kinde                │
+└──────────┬──────────┘  └──────────┬───────────┘  │ • Authentication     │
+           │                        │              │                      │
+           └────────────────────────┼──────────────┴──────────────────────┘
+                                    │
+        ┌───────────────────────────┼───────────────────────────────┐
+        │                           │                               │
+        ▼                           ▼                               ▼
+┌─────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│  DATA PERSISTENCE   │  │  MESSAGE QUEUE       │  │  BLOB STORAGE        │
+├─────────────────────┤  ├──────────────────────┤  ├──────────────────────┤
+│                     │  │                      │  │                      │
+│ MySQL Database      │  │ Azure ServiceBus     │  │ Azure Blob Storage   │
+│ • Entity Framework  │  │ • Audio Process Q    │  │ • Audio Files        │
+│ • JournalEntries    │  │ • Message Handling   │  │ • MP3 Conversions    │
+│ • Conversations     │  │                      │  │ • MySQL Backups      │
+│ • Metadata          │  └──────────────────────┘  │                      │
+│                     │                            │                      │
+└─────────────────────┘                            └──────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   BACKGROUND PROCESSING LAYER                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │              CLI Application (oliejournal.cli)                       │   │
+│  │                    Scheduled Jobs (Cron)                             │   │
+│  ├──────────────────────────────────────────────────────────────────────┤   │
+│  │ • CommandAudioProcessQueue: Process voice audio messages             │   │
+│  │   - Listen to ServiceBus queue for audio uploads                     │   │
+│  │   - Transcribe audio with Google Cloud Speech-to-Text                │   │
+│  │   - Queue transcription results for OpenAI chatbot feedback          │   │
+│  │                                                                      │   │
+│  │ • CommandDeleteOldContent: Clean up expired data                     │   │
+│  │   - Delete old journal entries based on retention policy             │   │
+│  │   - Remove orphaned blob storage files                               │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      INFRASTRUCTURE LAYER                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ • Akamai Firewall (Network Security)                                        │
+│ • Akamai Linode VM (Linux Server - Running .NET Services & Apache)          │
+│ • Apache HTTP Server (Reverse Proxy for HTTPS/SSL)                          │
+│ • Application Insights (Telemetry & Monitoring)                             │
+└─────────────────────────────────────────────────────────────────────────────┘
