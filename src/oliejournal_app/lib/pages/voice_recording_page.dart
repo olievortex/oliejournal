@@ -18,13 +18,23 @@ class _VoiceRecordingPageState extends State<VoiceRecordingPage> {
   @override
   void initState() {
     super.initState();
+    _controller.onAutoStop = _onAutoStop;
     _fetchPermissions();
   }
 
   @override
   void dispose() {
+    _controller.onAutoStop = null;
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _onAutoStop(String path) async {
+    if (!mounted) {
+      return;
+    }
+
+    await _askUpload(path);
   }
 
   Future<void> _fetchPermissions() async {

@@ -12,6 +12,7 @@ import 'package:oliejournal_app/backend.dart';
 class VoiceRecordingController extends ChangeNotifier {
   final AudioRecorder _audioRecorder = AudioRecorder();
   Timer? _timer;
+  Future<void> Function(String path)? onAutoStop;
 
   int _secondsRemaining = 55;
   bool _isRecording = false;
@@ -148,12 +149,15 @@ class VoiceRecordingController extends ChangeNotifier {
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       _secondsRemaining--;
       notifyListeners();
 
       if (_secondsRemaining <= 0) {
-        stopRecording();
+        final path = await stopRecording();
+        if (path != null) {
+          await onAutoStop?.call(path);
+        }
       }
     });
   }
