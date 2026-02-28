@@ -1,17 +1,19 @@
 # OlieJournal
 
-OlieJournal is a storm-chasing observation platform that helps field teams capture voice notes, geolocation, and decision context in real time.
+I built OlieJournal as a storm-chasing observation platform that helps chasers in the field capture voice notes, geolocation, and decision context in real time.
 
-It combines a Flutter app with an ASP.NET Core backend and an asynchronous processing pipeline to transcribe audio, generate AI feedback, and create voice responses.
+I combined a Flutter app with an ASP.NET Core backend and an asynchronous processing pipeline to transcribe audio, generate AI feedback, and create voice responses.
 
-## Why OlieJournal?
+I developed most of the Flutter application with GitHub Copilot, showcasing my ability to ship effectively with AI-assisted tools.
+
+## What OlieJournal Does
 - **Hands-free journaling**: Capture observations and decisions while staying focused on the environment.
 - **Location-aware entries**: Geocode posts so sessions can be reviewed by route and location.
 - **AI-assisted improvement**: Receive chatbot prompts and feedback to improve observation quality over time.
 - **Cross-platform client**: Flutter-based app targets mobile and web experiences.
 
-## Architecture Overview
-OlieJournal is a multi-tier system built around asynchronous processing:
+## System Architecture
+I designed OlieJournal as a multi-tier system built around asynchronous processing:
 
 - **Client**: Flutter app records audio and captures location metadata.
 - **API**: ASP.NET Core API accepts uploads and orchestrates workflow.
@@ -26,7 +28,7 @@ OlieJournal is a multi-tier system built around asynchronous processing:
 
 See [architecture.txt](architecture.txt) for the architecture diagram.
 
-## Processing Flow
+## How It Works
 1. **Capture and upload (Client → API)**
 	- Flutter records audio and attaches location metadata.
 	- Client uploads payload to the ASP.NET Core API.
@@ -56,6 +58,6 @@ See [architecture.txt](architecture.txt) for the architecture diagram.
 	- Each stage can be scaled independently based on queue depth.
 	- Failures are isolated per stage and can be retried via message reprocessing.
 
-## Installation
+## Setup
 1. Complete infrastructure setup: [infrastructure/README.md](infrastructure/README.md)
 2. Complete project installation: [install/README.md](install/README.md)
