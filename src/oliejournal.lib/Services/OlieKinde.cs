@@ -17,7 +17,7 @@ public class OlieKinde(HttpClient httpClient, IOlieConfig config) : IOlieKinde
 
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
-        var response = await httpClient.DeleteAsync($"https://{config.KindeDomain}/api/v1/user?id={userId}", ct);
+        var response = await httpClient.DeleteAsync($"{config.KindeDomain}/api/v1/user?id={userId}", ct);
 
         return response.IsSuccessStatusCode;
     }
@@ -27,14 +27,14 @@ public class OlieKinde(HttpClient httpClient, IOlieConfig config) : IOlieKinde
         if (_accessToken != null && DateTime.UtcNow < _tokenExpiry)
             return;
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"https://{config.KindeDomain}/oauth2/token")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{config.KindeDomain}/oauth2/token")
         {
             Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",
                 ["client_id"] = config.KindeClientId,
                 ["client_secret"] = config.KindeClientSecret,
-                ["audience"] = $"https://{config.KindeDomain}/api"
+                ["audience"] = $"{config.KindeDomain}/api"
             })
         };
 

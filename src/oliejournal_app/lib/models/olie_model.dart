@@ -92,10 +92,22 @@ class OlieModel extends ChangeNotifier {
   //region Authentication
 
   Future<void> onRegister() async {
+    isLoading = true;
+    notifyListeners();
+
     try {
       await _kindeClient.register();
+
+      if (await _kindeClient.isAuthenticated()) {
+        _profile = await _kindeClient.getUserProfileV2();
+        token = await _kindeClient.getToken();
+        isLoggedIn = true;
+      }
     } catch (ex) {
       debugPrint(ex.toString());
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -158,10 +170,24 @@ class OlieModel extends ChangeNotifier {
   }
 
   Future<void> _getUser() async {
-    _profile = await _kindeClient.getUserProfileV2();
-    token = await _kindeClient.getToken();
+    try {
+      _profile = await _kindeClient.getUserProfileV2();
+      token = await _kindeClient.getToken();
+      notifyListeners();
+    } catch (ex) {
+      if (_isHttp400(ex)) {
+        await onLogout();
+        return;
+      }
 
-    notifyListeners();
+      rethrow;
+    }
+  }
+
+  bool _isHttp400(Object ex) {
+    final message = ex.toString();
+
+    return RegExp(r'\b400\b').hasMatch(message);
   }
 
   //endregion
