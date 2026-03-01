@@ -4,7 +4,12 @@ using oliejournal.lib.Services;
 
 namespace oliejournal.lib.Processes.DeleteUserProcess;
 
-public class DeleteUserProcess(IDeleteUserUnit deleteUser, IJournalEntryIngestionUnit ingestion, IJournalEntryChatbotUnit chatbot, IJournalEntryVoiceoverUnit voiceover, IOlieKinde kinde)
+public class DeleteUserProcess(
+    IDeleteUserUnit deleteUser,
+    IJournalEntryIngestionUnit ingestion,
+    IJournalEntryChatbotUnit chatbot,
+    IJournalEntryVoiceoverUnit voiceover,
+    IOlieKinde kinde) : IDeleteUserProcess
 {
     public async Task DeleteAllUserData(string userId, BlobContainerClient client, CancellationToken ct)
     {

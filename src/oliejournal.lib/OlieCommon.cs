@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using oliejournal.data;
 using oliejournal.lib.Processes.DeleteOldContentProcess;
+using oliejournal.lib.Processes.DeleteUserProcess;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using System.Diagnostics.CodeAnalysis;
@@ -58,6 +59,13 @@ public static class OlieCommon
 
         services.AddScoped<IDeleteOldContentProcess, DeleteOldContentProcess>();
         services.AddScoped<IMySqlMaintenance, MySqlMaintenance>();
+
+        #endregion
+
+        #region DeleteUserProcess
+
+        services.AddScoped<IDeleteUserProcess, DeleteUserProcess>();
+        services.AddScoped<IDeleteUserUnit, DeleteUserUnit>();
 
         #endregion
     }
