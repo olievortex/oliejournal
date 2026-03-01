@@ -16,9 +16,9 @@ public class OlieKinde(HttpClient httpClient, IOlieConfig config) : IOlieKinde
         await EnsureAccessToken(ct);
 
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-        
+
         var response = await httpClient.DeleteAsync($"https://{config.KindeDomain}/api/v1/user?id={userId}", ct);
-        
+
         return response.IsSuccessStatusCode;
     }
 
