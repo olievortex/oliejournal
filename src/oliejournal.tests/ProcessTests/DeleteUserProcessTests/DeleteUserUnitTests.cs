@@ -40,22 +40,8 @@ public class DeleteUserUnitTests
             e.DeleteViaApi == true), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    //public async Task<UserDeleteLogEntity> CreateDeleteLog(string userId, DateTime requested, CancellationToken ct)
-    //{
-    //    var entity = new UserDeleteLogEntity
-    //    {
-    //        UserId = userId,
-    //        Requested = requested,
-    //        DeleteViaApi = true,
-    //    };
-
-    //    await repo.UserDeleteLogCreate(entity, ct);
-
-    //    return entity;
-    //}
-
     [Test]
-    public async Task UpdateDeleteLog_Should_Set_Completed_To_Current_Time()
+    public async Task UpdateDeleteLog_Should_Call_Repository_Update()
     {
         // Arrange
         var repoMock = new Mock<IMyRepository>();
@@ -71,7 +57,6 @@ public class DeleteUserUnitTests
         await deleteUnit.UpdateDeleteLog(entity, CancellationToken.None);
 
         // Assert
-        Assert.That(entity.Completed, Is.Not.Null);
-        Assert.That(entity.Completed.Value, Is.InRange(DateTime.UtcNow.AddSeconds(-5), DateTime.UtcNow));
+        repoMock.Verify(r => r.UserDeleteLogUpdate(It.IsAny<UserDeleteLogEntity>(), CancellationToken.None), Times.Once);
     }
 }

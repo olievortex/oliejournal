@@ -21,8 +21,6 @@ public class DeleteUserUnit(IMyRepository repo) : IDeleteUserUnit
 
     public async Task UpdateDeleteLog(UserDeleteLogEntity entity, CancellationToken ct)
     {
-        entity.Completed = DateTime.UtcNow;
-
         await repo.UserDeleteLogUpdate(entity, ct);
     }
 }

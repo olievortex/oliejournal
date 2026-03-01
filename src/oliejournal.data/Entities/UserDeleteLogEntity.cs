@@ -8,7 +8,7 @@ public class UserDeleteLogEntity
     public DateTime Requested { get; set; }
     public bool DeleteViaApi { get; set; }
     public DateTime? Completed { get; set; }
-    // public string? Notes { get; set; } // Notes field is currently unused, but we may want to add information here in the future about the deletion (e.g. if there were any issues during the process)
+    public string? Notes { get; set; }
 }
 
 //-- oliejournal.UserDeleteLogs definition
