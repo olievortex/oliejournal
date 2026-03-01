@@ -7,5 +7,8 @@ The following evironment variables are required to run locally. Replace the dumm
   "OlieGoldPath": "C:/workspace/oliejournal",
   "OlieMySqlConnection": "server=[2600:3c00::2000:xxxx];port=20237;uid=oliejournal_user;pwd=xxxx;database=oliejournal;SslMode=Required;",
   "OlieOpenAiApiKey": "xxxx",
-  "OlieServiceBus": "xxxx.servicebus.windows.net"
+  "OlieServiceBus": "xxxx.servicebus.windows.net",
+  "OlieKindeDomain": "https://xxxx.kinde.com",
+  "OlieKindeClientId": "xxxx",
+  "OlieKindeClientSecret": "xxxx"
 }

@@ -2,14 +2,24 @@
 #### Ensure the connection string is wrapped within single quotes
 export APPLICATIONINSIGHTS_CONNECTION_STRING='__applicationinsights_connection_string__'
 export GOOGLE_APPLICATION_CREDENTIALS=/home/olievortex/oliejournal/xxxx.json
-#### On Linux, make sure to remove any brackets around the IPv6 address, otherwise it will not resolve
-#### Ensure the connection string is wrapped within single quotes
+export OlieAudioProcessQueue=oliejournal_audio_process
+export OlieBlobContainerUri=https://xxxx.blob.core.windows.net/oliejournal
+export OlieBlueUrl=http://localhost:7163
+export OlieChatbotInstructions="You are a..."
+export OlieFfmpegPath=/usr/bin/ffmpeg
+export OlieGoldPath=/var/www/videos
+export OlieGoogleVoiceName=en-US-Standard-C
+export OlieKindeDomain=https://antihoistentertainment.kinde.com
+export OlieKindeClientId=f6aa1d77db034b2282ac8c7affccee2b
+export OlieKindeClientSecret=0o9ZqrvFsknWgEgudshcyeO3fmERVFTT1woygaeKe5PF9VR15jCsa
 export OlieMySqlBackupContainer=https://xxxx.blob.core.windows.net/mysql-backups
 export OlieMySqlBackupPath=/var/backup/mysql
+#### On Linux, make sure to remove any brackets around the IPv6 address, otherwise it will not resolve
+#### Ensure the connection string is wrapped within single quotes
 export OlieMySqlConnection='server=2600:3c00::2000:xxxx;port=12345;uid=oliejournal_user;pwd=xxxx;database=oliejournal;SslMode=Required;'
-export OlieAudioProcessQueue=oliejournal_audio_process
+export OlieOpenAiApiKey="sk-xxxx"
+export OlieOpenAiModel=gpt-4.1-nano
 export OlieServiceBus=xxxx.servicebus.windows.net
-export OlieBlobContainerUri=https://xxxx.blob.core.windows.net/oliejournal
 #### The following settings are to create tokens from the ar-olieblind Application Registration.
 #### Open the ar-olieblind Application Registration in the Azure portal to get the following values.
 #### Replace __tenent_id__ with the "Directory (tenent) Id" from the portal
@@ -20,3 +30,6 @@ export OlieBlobContainerUri=https://xxxx.blob.core.windows.net/oliejournal
 export AZURE_TENANT_ID=xxxx
 export AZURE_CLIENT_ID=xxxx
 export AZURE_CLIENT_SECRET=xxxx
+export Authentication__Schemes__OpenIdConnect__ClientSecret=xxxx
+
+#### export OlieDillonMode=true

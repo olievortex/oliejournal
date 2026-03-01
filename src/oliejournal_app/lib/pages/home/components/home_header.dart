@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
+import 'package:oliejournal_app/pages/delete_all_data_page.dart';
 import 'package:oliejournal_app/pages/home/home_page.dart';
+import 'package:oliejournal_app/pages/tutorial/tutorial_page.dart';
 import 'package:provider/provider.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -31,8 +33,6 @@ class HomeHeader extends StatelessWidget {
   }
 
   Widget _loggedIn(BuildContext context, OlieModel olieModel) {
-    final navigator = Navigator.of(context);
-
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -50,27 +50,63 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
           horizontalSpaceRegular,
-          InkWell(
-            onTap: () async {
-              await olieModel.onLogout();
-              navigator.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => HomePage()),
-                (Route<dynamic> route) =>
-                    false, // This predicate ensures all previous routes are removed
-              );
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Account menu',
+            onSelected: (value) async {
+              if (value == 'tutorial') {
+                await _openTutorial(context);
+                return;
+              }
+
+              if (value == 'sign_out') {
+                await olieModel.onLogout();
+                if (!context.mounted) {
+                  return;
+                }
+
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                  (Route<dynamic> route) => false,
+                );
+              }
+
+              if (value == 'delete_all_data') {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const DeleteAllDataPage(),
+                  ),
+                );
+              }
             },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 10),
-                Text(
-                  'Sign out',
-                  style: kRobotoText.copyWith(fontSize: kBodySmall),
-                ),
-              ],
-            ),
+            itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'tutorial',
+                child: Text('Tutorial'),
+              ),
+              PopupMenuItem<String>(
+                value: 'sign_out',
+                child: Text('Sign out'),
+              ),
+              PopupMenuItem<String>(
+                value: 'delete_all_data',
+                child: Text('Delete all data'),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _openTutorial(BuildContext context) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TutorialPage(
+          onFinished: () async {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
     );
   }

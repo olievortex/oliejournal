@@ -27,8 +27,10 @@
 
 #### Startup
 @reboot sleep 10; /home/olievortex/oliejournal/start_api.sh
+@reboot sleep 15; /home/olievortex/oliejournal/start_web.sh
 @reboot sleep 20; /home/olievortex/oliejournal/start_audioprocessqueue.sh
 
 #### Hack to force avahi-daemon to get off it's ass and register our IPv6 address
 @reboot ping6 -c3 example.net
+@reboot sleep 5; ping6 -c3 example.net
 @reboot ping -c3 example.net

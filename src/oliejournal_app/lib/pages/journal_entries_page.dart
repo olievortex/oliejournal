@@ -6,7 +6,6 @@ import 'package:oliejournal_app/constants.dart';
 import 'package:oliejournal_app/models/journal_entry_model.dart';
 import 'package:oliejournal_app/models/olie_model.dart';
 import 'package:oliejournal_app/pages/home/components/home_footer.dart';
-import 'package:oliejournal_app/pages/home/components/home_header.dart';
 import 'package:oliejournal_app/pages/journal_entry_detail_page.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -114,8 +113,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const HomeHeader(),
-        elevation: 0,
+        title: const Text('Journal Entries'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -132,12 +130,11 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
+          top: 16,
           bottom: MediaQuery.viewPaddingOf(context).bottom,
         ),
         child: Column(
           children: [
-            const Text('Journal Entries'),
-            const SizedBox(height: 16),
             Expanded(child: _entryList(messenger)),
             const HomeFooter(),
           ],

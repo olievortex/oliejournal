@@ -116,6 +116,26 @@ class Backend {
       throw Exception('Status ${response.statusCode} when deleting entry $id');
     }
   }
+
+  static Future<void> requestDeleteAllUserData(String? token) async {
+    if (token == null) {
+      throw Exception('No authentication token available');
+    }
+
+    final uri = Uri.parse(
+      'https://oliejournal.olievortex.com/api/journal/deleteAccount',
+    );
+    final response = await http.delete(
+      uri,
+      headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Status ${response.statusCode} when deleting account',
+      );
+    }
+  }
   
   /// Upload an audio recording file to the server.
   ///

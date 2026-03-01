@@ -54,3 +54,13 @@ CREATE TABLE "TranscriptLogs" (
   "Exception" text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY ("Id")
 );
+
+CREATE TABLE "UserDeleteLogs" (
+  "Id" int NOT NULL AUTO_INCREMENT,
+  "UserId" varchar(100) NOT NULL,
+  "Requested" datetime NOT NULL,
+  "DeleteViaApi" tinyint(1) NOT NULL,
+  "Completed" datetime DEFAULT NULL,
+  "Notes" text,
+  PRIMARY KEY ("Id")
+);

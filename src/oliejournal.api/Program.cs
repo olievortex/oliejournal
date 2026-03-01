@@ -24,6 +24,7 @@ public static class Program
         builder.AddOlieAuthentication();
         builder.Services.AddAuthorization();
         builder.Services.AddOlieLibScopes(config);
+        builder.Services.AddHttpClient<IOlieKinde, OlieKinde>();
         builder.AddOlieEntityFramework(config);
         builder.AddOlieTelemetry();
 
