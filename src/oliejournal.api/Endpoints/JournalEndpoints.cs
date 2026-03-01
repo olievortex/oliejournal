@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using oliejournal.api.Models;
 using oliejournal.lib;
 using oliejournal.lib.Models;
-using oliejournal.lib.Processes.DeleteUser;
+using oliejournal.lib.Processes.DeleteUserProcess;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using System.Security.Claims;

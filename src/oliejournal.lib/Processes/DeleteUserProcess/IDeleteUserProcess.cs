@@ -1,6 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 
-namespace oliejournal.lib.Processes.DeleteUser;
+namespace oliejournal.lib.Processes.DeleteUserProcess;
 
 public interface IDeleteUserProcess
 {

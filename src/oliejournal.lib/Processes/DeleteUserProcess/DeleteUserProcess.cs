@@ -2,7 +2,7 @@
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 
-namespace oliejournal.lib.Processes.DeleteUser;
+namespace oliejournal.lib.Processes.DeleteUserProcess;
 
 public class DeleteUserProcess(IDeleteUserUnit deleteUser, IJournalEntryIngestionUnit ingestion, IJournalEntryChatbotUnit chatbot, IJournalEntryVoiceoverUnit voiceover, IOlieKinde kinde)
 {

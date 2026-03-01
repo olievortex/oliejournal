@@ -1,7 +1,7 @@
 ﻿using oliejournal.data;
 using oliejournal.data.Entities;
 
-namespace oliejournal.lib.Processes.DeleteUser;
+namespace oliejournal.lib.Processes.DeleteUserProcess;
 
 public class DeleteUserUnit(IMyRepository repo) : IDeleteUserUnit
 {
