@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using oliejournal.api.Models;
 using oliejournal.lib;
 using oliejournal.lib.Models;
+using oliejournal.lib.Processes.DeleteUser;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services;
 using System.Security.Claims;
@@ -17,6 +18,7 @@ public static class JournalEndpoints
         app.MapGet("/api/journal/entries/{id}", GetEntry).RequireAuthorization();
         app.MapPost("/api/journal/audioEntry", PostAudioEntry).DisableAntiforgery().RequireAuthorization();
         app.MapDelete("/api/journal/entries/{id}", DeleteEntry).RequireAuthorization();
+        app.MapDelete("/api/journal/deleteAccount", DeleteAllUserData).RequireAuthorization();
     }
 
     public static async Task<Results<Ok<JournalEntryListModel>, NotFound, UnauthorizedHttpResult>> GetEntry(int id, ClaimsPrincipal user, IJournalProcess process, CancellationToken ct)
@@ -64,6 +66,19 @@ public static class JournalEndpoints
 
         var deleted = await process.DeleteEntry(id, userId, client, ct);
         if (!deleted) return TypedResults.NotFound();
+
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<Results<NoContent, UnauthorizedHttpResult>> DeleteAllUserData(ClaimsPrincipal user, IDeleteUserProcess process, IOlieConfig config, CancellationToken ct)
+    {
+        var userId = user.Identity?.Name;
+        if (userId is null) return TypedResults.Unauthorized();
+
+        var client = config.BlobContainerClient();
+
+        // Delete all journal entries, associated data, and Kinde user
+        await process.DeleteAllUserData(userId, client, ct);
 
         return TypedResults.NoContent();
     }

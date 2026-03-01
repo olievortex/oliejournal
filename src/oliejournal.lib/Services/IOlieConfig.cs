@@ -9,6 +9,9 @@ public interface IOlieConfig
     string FfmpegPath { get; }
     string GoldPath { get; }
     string GoogleVoiceName { get; }
+    string KindeClientId { get; }
+    string KindeClientSecret { get; }
+    string KindeDomain { get; }
     Uri MySqlBackupContainer { get; }
     string MySqlBackupPath { get; }
     string MySqlConnection { get; }

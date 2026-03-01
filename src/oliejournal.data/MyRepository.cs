@@ -135,4 +135,20 @@ public class MyRepository(MyContext context) : IMyRepository
     }
 
     #endregion
+
+    #region UserDeleteLogs
+
+    public async Task UserDeleteLogCreate(UserDeleteLogEntity entity, CancellationToken ct)
+    {
+        await context.UserDeleteLogs.AddAsync(entity, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    public async Task UserDeleteLogUpdate(UserDeleteLogEntity entity, CancellationToken ct)
+    {
+        context.UserDeleteLogs.Update(entity);
+        await context.SaveChangesAsync(ct);
+    }
+
+    #endregion
 }

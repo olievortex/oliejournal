@@ -39,4 +39,11 @@ public interface IMyRepository
     Task<int> TranscriptLogSummary(DateTime start, CancellationToken ct);
 
     #endregion
+
+    #region UserDeleteLogs
+
+    Task UserDeleteLogCreate(UserDeleteLogEntity entity, CancellationToken ct);
+    Task UserDeleteLogUpdate(UserDeleteLogEntity entity, CancellationToken ct);
+
+    #endregion
 }
