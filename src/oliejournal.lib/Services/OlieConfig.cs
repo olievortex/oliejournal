@@ -9,6 +9,7 @@ public class OlieConfig(IConfiguration config) : IOlieConfig
     public string ApplicationInsightsConnectionString => GetString("APPLICATIONINSIGHTS_CONNECTION_STRING");
     public string AudioProcessQueue => GetString("OlieAudioProcessQueue");
     public string BlobContainerUri => GetString("OlieBlobContainerUri");
+    public string BlueUrl => GetString("OlieBlueUrl");
     public string ChatbotInstructions => GetString("OlieChatbotInstructions");
     public bool DillonMode => GetOptionalBool("OlieDillonMode");
     public string FfmpegPath => GetString("OlieFfmpegPath");

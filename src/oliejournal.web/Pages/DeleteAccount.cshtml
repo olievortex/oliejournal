@@ -1,0 +1,107 @@
+@page
+@model DeleteAccountModel
+@{
+    ViewData["Title"] = "Delete Account";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h1 class="card-title text-danger mb-4">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Delete Account
+                    </h1>
+
+                    @if (Model.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+
+                    @if (Model.SuccessMessage != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @Model.SuccessMessage
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <strong>Warning:</strong> This action cannot be undone!
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>This will permanently delete:</h5>
+                            <ul>
+                                <li>All your journal entries</li>
+                                <li>All voice recordings</li>
+                                <li>All AI conversation history</li>
+                                <li>Your account and profile information</li>
+                            </ul>
+                        </div>
+
+                        <form method="post" id="deleteForm">
+                            <div class="mb-3">
+                                <label for="confirmationText" class="form-label">
+                                    To confirm deletion, please type <strong class="text-danger">DELETE MY ACCOUNT</strong> below:
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="confirmationText" 
+                                       name="confirmationText" 
+                                       required 
+                                       autocomplete="off"
+                                       placeholder="DELETE MY ACCOUNT" />
+                                <span asp-validation-for="ConfirmationText" class="text-danger"></span>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" 
+                                        class="btn btn-danger" 
+                                        id="deleteButton" 
+                                        disabled>
+                                    <span id="buttonText">Delete My Account</span>
+                                    <span id="buttonSpinner" class="spinner-border spinner-border-sm d-none" role="status">
+                                        <span class="visually-hidden">Processing...</span>
+                                    </span>
+                                </button>
+                                <a asp-page="/Index" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const confirmInput = document.getElementById('confirmationText');
+        const deleteButton = document.getElementById('deleteButton');
+        const deleteForm = document.getElementById('deleteForm');
+        const buttonText = document.getElementById('buttonText');
+        const buttonSpinner = document.getElementById('buttonSpinner');
+
+        // Enable button only when confirmation text matches
+        confirmInput.addEventListener('input', function() {
+            if (this.value === 'DELETE MY ACCOUNT') {
+                deleteButton.disabled = false;
+                deleteButton.classList.remove('btn-danger');
+                deleteButton.classList.add('btn-danger');
+            } else {
+                deleteButton.disabled = true;
+            }
+        });
+
+        // Show loading state on submit
+        deleteForm.addEventListener('submit', function() {
+            deleteButton.disabled = true;
+            buttonText.textContent = 'Deleting...';
+            buttonSpinner.classList.remove('d-none');
+        });
+    </script>
+}

@@ -1,0 +1,16 @@
+﻿<ul class="navbar-nav">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <span class="navbar-text text-dark">Hello @OlieWebCommon.UserName(User)</span>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-page="/Logout">Sign out</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-page="/Login">Sign in</a>
+        </li>
+    }
+</ul>

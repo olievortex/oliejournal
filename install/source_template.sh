@@ -4,6 +4,7 @@ export APPLICATIONINSIGHTS_CONNECTION_STRING='__applicationinsights_connection_s
 export GOOGLE_APPLICATION_CREDENTIALS=/home/olievortex/oliejournal/xxxx.json
 export OlieAudioProcessQueue=oliejournal_audio_process
 export OlieBlobContainerUri=https://xxxx.blob.core.windows.net/oliejournal
+export OlieBlueUrl=http://localhost:7163
 export OlieChatbotInstructions="You are a..."
 export OlieFfmpegPath=/usr/bin/ffmpeg
 export OlieGoldPath=/var/www/videos
@@ -29,5 +30,6 @@ export OlieServiceBus=xxxx.servicebus.windows.net
 export AZURE_TENANT_ID=xxxx
 export AZURE_CLIENT_ID=xxxx
 export AZURE_CLIENT_SECRET=xxxx
+export Authentication__Schemes__OpenIdConnect__ClientSecret=xxxx
 
 #### export OlieDillonMode=true
