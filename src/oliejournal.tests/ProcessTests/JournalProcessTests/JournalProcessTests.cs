@@ -191,6 +191,8 @@ public class JournalProcessTests
         const string transcript = "def";
         const float lat = 45.123f;
         const float lon = -93.456f;
+        const int page = 1;
+        const int pageSize = 10;
         var entities = new List<JournalEntryEntity> {
             new() {
                 Id = id,
@@ -207,19 +209,25 @@ public class JournalProcessTests
             .ReturnsAsync(entities);
 
         // Act
-        var result = await unit.GetEntryList(userId, CancellationToken.None);
+        var result = await unit.GetEntryList(userId, page, pageSize, CancellationToken.None);
 
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].UserId, Is.EqualTo(userId));
-            Assert.That(result[0].Id, Is.EqualTo(id));
-            Assert.That(result[0].ResponseText, Is.EqualTo(responseTest));
-            Assert.That(result[0].ResponsePath, Is.EqualTo(responsePath));
-            Assert.That(result[0].Transcript, Is.EqualTo(transcript));
-            Assert.That(result[0].Created, Is.Not.EqualTo(DateTime.MinValue));
-            Assert.That(result[0].Latitude, Is.EqualTo(lat).Within(0.0001));
-            Assert.That(result[0].Longitude, Is.EqualTo(lon).Within(0.0001));
+            Assert.That(result.CurrentPage, Is.EqualTo(page));
+            Assert.That(result.PageSize, Is.EqualTo(pageSize));
+            Assert.That(result.TotalItems, Is.EqualTo(entities.Count));
+            Assert.That(result.TotalPages, Is.EqualTo(1));
+            Assert.That(result.HasNextPage, Is.False);
+            Assert.That(result.HasPreviousPage, Is.False);
+            Assert.That(result.Items[0].UserId, Is.EqualTo(userId));
+            Assert.That(result.Items[0].Id, Is.EqualTo(id));
+            Assert.That(result.Items[0].ResponseText, Is.EqualTo(responseTest));
+            Assert.That(result.Items[0].ResponsePath, Is.EqualTo(responsePath));
+            Assert.That(result.Items[0].Transcript, Is.EqualTo(transcript));
+            Assert.That(result.Items[0].Created, Is.Not.EqualTo(DateTime.MinValue));
+            Assert.That(result.Items[0].Latitude, Is.EqualTo(lat).Within(0.0001));
+            Assert.That(result.Items[0].Longitude, Is.EqualTo(lon).Within(0.0001));
         }
     }
 

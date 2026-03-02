@@ -51,9 +51,27 @@ public class JournalProcess(
         await ingestion.CreateJournalMessage(journalEntryId, AudioProcessStepEnum.VoiceOver, sender, ct);
     }
 
-    public async Task<List<JournalEntryListModel>> GetEntryList(string userId, CancellationToken ct)
+    public async Task<PagedResultModel<JournalEntryListModel>> GetEntryList(string userId, int page, int pageSize, CancellationToken ct)
     {
-        return [.. (await ingestion.GetJournalEntryList(userId, ct)).Select(JournalEntryListModel.FromEntity)];
+        var allEntries = await ingestion.GetJournalEntryList(userId, ct);
+        var totalItems = allEntries.Count;
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+        
+        var pagedEntries = allEntries
+            .OrderByDescending(e => e.Created)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(JournalEntryListModel.FromEntity)
+            .ToList();
+
+        return new PagedResultModel<JournalEntryListModel>
+        {
+            Items = pagedEntries,
+            CurrentPage = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages
+        };
     }
 
     public async Task<JournalEntryListModel?> GetEntry(int journalEntryId, string userId, CancellationToken ct)
