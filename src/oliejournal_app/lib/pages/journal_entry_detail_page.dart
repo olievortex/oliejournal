@@ -125,8 +125,23 @@ class _JournalEntryDetailPageState extends State<JournalEntryDetailPage> {
 
     final messenger = ScaffoldMessenger.of(context);
     try {
+      final currentPage = model.journalEntriesCurrentPage;
+      final currentPageSize = model.journalEntriesPageSize > 0
+          ? model.journalEntriesPageSize
+          : null;
+
       await Backend.deleteJournalEntry(entry.id, model.token);
-      await model.fetchEntries();
+      await model.fetchEntries(
+        page: currentPage,
+        pageSize: currentPageSize,
+      );
+
+      if (model.journalEntries.isEmpty && currentPage > 1) {
+        await model.fetchEntries(
+          page: currentPage - 1,
+          pageSize: currentPageSize,
+        );
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop();
