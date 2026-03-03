@@ -32,12 +32,18 @@ public static class JournalEndpoints
         return TypedResults.Ok(entry);
     }
 
-    public static async Task<Results<Ok<List<JournalEntryListModel>>, UnauthorizedHttpResult>> GetEntryList(ClaimsPrincipal user, IJournalProcess process, CancellationToken ct)
+    public static async Task<Results<Ok<PagedResultModel<JournalEntryListModel>>, UnauthorizedHttpResult>> GetEntryList(
+        ClaimsPrincipal user, 
+        IJournalProcess process, 
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10, 
+        CancellationToken ct = default)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
 
-        return TypedResults.Ok(await process.GetEntryList(userId, ct));
+        var result = await process.GetEntryList(userId, page, pageSize, ct);
+        return TypedResults.Ok(result);
     }
 
     public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, [FromForm] string? latitude, [FromForm] string? longitude, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)

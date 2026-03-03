@@ -1,0 +1,113 @@
+@page
+@model RequestAccountDeletionModel
+@{
+    ViewData["Title"] = "Account & Data Deletion Request";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h1 class="card-title mb-4">Account & Data Deletion Request</h1>
+
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-circle-fill me-2" viewBox="0 0 16 16">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+                            </svg>
+                            Your Data Privacy Rights
+                        </h5>
+                        <p class="mb-0">You have the right to request deletion of all your personal data stored in OlieJournal at any time. This page explains how to submit a deletion request.</p>
+                    </div>
+
+                    <section class="mb-4">
+                        <h2 class="h4 mb-3">What Data Will Be Deleted?</h2>
+                        <p>When you request account deletion, the following data will be permanently removed from our systems:</p>
+                        <ul>
+                            <li><strong>Account Information:</strong> Your email address, name, and profile data</li>
+                            <li><strong>Journal Entries:</strong> All journal entry text and transcriptions</li>
+                            <li><strong>Voice Recordings:</strong> All uploaded and stored audio files</li>
+                            <li><strong>AI Conversations:</strong> All chatbot interactions and conversation history</li>
+                            <li><strong>Location Data:</strong> Any GPS coordinates associated with your entries</li>
+                            <li><strong>Usage Data:</strong> Account-specific usage and activity logs</li>
+                        </ul>
+                        <div class="alert alert-warning mt-3">
+                            <strong>Important:</strong> This action is permanent and cannot be undone. Once deleted, your data cannot be recovered.
+                        </div>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4 mb-3">How to Request Deletion</h2>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-check-fill me-2 text-success" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M15.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L12.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                                        <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                    </svg>
+                                    Option 1: Self-Service Deletion (Recommended)
+                                </h5>
+                                <p class="card-text mb-3">If you can log in to your account, you can immediately delete all your data:</p>
+                                <ol class="mb-3">
+                                    <li>Click the button below to go to the deletion page</li>
+                                    <li>Log in to your OlieJournal account if prompted</li>
+                                    <li>Follow the on-screen instructions to confirm deletion</li>
+                                    <li>Your account and all data will be permanently deleted within minutes</li>
+                                </ol>
+                                <a href="/DeleteAccount" class="btn btn-danger">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash me-2" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                    </svg>
+                                    Delete My Account & Data
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-envelope-fill me-2 text-primary" viewBox="0 0 16 16">
+                                        <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
+                                    </svg>
+                                    Option 2: Email Request
+                                </h5>
+                                <p class="card-text mb-3">If you cannot log in to your account, you can request deletion by email:</p>
+                                <ol class="mb-3">
+                                    <li>Send an email to <a href="mailto:olievortex@olievortex.com">olievortex@olievortex.com</a></li>
+                                    <li>Use the subject line: <strong>"Account Deletion Request"</strong></li>
+                                    <li>Include the email address associated with your OlieJournal account</li>
+                                    <li>Provide any additional information that helps us verify your identity</li>
+                                </ol>
+                                <p class="mb-0"><strong>Processing Time:</strong> Email requests are typically processed within 30 days of receipt and verification.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4 mb-3">After Deletion</h2>
+                        <p>Once your deletion request is processed:</p>
+                        <ul>
+                            <li>All your data will be permanently removed from our production systems</li>
+                            <li>You will be logged out and unable to access your account</li>
+                            <li>Backups containing your data will be deleted according to our retention schedule (typically within 90 days)</li>
+                            <li>You will receive a confirmation once the deletion is complete</li>
+                        </ul>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4 mb-3">Questions or Concerns?</h2>
+                        <p>If you have questions about data deletion or our privacy practices, please review our <a asp-page="/Privacy">Privacy Policy</a> or contact us at <a href="mailto:olievortex@olievortex.com">olievortex@olievortex.com</a>.</p>
+                    </section>
+
+                    <div class="text-muted small mt-4 pt-3 border-top">
+                        <p class="mb-1"><strong>Google Play Data Deletion</strong></p>
+                        <p class="mb-0">This page complies with Google Play's user data deletion policy. All users have the ability to request deletion of their account and associated data through the methods described above.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

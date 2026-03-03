@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:oliejournal_app/models/forecast_model.dart';
 import 'package:oliejournal_app/models/journal_entry_model.dart';
+import 'package:oliejournal_app/models/paged_result_model.dart';
 
 class AudioUploadRetryInfo {
   const AudioUploadRetryInfo({
@@ -56,11 +57,20 @@ class Backend {
     return result;
   }
 
-  static Future<List<JournalEntryModel>> fetchJournalEntries(
-    String? token,
+  static Future<PagedResultModel<JournalEntryModel>> fetchJournalEntries(
+    String? token, {
+    int? page,
+    int? pageSize,
+  }
   ) async {
-    final uri = Uri.parse(
-      'https://oliejournal.olievortex.com/api/journal/entries',
+    final queryParameters = <String, String>{
+      if (page != null) 'page': page.toString(),
+      if (pageSize != null) 'pageSize': pageSize.toString(),
+    };
+    final uri = Uri.https(
+      'oliejournal.olievortex.com',
+      '/api/journal/entries',
+      queryParameters.isEmpty ? null : queryParameters,
     );
     final response = await http.get(
       uri,
@@ -73,9 +83,34 @@ class Backend {
       );
     }
 
-    final result = (jsonDecode(response.body) as List)
-        .map((i) => JournalEntryModel.fromJson(i))
-        .toList();
+    final payload = jsonDecode(response.body);
+
+    if (payload is List) {
+      return PagedResultModel<JournalEntryModel>(
+        items: payload.map((i) => JournalEntryModel.fromJson(i)).toList(),
+        currentPage: 1,
+        pageSize: payload.length,
+        totalItems: payload.length,
+        totalPages: 1,
+      );
+    }
+
+    if (payload is! Map<String, dynamic>) {
+      throw Exception('Unexpected journal entries payload format');
+    }
+
+    final itemsJson = payload['items'];
+    if (itemsJson is! List) {
+      throw Exception('Unexpected journal entries items format');
+    }
+
+    final result = PagedResultModel<JournalEntryModel>(
+      items: itemsJson.map((i) => JournalEntryModel.fromJson(i)).toList(),
+      currentPage: (payload['currentPage'] as num?)?.toInt() ?? 1,
+      pageSize: (payload['pageSize'] as num?)?.toInt() ?? itemsJson.length,
+      totalItems: (payload['totalItems'] as num?)?.toInt() ?? itemsJson.length,
+      totalPages: (payload['totalPages'] as num?)?.toInt() ?? 1,
+    );
 
     return result;
   }

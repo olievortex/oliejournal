@@ -22,6 +22,13 @@ class OlieModel extends ChangeNotifier {
   String? errorMessage;
   ForecastModel? forecast;
   List<JournalEntryModel> journalEntries = [];
+  int journalEntriesCurrentPage = 1;
+  int journalEntriesPageSize = 0;
+  int journalEntriesTotalItems = 0;
+  int journalEntriesTotalPages = 1;
+  bool get journalEntriesHasPreviousPage => journalEntriesCurrentPage > 1;
+  bool get journalEntriesHasNextPage =>
+      journalEntriesCurrentPage < journalEntriesTotalPages;
 
   OlieModel() {
     _kindeClient.isAuthenticated().then((value) {
@@ -51,12 +58,21 @@ class OlieModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchEntries() async {
+  Future<void> fetchEntries({int? page, int? pageSize}) async {
     isLoading = true;
     notifyListeners();
 
     try {
-      journalEntries = await Backend.fetchJournalEntries(token);
+      final entriesResult = await Backend.fetchJournalEntries(
+        token,
+        page: page,
+        pageSize: pageSize,
+      );
+      journalEntries = entriesResult.items;
+      journalEntriesCurrentPage = entriesResult.currentPage;
+      journalEntriesPageSize = entriesResult.pageSize;
+      journalEntriesTotalItems = entriesResult.totalItems;
+      journalEntriesTotalPages = entriesResult.totalPages;
       errorMessage = null;
     } catch (ex) {
       errorMessage = ex.toString();
@@ -145,6 +161,11 @@ class OlieModel extends ChangeNotifier {
     _profile = null;
     token = null;
     isLoggedIn = false;
+    journalEntries = [];
+    journalEntriesCurrentPage = 1;
+    journalEntriesPageSize = 0;
+    journalEntriesTotalItems = 0;
+    journalEntriesTotalPages = 1;
     isLoading = false;
     notifyListeners();
   }
@@ -157,6 +178,10 @@ class OlieModel extends ChangeNotifier {
       await Backend.requestDeleteAllUserData(token);
 
       journalEntries = [];
+      journalEntriesCurrentPage = 1;
+      journalEntriesPageSize = 0;
+      journalEntriesTotalItems = 0;
+      journalEntriesTotalPages = 1;
       forecast = null;
       errorMessage = null;
 

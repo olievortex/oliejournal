@@ -119,9 +119,13 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
             icon: const Icon(Icons.refresh),
             tooltip: 'Reload entries',
             onPressed: () {
-              // simply ask the model to reload; the loading indicator will
-              // show automatically via Consumer above.
-              context.read<OlieModel>().fetchEntries();
+              final model = context.read<OlieModel>();
+              model.fetchEntries(
+                page: model.journalEntriesCurrentPage,
+                pageSize: model.journalEntriesPageSize > 0
+                    ? model.journalEntriesPageSize
+                    : null,
+              );
             },
           ),
         ],
@@ -162,12 +166,54 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
           _maybeStartTimerForEntry(entry, model);
         }
 
-        return ListView.builder(
-          itemCount: model.journalEntries.length,
-          itemBuilder: (context, index) {
-            final entry = model.journalEntries[index];
-            return _entryTile(entry, messenger);
-          },
+        return Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: model.journalEntries.length,
+                itemBuilder: (context, index) {
+                  final entry = model.journalEntries[index];
+                  return _entryTile(entry, messenger);
+                },
+              ),
+            ),
+            if (model.journalEntriesTotalPages > 1)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left),
+                      tooltip: 'Previous page',
+                      onPressed: model.journalEntriesHasPreviousPage
+                          ? () => model.fetchEntries(
+                                page: model.journalEntriesCurrentPage - 1,
+                                pageSize: model.journalEntriesPageSize > 0
+                                    ? model.journalEntriesPageSize
+                                    : null,
+                              )
+                          : null,
+                    ),
+                    Text(
+                      'Page ${model.journalEntriesCurrentPage} of ${model.journalEntriesTotalPages}',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right),
+                      tooltip: 'Next page',
+                      onPressed: model.journalEntriesHasNextPage
+                          ? () => model.fetchEntries(
+                                page: model.journalEntriesCurrentPage + 1,
+                                pageSize: model.journalEntriesPageSize > 0
+                                    ? model.journalEntriesPageSize
+                                    : null,
+                              )
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+          ],
         );
       },
     );
