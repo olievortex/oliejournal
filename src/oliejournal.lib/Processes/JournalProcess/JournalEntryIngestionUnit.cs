@@ -21,7 +21,7 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         return string.Concat(hashBytes.Select(b => b.ToString("x2")));
     }
 
-    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, float? latitude, float? longitude, OlieWavInfo olieWavInfo, CancellationToken ct)
+    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, float? latitude, float? longitude, string? ipAddress, OlieWavInfo olieWavInfo, CancellationToken ct)
     {
         var entity = new JournalEntryEntity
         {
@@ -36,6 +36,7 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
             AudioHash = hash,
             Latitude = latitude,
             Longitude = longitude,
+            IpAddress = ipAddress,
         };
 
         await repo.JournalEntryCreate(entity, ct);

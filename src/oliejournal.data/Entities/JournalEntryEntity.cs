@@ -15,6 +15,7 @@ public class JournalEntryEntity
     public string AudioHash { get; set; } = string.Empty;
     public float? Latitude { get; set; }
     public float? Longitude { get; set; }
+    public string? IpAddress { get; set; }
     public string? Response { get; set; }
     public DateTime? ResponseCreated { get; set; }
     public string? VoiceoverPath { get; set; }
@@ -30,6 +31,7 @@ public class JournalEntryEntity
 //CREATE TABLE "JournalEntries" (
 //  "Id" int NOT NULL AUTO_INCREMENT,
 //  "UserId" varchar(100) NOT NULL,
+//  "IpAddress" varchar(100) DEFAULT NULL,
 //  "Created" datetime NOT NULL,
 //  "AudioPath" varchar(320) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
 //  "AudioLength" int NOT NULL,

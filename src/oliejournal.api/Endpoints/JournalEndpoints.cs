@@ -46,7 +46,7 @@ public static class JournalEndpoints
         return TypedResults.Ok(result);
     }
 
-    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(IFormFile file, [FromForm] string? latitude, [FromForm] string? longitude, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
+    public static async Task<Results<Ok<IntResultModel>, UnauthorizedHttpResult>> PostAudioEntry(HttpContext httpContext, IFormFile file, [FromForm] string? latitude, [FromForm] string? longitude, ClaimsPrincipal user, IJournalProcess process, IOlieConfig config, CancellationToken ct)
     {
         var userId = user.Identity?.Name;
         if (userId is null) return TypedResults.Unauthorized();
@@ -57,8 +57,9 @@ public static class JournalEndpoints
 
         var lat = latitude.SafeFloat();
         var lon = longitude.SafeFloat();
+        var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
 
-        var id = await process.Ingest(userId, stream, lat, lon, sender, client, ct);
+        var id = await process.Ingest(userId, stream, lat, lon, ipAddress, sender, client, ct);
 
         return TypedResults.Ok(new IntResultModel { Id = id });
     }
