@@ -1,8 +1,10 @@
 ﻿using Moq;
 using oliejournal.data.Entities;
+using oliejournal.lib.Exceptions;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services.Models;
 using System.Diagnostics;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
@@ -277,13 +279,16 @@ public class JournalProcessTests
     public async Task Ingest_ReturnsId_Success()
     {
         // Arrange
+        const string userId = "abc";
         var (unit, ingest, _, _, _) = CreateUnit();
-        ingest.Setup(s => s.CreateJournalEntry(string.Empty, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(),
+        ingest.Setup(s => s.GetJournalEntryList(userId, CancellationToken.None))
+            .ReturnsAsync([]);
+        ingest.Setup(s => s.CreateJournalEntry(userId, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(),
             It.IsAny<float?>(), It.IsAny<float?>(), It.IsAny<string?>(), It.IsAny<OlieWavInfo>(), CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
 
         // Act
-        var result = await unit.Ingest(string.Empty, null!, null, null, null, null!, null!, CancellationToken.None);
+        var result = await unit.Ingest(userId, null!, null, null, null, null!, null!, CancellationToken.None);
 
         // Assert
         Assert.That(result, Is.EqualTo(123));
@@ -296,6 +301,8 @@ public class JournalProcessTests
         const string userId = "abc";
         const string hash = "dillon";
         var (unit, ingest, _, _, _) = CreateUnit();
+        ingest.Setup(s => s.GetJournalEntryList(userId, CancellationToken.None))
+            .ReturnsAsync([]);
         ingest.Setup(s => s.CreateHash(It.IsAny<byte[]>())).Returns(hash);
         ingest.Setup(s => s.GetDuplicateEntry(userId, hash, CancellationToken.None))
             .ReturnsAsync(new JournalEntryEntity { Id = 123 });
@@ -305,6 +312,30 @@ public class JournalProcessTests
 
         // Assert
         Assert.That(result, Is.EqualTo(123));
+    }
+
+    [Test]
+    public async Task Ingest_ThrowsRateLimitException_WhenDailyLimitExceeded()
+    {
+        // Arrange
+        const string userId = "test-user";
+        var (unit, ingest, _, _, _) = CreateUnit();
+        
+        // Create 60 entries from the last day
+        var recentEntries = Enumerable.Range(0, 60)
+            .Select(i => new JournalEntryEntity 
+            { 
+                UserId = userId, 
+                Created = DateTime.UtcNow.AddMinutes(-i) 
+            })
+            .ToList();
+        
+        ingest.Setup(s => s.GetJournalEntryList(userId, CancellationToken.None))
+            .ReturnsAsync(recentEntries);
+
+        // Act & Assert
+        Assert.ThrowsAsync<RateLimitExceededException>(async () => 
+            await unit.Ingest(userId, Stream.Null, null, null, null, null!, null!, CancellationToken.None));
     }
 
     #endregion

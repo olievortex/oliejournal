@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using oliejournal.lib.Enums;
+using oliejournal.lib.Exceptions;
 using oliejournal.lib.Models;
 using System.Diagnostics;
 
@@ -14,6 +15,7 @@ public class JournalProcess(
 {
     const int GoogleApiLimit = 5;
     const int OpenAiLimit = 5;
+    const int DailyIngestLimit = 60;
 
     public async Task Voiceover(int journalEntryId, CancellationToken ct)
     {
@@ -83,6 +85,16 @@ public class JournalProcess(
 
     public async Task<int> Ingest(string userId, Stream audio, float? latitude, float? longitude, string? ipAddress, ServiceBusSender sender, BlobContainerClient client, CancellationToken ct)
     {
+        // Rate limit check
+        var allEntries = await ingestion.GetJournalEntryList(userId, ct);
+        var oneDayAgo = DateTime.UtcNow.AddDays(-1);
+        var recentEntryCount = allEntries.Count(e => e.Created >= oneDayAgo);
+        
+        if (recentEntryCount >= DailyIngestLimit)
+        {
+            throw new RateLimitExceededException($"User {userId} has exceeded the daily limit of {DailyIngestLimit} journal entries");
+        }
+
         var file = await ingestion.GetBytesFromStream(audio, ct);
         var hash = ingestion.CreateHash(file);
 
