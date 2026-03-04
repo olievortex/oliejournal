@@ -267,6 +267,10 @@ class Backend {
     return false;
   }
 
+  static bool isAudioUploadRateLimitedError(Object error) {
+    return error is _UploadHttpException && error.statusCode == 429;
+  }
+
   static Duration _retryDelayForAttempt(int attempt) {
     final seconds = attempt == 1
         ? 2
