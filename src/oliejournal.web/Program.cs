@@ -67,7 +67,7 @@ public static class Program
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
                 options.SaveTokens = true;
-                
+
                 // Request the API audience
                 options.Events = new OpenIdConnectEvents
                 {
@@ -77,7 +77,7 @@ public static class Program
                         return Task.CompletedTask;
                     }
                 };
-                
+
                 // Validate the audience in received tokens
                 options.TokenValidationParameters.ValidAudiences = ["https://oliejournal.olievortex.com"];
             });

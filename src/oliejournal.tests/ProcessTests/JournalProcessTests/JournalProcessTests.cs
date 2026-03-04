@@ -4,7 +4,6 @@ using oliejournal.lib.Exceptions;
 using oliejournal.lib.Processes.JournalProcess;
 using oliejournal.lib.Services.Models;
 using System.Diagnostics;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace oliejournal.tests.ProcessTests.JournalProcessTests;
 
@@ -320,21 +319,21 @@ public class JournalProcessTests
         // Arrange
         const string userId = "test-user";
         var (unit, ingest, _, _, _) = CreateUnit();
-        
+
         // Create 60 entries from the last day
         var recentEntries = Enumerable.Range(0, 60)
-            .Select(i => new JournalEntryEntity 
-            { 
-                UserId = userId, 
-                Created = DateTime.UtcNow.AddMinutes(-i) 
+            .Select(i => new JournalEntryEntity
+            {
+                UserId = userId,
+                Created = DateTime.UtcNow.AddMinutes(-i)
             })
             .ToList();
-        
+
         ingest.Setup(s => s.GetJournalEntryList(userId, CancellationToken.None))
             .ReturnsAsync(recentEntries);
 
         // Act & Assert
-        Assert.ThrowsAsync<RateLimitExceededException>(async () => 
+        Assert.ThrowsAsync<RateLimitExceededException>(async () =>
             await unit.Ingest(userId, Stream.Null, null, null, null, null!, null!, CancellationToken.None));
     }
 

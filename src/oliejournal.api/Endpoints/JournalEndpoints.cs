@@ -34,10 +34,10 @@ public static class JournalEndpoints
     }
 
     public static async Task<Results<Ok<PagedResultModel<JournalEntryListModel>>, UnauthorizedHttpResult>> GetEntryList(
-        ClaimsPrincipal user, 
-        IJournalProcess process, 
-        [FromQuery] int page = 1, 
-        [FromQuery] int pageSize = 10, 
+        ClaimsPrincipal user,
+        IJournalProcess process,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
         CancellationToken ct = default)
     {
         var userId = user.Identity?.Name;

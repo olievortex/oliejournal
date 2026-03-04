@@ -58,7 +58,7 @@ public class JournalProcess(
         var allEntries = await ingestion.GetJournalEntryList(userId, ct);
         var totalItems = allEntries.Count;
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-        
+
         var pagedEntries = allEntries
             .OrderByDescending(e => e.Created)
             .Skip((page - 1) * pageSize)
@@ -89,7 +89,7 @@ public class JournalProcess(
         var allEntries = await ingestion.GetJournalEntryList(userId, ct);
         var oneDayAgo = DateTime.UtcNow.AddDays(-1);
         var recentEntryCount = allEntries.Count(e => e.Created >= oneDayAgo);
-        
+
         if (recentEntryCount >= DailyIngestLimit)
         {
             throw new RateLimitExceededException($"User {userId} has exceeded the daily limit of {DailyIngestLimit} journal entries");
