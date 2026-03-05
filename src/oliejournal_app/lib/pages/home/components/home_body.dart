@@ -6,9 +6,13 @@ import 'package:oliejournal_app/pages/forecast_page.dart';
 import 'package:oliejournal_app/pages/voice_recording_page.dart';
 import 'package:provider/provider.dart';
 import 'package:oliejournal_app/pages/journal_entries_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeBody extends StatelessWidget {
   const HomeBody({super.key});
+
+  static final Uri _feedbackFormUri =
+      Uri.parse('https://forms.gle/44Pm27jm25Y7C38FA');
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +20,39 @@ class HomeBody extends StatelessWidget {
       builder: (context, olieModel, child) {
         return olieModel.isLoggedIn
             ? _loggedInContent(context, olieModel)
-            : _initialContent();
+            : _initialContent(context);
       },
     );
   }
 
-  Widget _initialContent() {
+  Future<void> _openFeedbackForm(BuildContext context) async {
+    final didLaunch = await launchUrl(
+      _feedbackFormUri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!didLaunch && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open feedback form.')),
+      );
+    }
+  }
+
+  Widget _feedbackButton(BuildContext context) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+      ),
+      icon: const Icon(Icons.feedback_outlined, size: 24),
+      label: const Text('Send feedback'),
+      onPressed: () => _openFeedbackForm(context),
+    );
+  }
+
+  Widget _initialContent(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(24),
@@ -62,6 +93,8 @@ class HomeBody extends StatelessWidget {
               color: Colors.white,
             ),
           ),
+          const SizedBox(height: 20),
+          _feedbackButton(context),
         ],
       ),
     );
@@ -162,6 +195,8 @@ class HomeBody extends StatelessWidget {
             );
           },
         ),
+        verticalSpaceRegular,
+        _feedbackButton(context),
       ],
     );
   }
