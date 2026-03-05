@@ -89,7 +89,6 @@ public class JournalProcess(
         var allEntries = await ingestion.GetJournalEntryList(userId, ct);
         var oneDayAgo = DateTime.UtcNow.AddDays(-1);
         var recentEntryCount = allEntries.Count(e => e.Created >= oneDayAgo);
-        recentEntryCount = 60; // For testing rate limit exception
 
         if (recentEntryCount >= DailyIngestLimit)
         {

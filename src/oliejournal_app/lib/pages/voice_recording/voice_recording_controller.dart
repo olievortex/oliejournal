@@ -146,7 +146,7 @@ class VoiceRecordingController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       final message = Backend.isAudioUploadRateLimitedError(e)
-          ? 'Upload temporarily rate limited. Please wait a moment and then record a new entry to try again.'
+          ? 'Upload temporarily rate limited. Please wait an hour and then record a new entry to try again.'
           : 'Unfortunately, your recording could not be saved. Please record a new entry to try again.\n\n$e';
       _isUploading = false;
       _recordingFinished = message;
