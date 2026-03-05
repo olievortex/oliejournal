@@ -43,6 +43,7 @@ public static class Program
 
         app.Run();
     }
+
     private static void AddReverseProxySupport(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -67,7 +68,7 @@ public static class Program
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
                 options.SaveTokens = true;
-                
+
                 // Request the API audience
                 options.Events = new OpenIdConnectEvents
                 {
@@ -77,7 +78,7 @@ public static class Program
                         return Task.CompletedTask;
                     }
                 };
-                
+
                 // Validate the audience in received tokens
                 options.TokenValidationParameters.ValidAudiences = ["https://oliejournal.olievortex.com"];
             });

@@ -21,7 +21,7 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         return string.Concat(hashBytes.Select(b => b.ToString("x2")));
     }
 
-    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, float? latitude, float? longitude, OlieWavInfo olieWavInfo, CancellationToken ct)
+    public async Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, float? latitude, float? longitude, string? ipAddress, OlieWavInfo olieWavInfo, CancellationToken ct)
     {
         var entity = new JournalEntryEntity
         {
@@ -36,6 +36,7 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
             AudioHash = hash,
             Latitude = latitude,
             Longitude = longitude,
+            IpAddress = ipAddress,
         };
 
         await repo.JournalEntryCreate(entity, ct);
@@ -69,7 +70,7 @@ public class JournalEntryIngestionUnit(IOlieWavReader owr, IOlieService os, IMyR
         if (info.Channels > 1) throw new ApplicationException($"WAV file has {info.Channels} channels");
         if (info.SampleRate < 8000 || info.SampleRate > 48000) throw new ApplicationException($"WAV file has {info.SampleRate} sample rate");
         if (info.BitsPerSample != 16) throw new ApplicationException($"WAV file has {info.BitsPerSample} bits per sample");
-        if (info.Duration > TimeSpan.FromSeconds(55)) throw new ApplicationException($"WAV file duration is {info.Duration.TotalSeconds}");
+        if (info.Duration > TimeSpan.FromSeconds(57)) throw new ApplicationException($"WAV file duration is {info.Duration.TotalSeconds}");
 
         return info;
     }

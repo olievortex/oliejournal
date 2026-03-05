@@ -8,16 +8,16 @@ public static class OlieWebCommon
     public static async Task ApiDelete(IHttpClientFactory httpClientFactory, HttpContext httpContext, string url, CancellationToken ct)
     {
         using var httpClient = Program.GetOlieBlue(httpClientFactory);
-        
+
         // Get the access token from the authentication context
         var accessToken = await httpContext.GetTokenAsync("access_token");
-        
+
         if (!string.IsNullOrEmpty(accessToken))
         {
-            httpClient.DefaultRequestHeaders.Authorization = 
+            httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
         }
-        
+
         using var httpResponseMessage = await httpClient.DeleteAsync(url, ct);
 
         httpResponseMessage.EnsureSuccessStatusCode();

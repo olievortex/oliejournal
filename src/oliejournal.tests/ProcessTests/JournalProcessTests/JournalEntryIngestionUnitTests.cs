@@ -50,6 +50,7 @@ public class JournalEntryIngestionUnitTests
         // Arrange
         const float lat = 123;
         const float lon = 234;
+        const string ip = "192.168.0.15";
         var (unit, _, _, repo) = CreateUnit();
         repo.Setup(s => s.JournalEntryCreate(It.IsAny<JournalEntryEntity>(), CancellationToken.None))
             .Callback<JournalEntryEntity, CancellationToken>((e, _) => { e.Id = 123; });
@@ -63,12 +64,13 @@ public class JournalEntryIngestionUnitTests
         };
 
         // Act
-        var entity = await unit.CreateJournalEntry("user-1", "path.wav", 500, "A5DF", lat, lon, info, CancellationToken.None);
+        var entity = await unit.CreateJournalEntry("user-1", "path.wav", 500, "A5DF", lat, lon, ip, info, CancellationToken.None);
 
         // Assert
         using (Assert.EnterMultipleScope())
         {
             Assert.That(entity.Id, Is.EqualTo(123));
+            Assert.That(entity.IpAddress, Is.EqualTo(ip));
             Assert.That(entity.UserId, Is.EqualTo("user-1"));
             Assert.That(entity.AudioBitsPerSample, Is.EqualTo(16));
             Assert.That(entity.AudioChannels, Is.EqualTo(1));
@@ -230,7 +232,7 @@ public class JournalEntryIngestionUnitTests
         // Arrange
         var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
-            .Returns(new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(56) });
+            .Returns(new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(58) });
         var file = new byte[100];
 
         // Act

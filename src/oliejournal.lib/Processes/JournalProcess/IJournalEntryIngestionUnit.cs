@@ -9,7 +9,7 @@ namespace oliejournal.lib.Processes.JournalProcess;
 public interface IJournalEntryIngestionUnit
 {
     string CreateHash(byte[] bytes);
-    Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, float? latitude, float? longitude, OlieWavInfo olieWavInfo, CancellationToken ct);
+    Task<JournalEntryEntity> CreateJournalEntry(string userId, string path, int length, string hash, float? latitude, float? longitude, string? ipAddress, OlieWavInfo olieWavInfo, CancellationToken ct);
     Task CreateJournalMessage(int id, AudioProcessStepEnum step, ServiceBusSender sender, CancellationToken ct);
     Task DeleteVoice(JournalEntryEntity entry, BlobContainerClient client, CancellationToken ct);
     OlieWavInfo EnsureAudioValidates(byte[] file);

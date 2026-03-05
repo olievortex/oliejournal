@@ -183,7 +183,7 @@ class Backend {
     double? latitude,
     double? longitude,
     void Function(AudioUploadRetryInfo retryInfo)? onRetryScheduled,
-    int maxAttempts = 4,
+    int maxAttempts = 10,
   }) async {
     if (token == null) {
       throw Exception('No authentication token available');
@@ -259,12 +259,14 @@ class Backend {
     }
 
     if (error is _UploadHttpException) {
-      return error.statusCode == 408 ||
-          error.statusCode == 429 ||
-          error.statusCode >= 500;
+      return error.statusCode == 408 || error.statusCode >= 500;
     }
 
     return false;
+  }
+
+  static bool isAudioUploadRateLimitedError(Object error) {
+    return error is _UploadHttpException && error.statusCode == 429;
   }
 
   static Duration _retryDelayForAttempt(int attempt) {

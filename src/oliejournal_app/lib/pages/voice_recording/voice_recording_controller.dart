@@ -126,10 +126,17 @@ class VoiceRecordingController extends ChangeNotifier {
         latitude: position?.latitude,
         longitude: position?.longitude,
         onRetryScheduled: (retryInfo) {
-          _recordingFinished =
-              'Weak reception detected. Waiting for cell reception '
-              'and retrying upload (${retryInfo.nextAttempt}/${retryInfo.maxAttempts}) '
-              'in ${retryInfo.retryDelay.inSeconds}s.';
+          if (Backend.isAudioUploadRateLimitedError(retryInfo.error)) {
+            _recordingFinished =
+                'You are uploading too quickly right now. '
+                'Retrying upload (${retryInfo.nextAttempt}/${retryInfo.maxAttempts}) '
+                'in ${retryInfo.retryDelay.inSeconds}s.';
+          } else {
+            _recordingFinished =
+                'Weak reception detected. Waiting for cell reception '
+                'and retrying upload (${retryInfo.nextAttempt}/${retryInfo.maxAttempts}) '
+                'in ${retryInfo.retryDelay.inSeconds}s.';
+          }
           notifyListeners();
         },
       );
@@ -138,8 +145,9 @@ class VoiceRecordingController extends ChangeNotifier {
       _recordingFinished = 'Recording uploaded!';
       notifyListeners();
     } catch (e) {
-      final message =
-          'Unfortunately, your recording could not be saved. Please record a new entry to try again.\n\n$e';
+      final message = Backend.isAudioUploadRateLimitedError(e)
+          ? 'Upload temporarily rate limited. Please wait an hour and then record a new entry to try again.'
+          : 'Unfortunately, your recording could not be saved. Please record a new entry to try again.\n\n$e';
       _isUploading = false;
       _recordingFinished = message;
       notifyListeners();
