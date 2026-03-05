@@ -32,6 +32,9 @@ public static class Program
         builder.AddReverseProxySupport();
 
         var app = builder.Build();
+        
+        // Add this BEFORE UseHttpsRedirection
+        app.UseForwardedHeaders(); 
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
