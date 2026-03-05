@@ -43,6 +43,7 @@ public static class Program
 
         app.Run();
     }
+
     private static void AddReverseProxySupport(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<ForwardedHeadersOptions>(options =>

@@ -4,6 +4,7 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using oliejournal.api.Endpoints;
 using oliejournal.api.Models;
@@ -12,6 +13,7 @@ using oliejournal.lib;
 using oliejournal.lib.Services;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
+using System.Net;
 
 namespace oliejournal.api;
 
@@ -27,6 +29,7 @@ public static class Program
         builder.Services.AddHttpClient<IOlieKinde, OlieKinde>();
         builder.AddOlieEntityFramework(config);
         builder.AddOlieTelemetry();
+        builder.AddReverseProxySupport();
 
         var app = builder.Build();
         app.UseHttpsRedirection();
@@ -46,11 +49,13 @@ public static class Program
             _subscription = diagnosticListener.Subscribe(this!, IsEnabled);
             _callback = callback;
         }
+
         private static readonly Predicate<string> IsEnabled = (provider) => provider switch
         {
             "Microsoft.AspNetCore.Server.Kestrel.BadRequest" => true,
             _ => false
         };
+
         public void OnNext(KeyValuePair<string, object> pair)
         {
             if (pair.Value is IFeatureCollection featureCollection)
@@ -63,9 +68,21 @@ public static class Program
                 }
             }
         }
+
         public void OnError(Exception error) { }
         public void OnCompleted() { }
         public virtual void Dispose() => _subscription.Dispose();
+    }
+
+    private static void AddReverseProxySupport(this WebApplicationBuilder builder)
+    {
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+            options.KnownProxies.Add(IPAddress.Parse("127.0.0.1"));
+            options.KnownProxies.Add(IPAddress.Parse("::1"));
+        });
     }
 
     private static void AddOlieTelemetry(this WebApplicationBuilder builder)
