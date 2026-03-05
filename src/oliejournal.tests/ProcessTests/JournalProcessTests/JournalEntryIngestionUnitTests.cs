@@ -232,7 +232,7 @@ public class JournalEntryIngestionUnitTests
         // Arrange
         var (unit, owr, _, _) = CreateUnit();
         owr.Setup(s => s.GetOlieWavInfo(It.IsAny<byte[]>()))
-            .Returns(new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(56) });
+            .Returns(new OlieWavInfo { Channels = 1, SampleRate = 16000, BitsPerSample = 16, Duration = TimeSpan.FromSeconds(58) });
         var file = new byte[100];
 
         // Act
